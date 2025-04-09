@@ -72,7 +72,8 @@ flutter:
     - assets/img/extra-rice.jpg
     - assets/img/fries.jpg
     - assets/img/gravy.jpg
-    - assets/img/banner.png
+    - assets/img/banner-dark.png
+    - assets/img/banner-light.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

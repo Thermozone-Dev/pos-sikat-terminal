@@ -61,7 +61,7 @@ class Terminal extends StatelessWidget {
             DrawerHeader(
               decoration: BoxDecoration(color: Colors.brown[500]),
               child: Center(
-                child: Image(image: AssetImage('assets/img/banner.png')),
+                child: Image(image: AssetImage('assets/img/banner-light.png')),
               ),
             ),
             ListTile(
