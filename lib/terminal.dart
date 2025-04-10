@@ -1,12 +1,30 @@
 import 'package:flutter/material.dart';
 
-class Terminal extends StatelessWidget {
+class Terminal extends StatefulWidget {
   const Terminal({super.key});
+
+  @override
+  State<Terminal> createState() => _TerminalState();
+}
+
+class _TerminalState extends State<Terminal> {
+  int quantity = 0;
+
+  void increaseQuantity() {
+    setState(() {
+      quantity = quantity + 1;
+    });
+  }
+
+  void decreaseQuantity() {
+    setState(() {
+      quantity = quantity - 1;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
-
     // Determine the number of columns based on the screen size
     int crossAxisCount;
     if (screenWidth < 640) {
@@ -61,7 +79,7 @@ class Terminal extends StatelessWidget {
             DrawerHeader(
               decoration: BoxDecoration(color: Colors.brown[500]),
               child: Center(
-                child: Image(image: AssetImage('assets/img/banner-light.png')),
+                child: Image(image: AssetImage('assets/img/banner-dark.png')),
               ),
             ),
             ListTile(
@@ -960,12 +978,10 @@ class Terminal extends StatelessWidget {
                                     children: [
                                       IconButton(
                                         icon: Icon(Icons.remove_circle),
-                                        onPressed: () {
-                                          print("Decrease Quantity");
-                                        },
+                                        onPressed: decreaseQuantity,
                                       ),
                                       Text(
-                                        '1',
+                                        '$quantity',
                                         style: TextStyle(
                                           fontSize: 18,
                                           fontWeight: FontWeight.w800,
@@ -974,9 +990,7 @@ class Terminal extends StatelessWidget {
                                       ),
                                       IconButton(
                                         icon: Icon(Icons.add_circle),
-                                        onPressed: () {
-                                          print("Increase Quantity");
-                                        },
+                                        onPressed: increaseQuantity,
                                       ),
                                       IconButton(
                                         icon: Icon(Icons.discount),
