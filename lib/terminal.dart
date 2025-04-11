@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'print_service.dart';
 
 class Terminal extends StatefulWidget {
   const Terminal({super.key});
@@ -1245,7 +1246,49 @@ class _TerminalState extends State<Terminal> {
 
                                   // Second tab: Still showing discounts text
                                   Center(child: Text('Content for Discounts')),
-                                  Center(child: Text('Content for Actions')),
+                                  ElevatedButton(
+                                    onPressed: () async {
+                                      final printerService = PrinterService();
+
+                                      // Sample receipt data
+                                      final items = [
+                                        {
+                                          'name': 'Apple',
+                                          'quantity': '2',
+                                          'price': '\$1.00',
+                                        },
+                                        {
+                                          'name': 'Banana',
+                                          'quantity': '5',
+                                          'price': '\$2.50',
+                                        },
+                                      ];
+
+                                      await printerService.printReceipt(
+                                        storeName:
+                                            'Thermozone Philippines Corp.',
+                                        storeAddress:
+                                            '2280 Marconi St., Brgy. San Isidro, Makati City',
+                                        storePhone: 'TIN: 223 661 818 0000',
+                                        items: items,
+                                        total: 3.50,
+                                      );
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.grey[400],
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      padding: EdgeInsets.zero,
+                                    ),
+                                    child: Text(
+                                      'Test Print',
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(color: Colors.black),
+                                    ),
+                                  ),
+
+                                  SizedBox(width: 10),
                                 ],
                               ),
                             ),
