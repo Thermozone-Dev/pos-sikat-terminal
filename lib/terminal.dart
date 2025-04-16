@@ -3,6 +3,8 @@ import 'print_service.dart';
 import 'package:bir_pos/login.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'models/product.dart';
+import 'dart:convert';
 
 class Terminal extends StatefulWidget {
   const Terminal({Key? key, required this.token}) : super(key: key);
@@ -27,7 +29,9 @@ class _TerminalState extends State<Terminal> {
     });
   }
 
-  void test() async {
+  // 🧠 SIGN OUT FUNCTION: Handles API call
+
+  void signOut() async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
 
@@ -64,6 +68,26 @@ class _TerminalState extends State<Terminal> {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text('Logout failed')));
+    }
+  }
+
+  // GET PRODUCTS FUNCTION API
+
+  Future<List<Product>> getProducts() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+
+    final url = Uri.parse('http://bir-pos.test/api/v1/itemProducts');
+    final response = await http.get(
+      url,
+      headers: {'Authorization': 'Bearer $token', 'Accept': 'application/json'},
+    );
+
+    if (response.statusCode == 200) {
+      final List<dynamic> data = jsonDecode(response.body);
+      return data.map((json) => Product.fromJson(json)).toList();
+    } else {
+      throw Exception('Failed to load products');
     }
   }
 
@@ -155,7 +179,7 @@ class _TerminalState extends State<Terminal> {
                 'Sign Out',
                 style: TextStyle(fontWeight: FontWeight.w600),
               ),
-              onTap: test,
+              onTap: signOut,
             ),
           ],
         ),
@@ -302,55 +326,89 @@ class _TerminalState extends State<Terminal> {
                     // GridView for Products
                     Container(
                       margin: const EdgeInsets.fromLTRB(20, 0, 0, 20),
-                      child: GridView(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: crossAxisCount,
-                          crossAxisSpacing: 10,
-                          mainAxisSpacing: 10,
-                          childAspectRatio: 0.75,
-                        ),
-                        children: [
-                          ElevatedButton(
-                            onPressed: () {
-                              print("Product pressed!");
+                      child: FutureBuilder<List<Product>>(
+                        future: getProducts(),
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return const Center(
+                              child: CircularProgressIndicator(),
+                            );
+                          } else if (snapshot.hasError) {
+                            return Center(
+                              child: Text('Error: ${snapshot.error}'),
+                            );
+                          } else if (!snapshot.hasData ||
+                              snapshot.data!.isEmpty) {
+                            return const Center(
+                              child: Text('No products found'),
+                            );
+                          }
+
+                          final products = snapshot.data!;
+
+                          return GridView.builder(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount:
+                                  crossAxisCount, // Make sure this is defined above
+                              crossAxisSpacing: 10,
+                              mainAxisSpacing: 10,
+                              childAspectRatio: 0.75,
+                            ),
+                            itemCount: products.length,
+                            itemBuilder: (context, index) {
+                              final product = products[index];
+
+                              return ElevatedButton(
+                                onPressed: () {
+                                  print("Product pressed: ${product.name}");
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.white,
+                                  padding: const EdgeInsets.all(20),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(5),
+                                  ),
+                                  elevation: 3,
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Expanded(
+                                      child: Image.network(
+                                        product.image,
+                                        fit: BoxFit.cover,
+                                        width: double.infinity,
+                                        errorBuilder:
+                                            (context, error, stackTrace) =>
+                                                const Icon(Icons.broken_image),
+                                      ),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      product.name,
+                                      style: const TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w800,
+                                        color: Colors.black87,
+                                      ),
+                                    ),
+                                    Text(
+                                      '₱${product.price.toStringAsFixed(2)}',
+                                      style: const TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w700,
+                                        color: Color(0xFF0D7C66),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              );
                             },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.white,
-                              padding: const EdgeInsets.all(20),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(5),
-                              ),
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Image.asset(
-                                  'assets/img/DM1.jpg',
-                                  fit: BoxFit.cover,
-                                ),
-                                const SizedBox(height: 8),
-                                const Text(
-                                  'DM1',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w800,
-                                    color: Colors.black87,
-                                  ),
-                                ),
-                                const Text(
-                                  '₱150',
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w700,
-                                    color: Color(0xFF0D7C66),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
+                          );
+                        },
                       ),
                     ),
                   ],
