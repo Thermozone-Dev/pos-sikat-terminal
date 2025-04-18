@@ -1,3 +1,4 @@
+import 'package:bir_pos/models/discount.dart';
 import 'package:flutter/material.dart';
 import 'print_service.dart';
 import 'package:bir_pos/login.dart';
@@ -109,6 +110,37 @@ class _TerminalState extends State<Terminal> {
       return data.map((json) => Package.fromJson(json)).toList();
     } else {
       throw Exception('Failed to load packages');
+    }
+  }
+
+  // GET DISCOUNTS FUNCTION API
+
+  Future<List<Discount>> getDiscounts() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+
+    if (token == null) {
+      throw Exception('Token not found');
+    }
+
+    final url = Uri.parse('http://bir-pos.test/api/v1/discounts');
+    final response = await http
+        .get(
+          url,
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Accept': 'application/json',
+          },
+        )
+        .timeout(Duration(seconds: 10));
+
+    if (response.statusCode == 200) {
+      final jsonResponse = jsonDecode(response.body);
+      final List<dynamic> data =
+          jsonResponse is List ? jsonResponse : jsonResponse['data'];
+      return data.map((json) => Discount.fromJson(json)).toList();
+    } else {
+      throw Exception('Failed to load discounts');
     }
   }
 
@@ -827,7 +859,94 @@ class _TerminalState extends State<Terminal> {
                                   ),
 
                                   // Second tab: Still showing discounts text
-                                  Center(child: Text('Content for Discounts')),
+                                  Container(
+                                    margin: const EdgeInsets.fromLTRB(
+                                      10,
+                                      10,
+                                      10,
+                                      10,
+                                    ),
+                                    height:
+                                        120, // Optional: Controls vertical size of horizontal GridView
+                                    child: FutureBuilder<List<Discount>>(
+                                      future: getDiscounts(),
+                                      builder: (context, snapshot) {
+                                        if (snapshot.connectionState ==
+                                            ConnectionState.waiting) {
+                                          return const Center(
+                                            child: CircularProgressIndicator(),
+                                          );
+                                        } else if (snapshot.hasError) {
+                                          return Center(
+                                            child: Text(
+                                              'Error: ${snapshot.error}',
+                                            ),
+                                          );
+                                        } else if (!snapshot.hasData ||
+                                            snapshot.data!.isEmpty) {
+                                          return const Center(
+                                            child: Text('No discounts found'),
+                                          );
+                                        }
+
+                                        final discounts = snapshot.data!;
+
+                                        return GridView.builder(
+                                          scrollDirection: Axis.horizontal,
+                                          gridDelegate:
+                                              const SliverGridDelegateWithFixedCrossAxisCount(
+                                                crossAxisCount: 1,
+                                                crossAxisSpacing: 10,
+                                                mainAxisSpacing: 10,
+                                                childAspectRatio: 1.4,
+                                              ),
+                                          itemCount: discounts.length,
+                                          itemBuilder: (context, index) {
+                                            final discount = discounts[index];
+
+                                            return AspectRatio(
+                                              aspectRatio: 1,
+                                              child: ElevatedButton(
+                                                onPressed: () {
+                                                  print(
+                                                    'Discount: ${discount.name}',
+                                                  );
+                                                },
+                                                style: ElevatedButton.styleFrom(
+                                                  backgroundColor:
+                                                      Colors.grey[300],
+                                                  iconColor: Colors.black,
+                                                  shape: RoundedRectangleBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                          12,
+                                                        ),
+                                                  ),
+                                                  padding: EdgeInsets.zero,
+                                                ),
+                                                child: Column(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.center,
+                                                  children: [
+                                                    Text(
+                                                      '${discount.name}',
+                                                      style: const TextStyle(
+                                                        fontSize: 9,
+                                                        color: Colors.black,
+                                                      ),
+                                                      textAlign:
+                                                          TextAlign.center,
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            );
+                                          },
+                                        );
+                                      },
+                                    ),
+                                  ),
+
                                   ElevatedButton(
                                     onPressed: () async {
                                       final printerService = PrinterService();
