@@ -1,12 +1,15 @@
 import 'package:bir_pos/models/discount.dart';
 import 'package:flutter/material.dart';
 import 'print_service.dart';
-import 'package:bir_pos/login.dart';
-import 'package:http/http.dart' as http;
-import 'package:shared_preferences/shared_preferences.dart';
 import 'models/product.dart';
 import 'models/package.dart';
-import 'dart:convert';
+import 'package:bir_pos/services/auth_service.dart';
+import 'package:bir_pos/services/package_service.dart';
+import 'package:bir_pos/services/product_service.dart';
+import 'package:bir_pos/services/discount_service.dart';
+import 'package:bir_pos/widgets/section_header.dart';
+import 'package:bir_pos/widgets/package_card.dart';
+import 'package:bir_pos/widgets/product_card.dart';
 
 class Terminal extends StatefulWidget {
   const Terminal({Key? key, required this.token}) : super(key: key);
@@ -29,119 +32,6 @@ class _TerminalState extends State<Terminal> {
     setState(() {
       quantity = quantity - 1;
     });
-  }
-
-  // 🧠 SIGN OUT FUNCTION: Handles API call
-
-  void signOut() async {
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('token');
-
-    if (token == null) {
-      print('No token found');
-      return;
-    }
-
-    try {
-      final response = await http.get(
-        Uri.parse('http://bir-pos.test/api/auth/logout?device_name=test'),
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Accept': 'application/json',
-        },
-      );
-
-      if (response.statusCode == 204) {
-        print('Logout successful');
-      } else {
-        print('Logout failed: ${response.body}');
-      }
-
-      await prefs.remove('token');
-
-      // Navigate to login screen
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(builder: (context) => Login()),
-        (route) => false,
-      );
-    } catch (e) {
-      print('Logout error: $e');
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Logout failed')));
-    }
-  }
-
-  // GET PRODUCTS FUNCTION API
-
-  Future<List<Product>> getProducts() async {
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('token');
-
-    final url = Uri.parse('http://bir-pos.test/api/v1/itemProducts');
-    final response = await http.get(
-      url,
-      headers: {'Authorization': 'Bearer $token', 'Accept': 'application/json'},
-    );
-
-    if (response.statusCode == 200) {
-      final List<dynamic> data = jsonDecode(response.body);
-      return data.map((json) => Product.fromJson(json)).toList();
-    } else {
-      throw Exception('Failed to load products');
-    }
-  }
-
-  // GET PACKAGES FUNCTION API
-
-  Future<List<Package>> getPackages() async {
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('token');
-
-    final url = Uri.parse('http://bir-pos.test/api/v1/itemPackages');
-    final response = await http.get(
-      url,
-      headers: {'Authorization': 'Bearer $token', 'Accept': 'application/json'},
-    );
-
-    if (response.statusCode == 200) {
-      final List<dynamic> data = jsonDecode(response.body);
-      return data.map((json) => Package.fromJson(json)).toList();
-    } else {
-      throw Exception('Failed to load packages');
-    }
-  }
-
-  // GET DISCOUNTS FUNCTION API
-
-  Future<List<Discount>> getDiscounts() async {
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('token');
-
-    if (token == null) {
-      throw Exception('Token not found');
-    }
-
-    final url = Uri.parse('http://bir-pos.test/api/v1/discounts');
-    final response = await http
-        .get(
-          url,
-          headers: {
-            'Authorization': 'Bearer $token',
-            'Accept': 'application/json',
-          },
-        )
-        .timeout(Duration(seconds: 10));
-
-    if (response.statusCode == 200) {
-      final jsonResponse = jsonDecode(response.body);
-      final List<dynamic> data =
-          jsonResponse is List ? jsonResponse : jsonResponse['data'];
-      return data.map((json) => Discount.fromJson(json)).toList();
-    } else {
-      throw Exception('Failed to load discounts');
-    }
   }
 
   @override
@@ -232,7 +122,9 @@ class _TerminalState extends State<Terminal> {
                 'Sign Out',
                 style: TextStyle(fontWeight: FontWeight.w600),
               ),
-              onTap: signOut,
+              onTap: () {
+                AuthService.signOut(context);
+              },
             ),
           ],
         ),
@@ -283,30 +175,14 @@ class _TerminalState extends State<Terminal> {
                     ),
 
                     // Packages Label
-                    Container(
-                      alignment: Alignment.centerLeft,
-                      margin: const EdgeInsets.fromLTRB(20, 0, 0, 10),
-                      padding: const EdgeInsets.all(15),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(5),
-                      ),
-                      child: const Text(
-                        'Packages',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 14,
-                          color: Colors.black87,
-                        ),
-                      ),
-                    ),
+                    SectionHeader(title: 'Packages'),
 
                     // Horizontal GridView for Packages
                     Container(
                       margin: const EdgeInsets.fromLTRB(20, 0, 0, 20),
                       height: 330,
                       child: FutureBuilder<List<Package>>(
-                        future: getPackages(),
+                        future: PackageService.getPackages(),
                         builder: (context, snapshot) {
                           if (snapshot.connectionState ==
                               ConnectionState.waiting) {
@@ -338,50 +214,12 @@ class _TerminalState extends State<Terminal> {
                             itemBuilder: (context, index) {
                               final package = packages[index];
 
-                              return ElevatedButton(
+                              // Package Card
+                              return PackageCard(
+                                package: package,
                                 onPressed: () {
                                   print("Product pressed: ${package.name}");
                                 },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.white,
-                                  padding: const EdgeInsets.all(20),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(5),
-                                  ),
-                                  elevation: 3,
-                                ),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Expanded(
-                                      child: Image.network(
-                                        package.image,
-                                        fit: BoxFit.cover,
-                                        width: double.infinity,
-                                        errorBuilder:
-                                            (context, error, stackTrace) =>
-                                                const Icon(Icons.broken_image),
-                                      ),
-                                    ),
-                                    const SizedBox(height: 8),
-                                    Text(
-                                      package.name,
-                                      style: const TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w800,
-                                        color: Colors.black87,
-                                      ),
-                                    ),
-                                    Text(
-                                      '₱${package.price.toStringAsFixed(2)}',
-                                      style: const TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w700,
-                                        color: Color(0xFF0D7C66),
-                                      ),
-                                    ),
-                                  ],
-                                ),
                               );
                             },
                           );
@@ -390,29 +228,13 @@ class _TerminalState extends State<Terminal> {
                     ),
 
                     // Products Label
-                    Container(
-                      alignment: Alignment.centerLeft,
-                      margin: const EdgeInsets.fromLTRB(20, 0, 0, 10),
-                      padding: const EdgeInsets.all(15),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(5),
-                      ),
-                      child: const Text(
-                        'Products',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 14,
-                          color: Colors.black87,
-                        ),
-                      ),
-                    ),
+                    SectionHeader(title: 'Products'),
 
                     // GridView for Products
                     Container(
                       margin: const EdgeInsets.fromLTRB(20, 0, 0, 20),
                       child: FutureBuilder<List<Product>>(
-                        future: getProducts(),
+                        future: ProductService.getProducts(),
                         builder: (context, snapshot) {
                           if (snapshot.connectionState ==
                               ConnectionState.waiting) {
@@ -446,50 +268,12 @@ class _TerminalState extends State<Terminal> {
                             itemBuilder: (context, index) {
                               final product = products[index];
 
-                              return ElevatedButton(
+                              // Product Card
+                              return ProductCard(
+                                product: product,
                                 onPressed: () {
                                   print("Product pressed: ${product.name}");
                                 },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.white,
-                                  padding: const EdgeInsets.all(20),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(5),
-                                  ),
-                                  elevation: 3,
-                                ),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Expanded(
-                                      child: Image.network(
-                                        product.image,
-                                        fit: BoxFit.cover,
-                                        width: double.infinity,
-                                        errorBuilder:
-                                            (context, error, stackTrace) =>
-                                                const Icon(Icons.broken_image),
-                                      ),
-                                    ),
-                                    const SizedBox(height: 8),
-                                    Text(
-                                      product.name,
-                                      style: const TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w800,
-                                        color: Colors.black87,
-                                      ),
-                                    ),
-                                    Text(
-                                      '₱${product.price.toStringAsFixed(2)}',
-                                      style: const TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w700,
-                                        color: Color(0xFF0D7C66),
-                                      ),
-                                    ),
-                                  ],
-                                ),
                               );
                             },
                           );
@@ -869,7 +653,7 @@ class _TerminalState extends State<Terminal> {
                                     height:
                                         120, // Optional: Controls vertical size of horizontal GridView
                                     child: FutureBuilder<List<Discount>>(
-                                      future: getDiscounts(),
+                                      future: DiscountService.getDiscounts(),
                                       builder: (context, snapshot) {
                                         if (snapshot.connectionState ==
                                             ConnectionState.waiting) {
