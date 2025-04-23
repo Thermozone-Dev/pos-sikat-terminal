@@ -1,0 +1,53 @@
+import 'package:flutter/material.dart';
+import '../services/auth_service.dart';
+
+class MainDrawer extends StatelessWidget {
+  const MainDrawer({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Drawer(
+      child: ListView(
+        padding: EdgeInsets.zero,
+        children: [
+          DrawerHeader(
+            decoration: BoxDecoration(color: Colors.brown[500]),
+            child: Center(child: Image.asset('assets/img/banner-dark.png')),
+          ),
+          ListTile(
+            leading: const Icon(Icons.print, color: Colors.black),
+            title: const Text(
+              'X-Reading',
+              style: TextStyle(fontWeight: FontWeight.w600),
+            ),
+            onTap: () {
+              print('X - Reading Print');
+              Navigator.pop(context);
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.print, color: Colors.black),
+            title: const Text(
+              'Z-Reading',
+              style: TextStyle(fontWeight: FontWeight.w600),
+            ),
+            onTap: () {
+              print('Z - Reading Print');
+              Navigator.pop(context);
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.exit_to_app, color: Colors.black),
+            title: const Text(
+              'Sign Out',
+              style: TextStyle(fontWeight: FontWeight.w600),
+            ),
+            onTap: () {
+              AuthService.signOut(context);
+            },
+          ),
+        ],
+      ),
+    );
+  }
+}
