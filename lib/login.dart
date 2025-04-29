@@ -33,7 +33,7 @@ class _LoginFormState extends State<Login> {
       final deviceName = windowsDeviceInfo.computerName;
       final email = _emailController.text.trim();
       final password = _passwordController.text.trim();
-      final apiUri = dotenv.env['POS_API_URL'] ?? 'http://bir-pos.test';
+      final apiUri = dotenv.env['POS_API_URL'];
       final url = Uri.parse('$apiUri/api/auth/login');
 
       try {
