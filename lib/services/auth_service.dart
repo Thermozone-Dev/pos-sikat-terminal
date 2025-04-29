@@ -1,12 +1,18 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import '../login.dart'; // adjust import path to your actual Login screen
+import 'package:flutter_dotenv/flutter_dotenv.dart'; // For dev env variables
+import 'package:device_info_plus/device_info_plus.dart'; // For Device Info
 
 class AuthService {
   static Future<void> signOut(BuildContext context) async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
+    final deviceInfo = DeviceInfoPlugin();
+    final windowsDeviceInfo = await deviceInfo.windowsInfo;
 
     if (token == null) {
       print('No token found');
@@ -14,12 +20,23 @@ class AuthService {
     }
 
     try {
-      final response = await http.get(
-        Uri.parse('http://bir-pos.test/api/auth/logout?device_name=test'),
+      final deviceName = windowsDeviceInfo.computerName;
+      final apiSecret = dotenv.env['POS_API_SECRET'];
+      final apiUri = dotenv.env['POS_API_URL'];
+      final url = Uri.parse('$apiUri/api/auth/logout');
+
+      final response = await http.delete(
+        url,
         headers: {
-          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
           'Accept': 'application/json',
+          'Authorization': 'Bearer $token',
         },
+        body: jsonEncode({
+          'secret_key': apiSecret,
+          'device_name': deviceName,
+          // '': '',
+        }),
       );
 
       if (response.statusCode == 204) {
