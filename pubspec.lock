@@ -134,6 +134,14 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_dotenv:
+    dependency: "direct main"
+    description:
+      name: flutter_dotenv
+      sha256: b7c7be5cd9f6ef7a78429cabd2774d3c4af50e79cb2b7593e3d5d763ef95c61b
+      url: "https://pub.dev"
+    source: hosted
+    version: "5.2.1"
   flutter_lints:
     dependency: "direct dev"
     description:
@@ -180,10 +188,10 @@ packages:
     dependency: transitive
     description:
       name: html
-      sha256: "9475be233c437f0e3637af55e7702cbbe5c23a68bd56e8a5fa2d426297b7c6c8"
+      sha256: "6d1264f2dffa1b1101c25a91dff0dc2daee4c18e87cd8538729773c073dbf602"
       url: "https://pub.dev"
     source: hosted
-    version: "0.15.5+1"
+    version: "0.15.6"
   http:
     dependency: "direct main"
     description:
@@ -380,10 +388,10 @@ packages:
     dependency: transitive
     description:
       name: shared_preferences_android
-      sha256: c2c8c46297b5d6a80bed7741ec1f2759742c77d272f1a1698176ae828f8e1a18
+      sha256: "20cbd561f743a342c76c151d6ddb93a9ce6005751e7aa458baad3858bfbfb6ac"
       url: "https://pub.dev"
     source: hosted
-    version: "2.4.9"
+    version: "2.4.10"
   shared_preferences_foundation:
     dependency: transitive
     description:
