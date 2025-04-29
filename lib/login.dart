@@ -3,6 +3,8 @@ import 'package:bir_pos/terminal.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert'; // For jsonEncode & jsonDecode
+import 'package:flutter_dotenv/flutter_dotenv.dart'; // For dev env variables
+import 'package:device_info_plus/device_info_plus.dart'; // For Device Info
 
 class Login extends StatefulWidget {
   @override
@@ -13,6 +15,7 @@ class _LoginFormState extends State<Login> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final deviceInfo = DeviceInfoPlugin();
 
   // Add this for loading state (optional)
   bool _isLoading = false;
@@ -20,37 +23,43 @@ class _LoginFormState extends State<Login> {
   // 🧠 LOGIN FUNCTION: Handles API call
   Future<void> _login() async {
     final prefs = await SharedPreferences.getInstance();
+    final windowsDeviceInfo = await deviceInfo.windowsInfo;
     if (_formKey.currentState!.validate()) {
       setState(() {
         _isLoading = true;
       });
 
       // Prepare the GET request with query parameters
-      final deviceName = 'test';
-      final email = Uri.encodeComponent(_emailController.text.trim());
-      final password = Uri.encodeComponent(_passwordController.text.trim());
-      final url = Uri.parse(
-        'http://bir-pos.test/api/auth/login?email=$email&password=$password&device_name=$deviceName',
-      );
+      final deviceName = windowsDeviceInfo.computerName;
+      final email = _emailController.text.trim();
+      final password = _passwordController.text.trim();
+      final apiUri = dotenv.env['POS_API_URL'] ?? 'http://bir-pos.test';
+      final url = Uri.parse('$apiUri/api/auth/login');
 
       try {
-        final response = await http.get(
+        final response = await http.post(
           url,
           headers: {
             'Content-Type': 'application/json',
             'Accept': 'application/json',
             // 'Authorization': 'Bearer $token',
           },
+          body: jsonEncode({
+            'email': email,
+            'password': password,
+            'device_name': deviceName,
+          }),
         );
 
         setState(() {
           _isLoading = false;
         });
 
-        if (response.statusCode == 200) {
+        if (response.statusCode == 201) {
           final data = jsonDecode(response.body);
           final token = data['token']; // adjust based on actual API response
 
+          if (context.mounted) {}
           ScaffoldMessenger.of(
             context,
           ).showSnackBar(SnackBar(content: Text('Login successful!')));
