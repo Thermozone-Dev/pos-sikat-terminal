@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:bir_pos/models/user.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
@@ -20,9 +21,9 @@ class AuthService {
     }
 
     try {
+      final String apiSecret = dotenv.env['POS_API_SECRET'] ?? "";
+      final String apiUri = dotenv.env['POS_API_URL'] ?? "";
       final deviceName = windowsDeviceInfo.computerName;
-      final apiSecret = dotenv.env['POS_API_SECRET'];
-      final apiUri = dotenv.env['POS_API_URL'];
       final url = Uri.parse('$apiUri/api/auth/logout');
 
       final response = await http.delete(
@@ -31,9 +32,9 @@ class AuthService {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
           'Authorization': 'Bearer $token',
+          'Pos-Secret-key': apiSecret,
         },
         body: jsonEncode({
-          'secret_key': apiSecret,
           'device_name': deviceName,
           // '': '',
         }),
@@ -58,6 +59,43 @@ class AuthService {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text('Logout failed')));
+    }
+  }
+
+  static Future<User> getUser(BuildContext context) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+
+    try {
+      if (token == null) {
+        print('No token found');
+      }
+
+      final String apiSecret = dotenv.env['POS_API_SECRET'] ?? "";
+      final String apiUri = dotenv.env['POS_API_URL'] ?? "";
+      final url = Uri.parse('$apiUri/api/auth/user');
+
+      final response = await http.get(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Authorization': 'Bearer $token',
+          'Pos-Secret-key': apiSecret,
+        },
+      );
+
+      if (response.statusCode == 200) {
+        print('User Data Call successful');
+        final Map<String, dynamic> data = jsonDecode(response.body);
+        print('User Data Decode successful');
+        return User.fromJson(data);
+      } else {
+        print('User Data Call failed: ${response.body}');
+        throw Exception('User Data Call failed: ${response.body}');
+      }
+    } catch (e) {
+      throw Exception('User Data error: $e');
     }
   }
 }
