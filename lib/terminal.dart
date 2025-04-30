@@ -1,3 +1,6 @@
+import 'package:bir_pos/models/user.dart';
+import 'package:bir_pos/services/auth_service.dart';
+import 'package:bir_pos/widgets/greeter.dart';
 import 'package:flutter/material.dart';
 import 'models/product.dart';
 import 'models/package.dart';
@@ -83,37 +86,25 @@ class _TerminalState extends State<Terminal> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // Welcome Container
-                    Container(
-                      alignment: Alignment.centerLeft,
-                      margin: const EdgeInsets.fromLTRB(20, 20, 0, 20),
-                      padding: const EdgeInsets.all(20),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(5),
-                      ),
-                      child: const Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Hi Angelo Marquez',
-                            textAlign: TextAlign.left,
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 18,
-                              color: Colors.black87,
-                            ),
-                          ),
-                          Text(
-                            'Ready to start receiving orders?',
-                            textAlign: TextAlign.left,
-                            style: TextStyle(
-                              fontWeight: FontWeight.w600,
-                              fontSize: 13,
-                              color: Colors.black87,
-                            ),
-                          ),
-                        ],
-                      ),
+                    FutureBuilder<User>(
+                      future: AuthService.getUser(context),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return const Center(
+                            child: CircularProgressIndicator(),
+                          );
+                        } else if (snapshot.hasError) {
+                          return Center(
+                            child: Text('Error: ${snapshot.error}'),
+                          );
+                        } else if (!snapshot.hasData) {
+                          return const Center(child: Text('No user found'));
+                        }
+                        final User user = snapshot.data!;
+
+                        return Greeter(user: user);
+                      },
                     ),
 
                     // Packages Label
