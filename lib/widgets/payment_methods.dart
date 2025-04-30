@@ -1,3 +1,5 @@
+import 'package:bir_pos/models/payment_method.dart';
+import 'package:bir_pos/services/payment_method_service.dart';
 import 'package:flutter/material.dart';
 
 class PaymentMethodButtons extends StatelessWidget {
@@ -7,47 +9,62 @@ class PaymentMethodButtons extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(20),
-      child: Row(
-        children: [
-          _buildButton(
-            label: 'Cash',
-            icon: Icons.money,
-            color: Colors.brown[500],
-            textColor: Colors.white,
-            onTap: () => print('Payment Method: Cash'),
-          ),
-          const SizedBox(width: 10),
-          _buildButton(
-            label: 'Debit',
-            icon: Icons.credit_card,
-            color: Colors.grey[300],
-            textColor: Colors.black,
-            onTap: () => print('Payment Method: Debit Card'),
-          ),
-          const SizedBox(width: 10),
-          _buildButton(
-            label: 'Credit',
-            icon: Icons.credit_card,
-            color: Colors.amber,
-            textColor: Colors.black,
-            onTap: () => print('Payment Method: Credit Card'),
-          ),
-          const SizedBox(width: 10),
-          _buildButton(
-            label: 'GCash',
-            color: Colors.blue[900],
-            textColor: Colors.white,
-            onTap: () => print('Payment Method: GCash'),
-          ),
-          const SizedBox(width: 10),
-          _buildButton(
-            label: 'Maya',
-            color: Colors.black,
-            textColor: Colors.green[300],
-            onTap: () => print('Payment Method: Maya'),
-          ),
-        ],
+      child: FutureBuilder<List<PaymentMethod>>(
+        future: PaymentMethodService.getMethods(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return const Center(child: Text('No discounts found'));
+          }
+
+          final methods = snapshot.data!;
+
+          return GridView.builder(
+            scrollDirection: Axis.horizontal,
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 1,
+              crossAxisSpacing: 20,
+              mainAxisSpacing: 10,
+              childAspectRatio: 1.4,
+            ),
+            itemCount: methods.length,
+            itemBuilder: (context, index) {
+              final method = methods[index];
+
+              return AspectRatio(
+                aspectRatio: 1,
+                child: _buildButton(
+                  label: method.name,
+                  icon: method.isDigital ? Icons.credit_card : Icons.money,
+                  color:
+                      method.isDigital ? Colors.grey[300] : Colors.brown[500],
+                  textColor: method.isDigital ? Colors.black : Colors.white,
+                  onTap: () => print(method),
+                ),
+              );
+            },
+          );
+        },
       ),
+      //     const SizedBox(width: 10),
+      //     _buildButton(
+      //       label: 'GCash',
+      //       color: Colors.blue[900],
+      //       textColor: Colors.white,
+      //       onTap: () => print('Payment Method: GCash'),
+      //     ),
+      //     const SizedBox(width: 10),
+      //     _buildButton(
+      //       label: 'Maya',
+      //       color: Colors.black,
+      //       textColor: Colors.green[300],
+      //       onTap: () => print('Payment Method: Maya'),
+      //     ),
+      //   ],
+      // ),
     );
   }
 

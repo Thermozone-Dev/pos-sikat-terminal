@@ -2,6 +2,7 @@ import 'package:bir_pos/models/discount.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:flutter_dotenv/flutter_dotenv.dart'; // For dev env variables
 
 class DiscountService {
   static Future<List<Discount>> getDiscounts() async {
@@ -12,13 +13,17 @@ class DiscountService {
       throw Exception('Token not found');
     }
 
-    final url = Uri.parse('http://bir-pos.test/api/v1/discounts');
+    final String apiSecret = dotenv.env['POS_API_SECRET'] ?? "";
+    final String apiUri = dotenv.env['POS_API_URL'] ?? "";
+    final url = Uri.parse('$apiUri/api/v1/discounts');
+
     final response = await http
         .get(
           url,
           headers: {
             'Authorization': 'Bearer $token',
             'Accept': 'application/json',
+            'Pos-Secret-key': apiSecret,
           },
         )
         .timeout(Duration(seconds: 10));
