@@ -30,10 +30,12 @@ class _LoginFormState extends State<Login> {
       });
 
       // Prepare the GET request with query parameters
-      final deviceName = windowsDeviceInfo.computerName;
       final email = _emailController.text.trim();
       final password = _passwordController.text.trim();
-      final apiUri = dotenv.env['POS_API_URL'];
+
+      final deviceName = windowsDeviceInfo.computerName;
+      final String apiSecret = dotenv.env['POS_API_SECRET'] ?? "";
+      final String apiUri = dotenv.env['POS_API_URL'] ?? "";
       final url = Uri.parse('$apiUri/api/auth/login');
 
       try {
@@ -42,6 +44,7 @@ class _LoginFormState extends State<Login> {
           headers: {
             'Content-Type': 'application/json',
             'Accept': 'application/json',
+            'Pos-Secret-key': apiSecret,
             // 'Authorization': 'Bearer $token',
           },
           body: jsonEncode({
