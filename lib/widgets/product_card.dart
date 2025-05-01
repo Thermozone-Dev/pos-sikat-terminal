@@ -1,5 +1,7 @@
+import 'package:bir_pos/services/transaction_service.dart';
 import 'package:flutter/material.dart';
 import '../models/product.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class ProductCard extends StatelessWidget {
   final Product product;
@@ -7,13 +9,42 @@ class ProductCard extends StatelessWidget {
 
   const ProductCard({super.key, required this.product, this.onPressed});
 
+  _selectProduct(Product product) async {
+    final secStorage = FlutterSecureStorage();
+    final String? data = await secStorage.read(key: 'transaction_data');
+
+    final Map<String, dynamic> dataList =
+        data == null ? {} : TransactionService.decodeTransactionData(data);
+
+    Map<String, dynamic> tmpItems = dataList.isEmpty ? {} : dataList['items'];
+
+    if (tmpItems.containsKey(product.id.toString())) {
+      tmpItems[product.id.toString()]['quantity'] += 1;
+    } else {
+      tmpItems[product.id.toString()] = {
+        'data': Product.encode(product),
+        'quantity': 1,
+      };
+    }
+
+    dataList['items'] = tmpItems;
+
+    print(tmpItems[product.id.toString()]);
+
+    secStorage.write(
+      key: 'transaction_data',
+      value: TransactionService.encodeTransactionData(dataList),
+    );
+    print(await secStorage.read(key: 'transaction_data'));
+  }
+
   @override
   Widget build(BuildContext context) {
     return ElevatedButton(
       onPressed:
           onPressed ??
           () {
-            print("Product pressed: ${product.name}");
+            _selectProduct(product);
           },
       style: ElevatedButton.styleFrom(
         backgroundColor: Colors.white,
