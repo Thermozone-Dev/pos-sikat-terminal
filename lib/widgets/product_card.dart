@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:bir_pos/services/transaction_service.dart';
 import 'package:flutter/material.dart';
 import '../models/product.dart';
@@ -13,8 +15,7 @@ class ProductCard extends StatelessWidget {
     final secStorage = FlutterSecureStorage();
     final String? data = await secStorage.read(key: 'transaction_data');
 
-    final Map<String, dynamic> dataList =
-        data == null ? {} : TransactionService.decodeTransactionData(data);
+    final Map<String, dynamic> dataList = data == null ? {} : json.decode(data);
 
     Map<String, dynamic> tmpItems = dataList.isEmpty ? {} : dataList['items'];
 
@@ -29,13 +30,7 @@ class ProductCard extends StatelessWidget {
 
     dataList['items'] = tmpItems;
 
-    print(tmpItems[product.id.toString()]);
-
-    secStorage.write(
-      key: 'transaction_data',
-      value: TransactionService.encodeTransactionData(dataList),
-    );
-    print(await secStorage.read(key: 'transaction_data'));
+    secStorage.write(key: 'transaction_data', value: json.encode(dataList));
   }
 
   @override
