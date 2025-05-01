@@ -148,12 +148,7 @@ class _TerminalState extends State<Terminal> {
                               final package = packages[index];
 
                               // Package Card
-                              return PackageCard(
-                                package: package,
-                                onPressed: () {
-                                  print("Product pressed: ${package.name}");
-                                },
-                              );
+                              return PackageCard(package: package);
                             },
                           );
                         },
@@ -202,12 +197,7 @@ class _TerminalState extends State<Terminal> {
                               final product = products[index];
 
                               // Product Card
-                              return ProductCard(
-                                product: product,
-                                onPressed: () {
-                                  print("Product pressed: ${product.name}");
-                                },
-                              );
+                              return ProductCard(product: product);
                             },
                           );
                         },
