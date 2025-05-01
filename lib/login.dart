@@ -17,15 +17,14 @@ class _LoginFormState extends State<Login> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final deviceInfo = DeviceInfoPlugin();
-  final keysToClear = ['transaction_data'];
+  final secStorage = FlutterSecureStorage();
 
   // Add this for loading state (optional)
   bool _isLoading = false;
 
   // Clearing session data
   Future<void> _clearSession() async {
-    final prefs = await SharedPreferences.getInstance();
-    final secStorage = FlutterSecureStorage();
+    final keysToClear = ['transaction_data'];
 
     await Future.wait(keysToClear.map((key) => secStorage.delete(key: key)));
   }
