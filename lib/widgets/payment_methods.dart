@@ -1,12 +1,15 @@
 import 'package:bir_pos/models/payment_method.dart';
 import 'package:bir_pos/services/payment_method_service.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class PaymentMethodButtons extends StatelessWidget {
   const PaymentMethodButtons({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    final secStorage = FlutterSecureStorage();
+
     return Padding(
       padding: const EdgeInsets.all(20),
       child: FutureBuilder<List<PaymentMethod>>(
@@ -42,7 +45,12 @@ class PaymentMethodButtons extends StatelessWidget {
                   color:
                       method.isDigital ? Colors.grey[300] : Colors.brown[500],
                   textColor: method.isDigital ? Colors.black : Colors.white,
-                  onTap: () => print(method),
+                  onTap: () {
+                    secStorage.write(
+                      key: 'payment-method',
+                      value: method.id.toString(),
+                    );
+                  },
                 ),
               );
             },
