@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 class Product {
   final int id;
   final String name;
@@ -21,5 +23,35 @@ class Product {
       price: double.parse(json['price'].toString()),
       image: json['image_url'],
     );
+  }
+
+  static Map<String, dynamic> toMap(Product product) {
+    return {
+      'id': product.id,
+      'product_id': product.productID,
+      'name': product.name,
+      'price': product.price,
+      'image_url': product.image,
+    };
+  }
+
+  static String encode(Product product) {
+    return json.encode(Product.toMap(product));
+  }
+
+  static String encodeList(List<Product> product) {
+    return json.encode(
+      product.map((product) => Product.toMap(product)).toList(),
+    );
+  }
+
+  static Product decode(String product) {
+    return Product.fromJson(json.decode(product) as Map<String, dynamic>);
+  }
+
+  static List<Product> decodeList(String product) {
+    return (json.decode(product) as List<dynamic>)
+        .map((product) => Product.fromJson(product as Map<String, dynamic>))
+        .toList();
   }
 }
