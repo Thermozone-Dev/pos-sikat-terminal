@@ -1,4 +1,7 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../models/package.dart';
 
 class PackageCard extends StatelessWidget {
@@ -7,13 +10,35 @@ class PackageCard extends StatelessWidget {
 
   const PackageCard({super.key, required this.package, this.onPressed});
 
+  _selectPackage(Package package) async {
+    final secStorage = FlutterSecureStorage();
+    final String? data = await secStorage.read(key: 'transaction_data');
+
+    final Map<String, dynamic> dataList = data == null ? {} : json.decode(data);
+
+    Map<String, dynamic> tmpItems = dataList.isEmpty ? {} : dataList['items'];
+
+    if (tmpItems.containsKey(package.id.toString())) {
+      tmpItems[package.id.toString()]['quantity'] += 1;
+    } else {
+      tmpItems[package.id.toString()] = {
+        'data': Package.encode(package),
+        'quantity': 1,
+      };
+    }
+
+    dataList['items'] = tmpItems;
+
+    secStorage.write(key: 'transaction_data', value: json.encode(dataList));
+  }
+
   @override
   Widget build(BuildContext context) {
     return ElevatedButton(
       onPressed:
           onPressed ??
           () {
-            print("Product pressed: ${package.name}");
+            _selectPackage(package);
           },
       style: ElevatedButton.styleFrom(
         backgroundColor: Colors.white,
