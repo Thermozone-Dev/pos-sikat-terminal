@@ -1,8 +1,5 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import '../models/product.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class ProductCard extends StatelessWidget {
   final Product product;
