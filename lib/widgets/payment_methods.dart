@@ -4,7 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class PaymentMethodButtons extends StatelessWidget {
-  const PaymentMethodButtons({Key? key}) : super(key: key);
+  final ValueChanged setTransactionMethod;
+
+  const PaymentMethodButtons({Key? key, required this.setTransactionMethod})
+    : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -46,10 +49,8 @@ class PaymentMethodButtons extends StatelessWidget {
                       method.isDigital ? Colors.grey[300] : Colors.brown[500],
                   textColor: method.isDigital ? Colors.black : Colors.white,
                   onTap: () {
-                    secStorage.write(
-                      key: 'payment-method',
-                      value: method.id.toString(),
-                    );
+                    setTransactionMethod(method.id);
+                    print('Payment Method: ${method.name}');
                   },
                 ),
               );

@@ -6,40 +6,30 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class ProductCard extends StatelessWidget {
   final Product product;
-  final VoidCallback? onPressed;
 
-  const ProductCard({super.key, required this.product, this.onPressed});
+  final ValueChanged onPressed;
+
+  const ProductCard({
+    super.key,
+    required this.product,
+    required this.onPressed,
+  });
 
   _selectProduct(Product product) async {
-    final secStorage = FlutterSecureStorage();
-    final String? data = await secStorage.read(key: 'transaction_data');
+    Map<String, dynamic> productData = {
+      'data': Product.toMap(product),
+      'quantity': 1,
+    };
 
-    final Map<String, dynamic> dataList = data == null ? {} : json.decode(data);
-
-    Map<String, dynamic> tmpItems = dataList.isEmpty ? {} : dataList['items'];
-
-    if (tmpItems.containsKey(product.id.toString())) {
-      tmpItems[product.id.toString()]['quantity'] += 1;
-    } else {
-      tmpItems[product.id.toString()] = {
-        'data': Product.encode(product),
-        'quantity': 1,
-      };
-    }
-
-    dataList['items'] = tmpItems;
-
-    secStorage.write(key: 'transaction_data', value: json.encode(dataList));
+    onPressed(productData);
   }
 
   @override
   Widget build(BuildContext context) {
     return ElevatedButton(
-      onPressed:
-          onPressed ??
-          () {
-            _selectProduct(product);
-          },
+      onPressed: () {
+        _selectProduct(product);
+      },
       style: ElevatedButton.styleFrom(
         backgroundColor: Colors.white,
         padding: const EdgeInsets.all(20),

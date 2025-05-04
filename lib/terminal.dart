@@ -16,26 +16,97 @@ import 'package:bir_pos/widgets/transaction_actions.dart';
 import 'package:bir_pos/utils/responsive_util.dart';
 
 class Terminal extends StatefulWidget {
-  const Terminal({Key? key, required this.token}) : super(key: key);
   final String token;
+
+  const Terminal({Key? key, required this.token}) : super(key: key);
 
   @override
   State<Terminal> createState() => _TerminalState();
 }
 
 class _TerminalState extends State<Terminal> {
-  int quantity = 0;
-  double totalCost = 0.0;
-  void increaseQuantity() {
-    setState(() {
-      quantity = quantity + 1;
-    });
+  Map<String, dynamic> transactionData = {
+    'items': [],
+    'transaction_method': null,
+    'transaction_fee': null,
+    'cash_tendered': 0.0,
+    'total_sales': 0.0,
+    'change': 0.0,
+    'gross_sales': 0.0,
+    'vatable_sales': 0.0,
+    'vat': 0.0,
+    'vat_exempt_sales': 0.0,
+    'zero_rated_sales': 0.0,
+    'transaction_discounts': [],
+    'gov_discount_details': {},
+  };
+
+  bool isDigitalPayment = false;
+
+  void addItem(itemData) {
+    bool canAdd = true;
+
+    if (!transactionData['items'].isEmpty) {
+      for (var item in transactionData['items']) {
+        if (item['data']['id'] == itemData['data']['id']) {
+          item['quantity'] += 1;
+          canAdd = false;
+          break;
+        }
+      }
+    }
+
+    if (canAdd) {
+      transactionData['items'].add(itemData);
+    }
   }
 
-  void decreaseQuantity() {
-    setState(() {
-      quantity = quantity - 1;
-    });
+  void removeItem(itemData) {
+    transactionData['items'].removeWhere(
+      (item) => item['data']['id'] == itemData['data']['id'],
+    );
+  }
+
+  void increaseQuantity(itemData) {
+    for (var item in transactionData['items']) {
+      if (item['data']['id'] == itemData['data']['id']) {
+        item['quantity'] += 1;
+        break;
+      }
+    }
+  }
+
+  void decreaseQuantity(itemData) {
+    for (var item in transactionData['items']) {
+      if (item['data']['id'] == itemData['data']['id']) {
+        if (item['quantity'] > 1) {
+          item['quantity'] -= 1;
+        } else {
+          removeItem(itemData);
+        }
+        break;
+      }
+    }
+  }
+
+  void setCashTendered(cashTendered) {
+    transactionData['cash_tendered'] = cashTendered;
+  }
+
+  void setTransactionMethod(transactionMethod) {
+    transactionData['transaction_method'] = transactionMethod;
+  }
+
+  void setTransactionFee(transactionFee) {
+    transactionData['transaction_fee'] = transactionFee;
+  }
+
+  void addToTransactionDiscounts(transactionDiscount) {
+    transactionData['transaction_discounts'].add(transactionDiscount);
+  }
+
+  void addGovDiscountDetails(govDiscountDetails) {
+    transactionData['gov_discount_details'].add(govDiscountDetails);
   }
 
   @override
@@ -148,7 +219,10 @@ class _TerminalState extends State<Terminal> {
                               final package = packages[index];
 
                               // Package Card
-                              return PackageCard(package: package);
+                              return PackageCard(
+                                package: package,
+                                onPressed: addItem,
+                              );
                             },
                           );
                         },
@@ -197,7 +271,10 @@ class _TerminalState extends State<Terminal> {
                               final product = products[index];
 
                               // Product Card
-                              return ProductCard(product: product);
+                              return ProductCard(
+                                product: product,
+                                onPressed: addItem,
+                              );
                             },
                           );
                         },
@@ -217,17 +294,22 @@ class _TerminalState extends State<Terminal> {
                   Expanded(
                     flex: 6,
                     child: ShoppingCart(
-                      quantity: quantity,
+                      transactionData: transactionData,
                       increaseQuantity: increaseQuantity,
                       decreaseQuantity: decreaseQuantity,
                     ),
                   ),
 
                   // Total Cost Container
-                  Expanded(flex: 1, child: TotalCost(totalCost: totalCost)),
+                  Expanded(flex: 1, child: TotalCost(totalCost: 1000.00)),
 
                   // Payment Methods, Discounts, and Actions Container
-                  Expanded(flex: 3, child: TransactionActions()),
+                  Expanded(
+                    flex: 3,
+                    child: TransactionActions(
+                      setTransactionMethod: setTransactionMethod,
+                    ),
+                  ),
                 ],
               ),
             ),

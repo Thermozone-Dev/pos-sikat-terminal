@@ -4,7 +4,10 @@ import 'package:bir_pos/widgets/discounts.dart';
 import '../print_service.dart';
 
 class TransactionActions extends StatelessWidget {
-  const TransactionActions({Key? key}) : super(key: key);
+  final ValueChanged setTransactionMethod;
+
+  const TransactionActions({Key? key, required this.setTransactionMethod})
+    : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -24,8 +27,8 @@ class TransactionActions extends StatelessWidget {
               unselectedLabelColor: Colors.grey,
               indicatorColor: Colors.brown,
               tabs: [
-                Tab(text: 'Payment Method'),
                 Tab(text: 'Discounts'),
+                Tab(text: 'Payment Method'),
                 Tab(text: 'Actions'),
               ],
             ),
@@ -34,11 +37,13 @@ class TransactionActions extends StatelessWidget {
             Expanded(
               child: TabBarView(
                 children: [
-                  // Payment Methods Tab
-                  const PaymentMethodButtons(),
-
                   // Discounts Tab
-                  const DiscountSelector(),
+                  DiscountSelector(),
+
+                  // Payment Methods Tab
+                  PaymentMethodButtons(
+                    setTransactionMethod: setTransactionMethod,
+                  ),
 
                   // Actions Tab
                   ElevatedButton(
