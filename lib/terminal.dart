@@ -59,12 +59,19 @@ class _TerminalState extends State<Terminal> {
     if (canAdd) {
       transactionData['items'].add(itemData);
     }
+
+    setState(() {
+      transactionData['items'] = transactionData['items'];
+    });
   }
 
   void removeItem(itemData) {
     transactionData['items'].removeWhere(
       (item) => item['data']['id'] == itemData['data']['id'],
     );
+    setState(() {
+      transactionData['items'] = transactionData['items'];
+    });
   }
 
   void increaseQuantity(itemData) {
@@ -74,6 +81,9 @@ class _TerminalState extends State<Terminal> {
         break;
       }
     }
+    setState(() {
+      transactionData['items'] = transactionData['items'];
+    });
   }
 
   void decreaseQuantity(itemData) {
@@ -87,6 +97,9 @@ class _TerminalState extends State<Terminal> {
         break;
       }
     }
+    setState(() {
+      transactionData['items'] = transactionData['items'];
+    });
   }
 
   void setCashTendered(cashTendered) {
@@ -103,6 +116,10 @@ class _TerminalState extends State<Terminal> {
 
   void addToTransactionDiscounts(transactionDiscount) {
     transactionData['transaction_discounts'].add(transactionDiscount);
+  }
+
+  void SetTotalGrossSales(totalGrossSales) {
+    transactionData['gross_sales'] = totalGrossSales;
   }
 
   void addGovDiscountDetails(govDiscountDetails) {
