@@ -86,9 +86,7 @@ class AuthService {
       );
 
       if (response.statusCode == 200) {
-        print('User Data Call successful');
         final Map<String, dynamic> data = jsonDecode(response.body);
-        print('User Data Decode successful');
         return User.fromJson(data);
       } else {
         print('User Data Call failed: ${response.body}');
