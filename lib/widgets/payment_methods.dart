@@ -29,7 +29,7 @@ class PaymentMethodButtons extends StatelessWidget {
             scrollDirection: Axis.horizontal,
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 1,
-              crossAxisSpacing: 20,
+              crossAxisSpacing: 10,
               mainAxisSpacing: 10,
               childAspectRatio: 1.4,
             ),
@@ -46,8 +46,8 @@ class PaymentMethodButtons extends StatelessWidget {
                       method.isDigital ? Colors.grey[300] : Colors.brown[500],
                   textColor: method.isDigital ? Colors.black : Colors.white,
                   onTap: () {
-                    setTransactionMethod(method.id);
-                    print('Payment Method: ${method.name}');
+                    setTransactionMethod(method);
+                    // print('Payment Method: ${method.name}');
                   },
                 ),
               );
