@@ -1,5 +1,6 @@
 import 'package:bir_pos/models/user.dart';
 import 'package:bir_pos/services/auth_service.dart';
+import 'package:bir_pos/services/transaction_service.dart';
 import 'package:bir_pos/widgets/greeter.dart';
 import 'package:flutter/material.dart';
 import 'models/product.dart';
@@ -16,26 +17,119 @@ import 'package:bir_pos/widgets/transaction_actions.dart';
 import 'package:bir_pos/utils/responsive_util.dart';
 
 class Terminal extends StatefulWidget {
-  const Terminal({Key? key, required this.token}) : super(key: key);
   final String token;
+
+  const Terminal({Key? key, required this.token}) : super(key: key);
 
   @override
   State<Terminal> createState() => _TerminalState();
 }
 
 class _TerminalState extends State<Terminal> {
-  int quantity = 0;
-  double totalCost = 0.0;
-  void increaseQuantity() {
+  Map<String, dynamic> transactionData = {
+    'items': [],
+    'transaction_method': null,
+    'transaction_fee': null,
+    'cash_tendered': 0.0,
+    'total_sales': 0.0,
+    'change': 0.0,
+    'gross_sales': 0.0,
+    'vatable_sales': 0.0,
+    'vat': 0.0,
+    'vat_exempt_sales': 0.0,
+    'zero_rated_sales': 0.0,
+    'transaction_discounts': [],
+    'gov_discount_details': {},
+  };
+
+  bool isDigitalPayment = false;
+
+  void addItem(itemData) {
     setState(() {
-      quantity = quantity + 1;
+      bool canAdd = true;
+
+      if (!transactionData['items'].isEmpty) {
+        for (var item in transactionData['items']) {
+          if (item['data']['id'] == itemData['data']['id']) {
+            item['quantity'] += 1;
+            canAdd = false;
+            break;
+          }
+        }
+      }
+
+      if (canAdd) {
+        transactionData['items'].add(itemData);
+      }
     });
   }
 
-  void decreaseQuantity() {
+  void removeItem(itemData) {
     setState(() {
-      quantity = quantity - 1;
+      transactionData['items'].removeWhere(
+        (item) => item['data']['id'] == itemData['data']['id'],
+      );
     });
+  }
+
+  void increaseQuantity(itemData) {
+    setState(() {
+      for (var item in transactionData['items']) {
+        if (item['data']['id'] == itemData['data']['id']) {
+          item['quantity'] += 1;
+          break;
+        }
+      }
+    });
+  }
+
+  void decreaseQuantity(itemData) {
+    setState(() {
+      for (var item in transactionData['items']) {
+        if (item['data']['id'] == itemData['data']['id']) {
+          if (item['quantity'] > 1) {
+            item['quantity'] -= 1;
+          } else {
+            removeItem(itemData);
+          }
+          break;
+        }
+      }
+    });
+  }
+
+  void setCashTendered(cashTendered) {
+    transactionData['cash_tendered'] = cashTendered;
+  }
+
+  void setTransactionMethod(transactionMethod) {
+    transactionData['transaction_method'] = transactionMethod;
+  }
+
+  void setTransactionFee(transactionFee) {
+    transactionData['transaction_fee'] = transactionFee;
+  }
+
+  void addToTransactionDiscounts(transactionDiscount) {
+    transactionData['transaction_discounts'].add(transactionDiscount);
+  }
+
+  void addGovDiscountDetails(govDiscountDetails) {
+    transactionData['gov_discount_details'].add(govDiscountDetails);
+  }
+
+  void calculateValues() {
+    setState(() {
+      transactionData = TransactionService.processCalculations(transactionData);
+    });
+  }
+
+  void processTransactions() {
+    calculateValues();
+    final formattedData = TransactionService.formatTransactionData(
+      transactionData,
+    );
+    TransactionService.saveTransactionData(formattedData);
   }
 
   @override
@@ -150,9 +244,7 @@ class _TerminalState extends State<Terminal> {
                               // Package Card
                               return PackageCard(
                                 package: package,
-                                onPressed: () {
-                                  print("Product pressed: ${package.name}");
-                                },
+                                onPressed: addItem,
                               );
                             },
                           );
@@ -204,9 +296,7 @@ class _TerminalState extends State<Terminal> {
                               // Product Card
                               return ProductCard(
                                 product: product,
-                                onPressed: () {
-                                  print("Product pressed: ${product.name}");
-                                },
+                                onPressed: addItem,
                               );
                             },
                           );
@@ -227,17 +317,23 @@ class _TerminalState extends State<Terminal> {
                   Expanded(
                     flex: 6,
                     child: ShoppingCart(
-                      quantity: quantity,
+                      transactionData: transactionData,
                       increaseQuantity: increaseQuantity,
                       decreaseQuantity: decreaseQuantity,
                     ),
                   ),
 
                   // Total Cost Container
-                  Expanded(flex: 1, child: TotalCost(totalCost: totalCost)),
+                  Expanded(flex: 1, child: TotalCost(totalCost: 1000.00)),
 
                   // Payment Methods, Discounts, and Actions Container
-                  Expanded(flex: 3, child: TransactionActions()),
+                  Expanded(
+                    flex: 3,
+                    child: TransactionActions(
+                      setTransactionMethod: setTransactionMethod,
+                      processTransactions: processTransactions,
+                    ),
+                  ),
                 ],
               ),
             ),

@@ -3,18 +3,29 @@ import '../models/package.dart';
 
 class PackageCard extends StatelessWidget {
   final Package package;
-  final VoidCallback? onPressed;
+  final ValueChanged onPressed;
 
-  const PackageCard({super.key, required this.package, this.onPressed});
+  const PackageCard({
+    super.key,
+    required this.package,
+    required this.onPressed,
+  });
+
+  _selectPackage(Package package) async {
+    Map<String, dynamic> packageData = {
+      'data': Package.toMap(package),
+      'quantity': 1,
+    };
+
+    onPressed(packageData);
+  }
 
   @override
   Widget build(BuildContext context) {
     return ElevatedButton(
-      onPressed:
-          onPressed ??
-          () {
-            print("Product pressed: ${package.name}");
-          },
+      onPressed: () {
+        _selectPackage(package);
+      },
       style: ElevatedButton.styleFrom(
         backgroundColor: Colors.white,
         padding: const EdgeInsets.all(20),

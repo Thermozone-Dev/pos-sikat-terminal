@@ -3,7 +3,10 @@ import 'package:bir_pos/services/payment_method_service.dart';
 import 'package:flutter/material.dart';
 
 class PaymentMethodButtons extends StatelessWidget {
-  const PaymentMethodButtons({Key? key}) : super(key: key);
+  final ValueChanged setTransactionMethod;
+
+  const PaymentMethodButtons({Key? key, required this.setTransactionMethod})
+    : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -42,7 +45,10 @@ class PaymentMethodButtons extends StatelessWidget {
                   color:
                       method.isDigital ? Colors.grey[300] : Colors.brown[500],
                   textColor: method.isDigital ? Colors.black : Colors.white,
-                  onTap: () => print(method),
+                  onTap: () {
+                    setTransactionMethod(method.id);
+                    print('Payment Method: ${method.name}');
+                  },
                 ),
               );
             },

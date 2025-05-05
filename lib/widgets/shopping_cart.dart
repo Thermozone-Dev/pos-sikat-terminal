@@ -1,13 +1,16 @@
+import 'package:bir_pos/services/cart_service.dart';
+import 'package:bir_pos/widgets/shopping_cart_item.dart';
 import 'package:flutter/material.dart';
 
 class ShoppingCart extends StatelessWidget {
-  final int quantity;
-  final VoidCallback increaseQuantity;
-  final VoidCallback decreaseQuantity;
+  final Map<String, dynamic> transactionData;
+
+  final ValueChanged increaseQuantity;
+  final ValueChanged decreaseQuantity;
 
   const ShoppingCart({
     Key? key,
-    required this.quantity,
+    required this.transactionData,
     required this.increaseQuantity,
     required this.decreaseQuantity,
   }) : super(key: key);
@@ -47,76 +50,38 @@ class ShoppingCart extends StatelessWidget {
 
             Container(color: Colors.grey[300], height: 2),
             SizedBox(height: 30),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Container(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(12),
-                        child: Image.asset(
-                          'assets/img/DM1.jpg',
-                          width: 60,
-                          height: 60,
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                      SizedBox(width: 20),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: const [
-                          Text(
-                            'DM1',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w800,
-                              color: Colors.black87,
-                            ),
-                          ),
-                          Text(
-                            '₱150',
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w700,
-                              color: Color(0xFF0D7C66),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-                Container(
-                  child: Row(
-                    children: [
-                      IconButton(
-                        icon: Icon(Icons.remove_circle),
-                        onPressed: decreaseQuantity,
-                      ),
-                      Text(
-                        '$quantity',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w800,
-                          color: Colors.black87,
-                        ),
-                      ),
-                      IconButton(
-                        icon: Icon(Icons.add_circle),
-                        onPressed: increaseQuantity,
-                      ),
-                      IconButton(
-                        icon: Icon(Icons.discount),
-                        onPressed: () {
-                          print("Assign Product Discount");
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+            Container(
+              margin: const EdgeInsets.fromLTRB(20, 0, 0, 20),
+              child: FutureBuilder<List<dynamic>>(
+                future: CartService.getCartItems(transactionData),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  } else if (snapshot.hasError) {
+                    return Center(child: Text('Error: ${snapshot.error}'));
+                  } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                    return const Center(child: Text('No products found'));
+                  }
+
+                  final items = snapshot.data!;
+
+                  return ListView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: items.length,
+                    itemBuilder: (context, index) {
+                      final item = items[index];
+
+                      // Item Card
+                      return ShoppingCartItem(
+                        item: item,
+                        increaseQuantity: increaseQuantity,
+                        decreaseQuantity: decreaseQuantity,
+                      );
+                    },
+                  );
+                },
+              ),
             ),
           ],
         ),

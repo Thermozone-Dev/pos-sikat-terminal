@@ -3,18 +3,30 @@ import '../models/product.dart';
 
 class ProductCard extends StatelessWidget {
   final Product product;
-  final VoidCallback? onPressed;
 
-  const ProductCard({super.key, required this.product, this.onPressed});
+  final ValueChanged onPressed;
+
+  const ProductCard({
+    super.key,
+    required this.product,
+    required this.onPressed,
+  });
+
+  _selectProduct(Product product) async {
+    Map<String, dynamic> productData = {
+      'data': Product.toMap(product),
+      'quantity': 1,
+    };
+
+    onPressed(productData);
+  }
 
   @override
   Widget build(BuildContext context) {
     return ElevatedButton(
-      onPressed:
-          onPressed ??
-          () {
-            print("Product pressed: ${product.name}");
-          },
+      onPressed: () {
+        _selectProduct(product);
+      },
       style: ElevatedButton.styleFrom(
         backgroundColor: Colors.white,
         padding: const EdgeInsets.all(20),

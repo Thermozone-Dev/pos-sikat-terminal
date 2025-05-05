@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert'; // For jsonEncode & jsonDecode
 import 'package:flutter_dotenv/flutter_dotenv.dart'; // For dev env variables
 import 'package:device_info_plus/device_info_plus.dart'; // For Device Info
+import 'package:flutter_secure_storage/flutter_secure_storage.dart'; // Secure Storage
 
 class Login extends StatefulWidget {
   @override
@@ -16,9 +17,17 @@ class _LoginFormState extends State<Login> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final deviceInfo = DeviceInfoPlugin();
+  final secStorage = FlutterSecureStorage();
 
   // Add this for loading state (optional)
   bool _isLoading = false;
+
+  // Clearing session data
+  Future<void> _clearSession() async {
+    final keysToClear = ['transaction_data'];
+
+    await Future.wait(keysToClear.map((key) => secStorage.delete(key: key)));
+  }
 
   // 🧠 LOGIN FUNCTION: Handles API call
   Future<void> _login() async {
@@ -70,6 +79,8 @@ class _LoginFormState extends State<Login> {
           print("Token: $token");
 
           await prefs.setString('token', token);
+
+          _clearSession();
 
           Navigator.pushReplacement(
             context,
