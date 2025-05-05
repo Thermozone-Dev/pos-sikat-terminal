@@ -37,4 +37,35 @@ class DiscountService {
       throw Exception('Failed to load discounts');
     }
   }
+
+  static Future<Discount> getDiscount(id) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+
+    if (token == null) {
+      throw Exception('Token not found');
+    }
+
+    final String apiSecret = dotenv.env['POS_API_SECRET'] ?? "";
+    final String apiUri = dotenv.env['POS_API_URL'] ?? "";
+    final url = Uri.parse('$apiUri/api/v1/discounts/$id');
+
+    final response = await http
+        .get(
+          url,
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Accept': 'application/json',
+            'Pos-Secret-key': apiSecret,
+          },
+        )
+        .timeout(Duration(seconds: 10));
+
+    if (response.statusCode == 200) {
+      final jsonResponse = jsonDecode(response.body);
+      return Discount.fromJson(jsonResponse);
+    } else {
+      throw Exception('Failed to load discount');
+    }
+  }
 }
