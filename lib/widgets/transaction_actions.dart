@@ -5,9 +5,13 @@ import '../print_service.dart';
 
 class TransactionActions extends StatelessWidget {
   final ValueChanged setTransactionMethod;
+  final VoidCallback processTransactions;
 
-  const TransactionActions({Key? key, required this.setTransactionMethod})
-    : super(key: key);
+  const TransactionActions({
+    Key? key,
+    required this.setTransactionMethod,
+    required this.processTransactions,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -48,22 +52,23 @@ class TransactionActions extends StatelessWidget {
                   // Actions Tab
                   ElevatedButton(
                     onPressed: () async {
-                      final printerService = PrinterService();
+                      processTransactions();
+                      // final printerService = PrinterService();
 
-                      // Sample receipt data
-                      final items = [
-                        {'name': 'Apple', 'quantity': '2', 'price': '\$1.00'},
-                        {'name': 'Banana', 'quantity': '5', 'price': '\$2.50'},
-                      ];
+                      // // Sample receipt data
+                      // final items = [
+                      //   {'name': 'Apple', 'quantity': '2', 'price': '\$1.00'},
+                      //   {'name': 'Banana', 'quantity': '5', 'price': '\$2.50'},
+                      // ];
 
-                      await printerService.printReceipt(
-                        storeName: 'Thermozone Philippines Corp.',
-                        storeAddress:
-                            '2280 Marconi St., Brgy. San Isidro, Makati City',
-                        storePhone: 'TIN: 223 661 818 0000',
-                        items: items,
-                        total: 3.50,
-                      );
+                      // await printerService.printReceipt(
+                      //   storeName: 'Thermozone Philippines Corp.',
+                      //   storeAddress:
+                      //       '2280 Marconi St., Brgy. San Isidro, Makati City',
+                      //   storePhone: 'TIN: 223 661 818 0000',
+                      //   items: items,
+                      //   total: 3.50,
+                      // );
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.grey[400],

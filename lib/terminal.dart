@@ -1,5 +1,6 @@
 import 'package:bir_pos/models/user.dart';
 import 'package:bir_pos/services/auth_service.dart';
+import 'package:bir_pos/services/transaction_service.dart';
 import 'package:bir_pos/widgets/greeter.dart';
 import 'package:flutter/material.dart';
 import 'models/product.dart';
@@ -44,61 +45,56 @@ class _TerminalState extends State<Terminal> {
   bool isDigitalPayment = false;
 
   void addItem(itemData) {
-    bool canAdd = true;
+    setState(() {
+      bool canAdd = true;
 
-    if (!transactionData['items'].isEmpty) {
-      for (var item in transactionData['items']) {
-        if (item['data']['id'] == itemData['data']['id']) {
-          item['quantity'] += 1;
-          canAdd = false;
-          break;
+      if (!transactionData['items'].isEmpty) {
+        for (var item in transactionData['items']) {
+          if (item['data']['id'] == itemData['data']['id']) {
+            item['quantity'] += 1;
+            canAdd = false;
+            break;
+          }
         }
       }
-    }
 
-    if (canAdd) {
-      transactionData['items'].add(itemData);
-    }
-
-    setState(() {
-      transactionData['items'] = transactionData['items'];
+      if (canAdd) {
+        transactionData['items'].add(itemData);
+      }
     });
   }
 
   void removeItem(itemData) {
-    transactionData['items'].removeWhere(
-      (item) => item['data']['id'] == itemData['data']['id'],
-    );
     setState(() {
-      transactionData['items'] = transactionData['items'];
+      transactionData['items'].removeWhere(
+        (item) => item['data']['id'] == itemData['data']['id'],
+      );
     });
   }
 
   void increaseQuantity(itemData) {
-    for (var item in transactionData['items']) {
-      if (item['data']['id'] == itemData['data']['id']) {
-        item['quantity'] += 1;
-        break;
-      }
-    }
     setState(() {
-      transactionData['items'] = transactionData['items'];
+      for (var item in transactionData['items']) {
+        if (item['data']['id'] == itemData['data']['id']) {
+          item['quantity'] += 1;
+          break;
+        }
+      }
     });
   }
 
   void decreaseQuantity(itemData) {
-    for (var item in transactionData['items']) {
-      if (item['data']['id'] == itemData['data']['id']) {
-        if (item['quantity'] > 1) {
-          item['quantity'] -= 1;
-        } else {
-          removeItem(itemData);
-        }
-        break;
-      }
-    }
     setState(() {
-      transactionData['items'] = transactionData['items'];
+      for (var item in transactionData['items']) {
+        if (item['data']['id'] == itemData['data']['id']) {
+          if (item['quantity'] > 1) {
+            item['quantity'] -= 1;
+          } else {
+            removeItem(itemData);
+          }
+          break;
+        }
+      }
     });
   }
 
@@ -118,12 +114,22 @@ class _TerminalState extends State<Terminal> {
     transactionData['transaction_discounts'].add(transactionDiscount);
   }
 
-  void SetTotalGrossSales(totalGrossSales) {
-    transactionData['gross_sales'] = totalGrossSales;
-  }
-
   void addGovDiscountDetails(govDiscountDetails) {
     transactionData['gov_discount_details'].add(govDiscountDetails);
+  }
+
+  void calculateValues() {
+    setState(() {
+      transactionData = TransactionService.processCalculations(transactionData);
+    });
+  }
+
+  void processTransactions() {
+    calculateValues();
+    final formattedData = TransactionService.formatTransactionData(
+      transactionData,
+    );
+    TransactionService.saveTransactionData(formattedData);
   }
 
   @override
@@ -325,6 +331,7 @@ class _TerminalState extends State<Terminal> {
                     flex: 3,
                     child: TransactionActions(
                       setTransactionMethod: setTransactionMethod,
+                      processTransactions: processTransactions,
                     ),
                   ),
                 ],
