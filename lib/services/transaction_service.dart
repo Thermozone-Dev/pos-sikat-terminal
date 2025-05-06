@@ -143,6 +143,9 @@ class TransactionService {
         //Remove VAT from initial sales
         totalValue = initialValue / (1 + vatValue);
 
+        //Add Checking for Vat Inclusive and Exclusive Sales
+        grossSales += initialValue / (1 + vatValue);
+
         //Calculate Discount Values
         for (var discountId in item['data']['item_discounts']) {
           final futureDiscount = DiscountService.getDiscount(discountId);
@@ -160,7 +163,6 @@ class TransactionService {
         }
       } else {
         totalValue = initialValue;
-        grossSales += totalValue / (1 + vatValue);
       }
 
       item['data']['discount_value'] = discountValue;
