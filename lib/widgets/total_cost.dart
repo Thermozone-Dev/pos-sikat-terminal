@@ -22,7 +22,7 @@ class TotalCost extends StatelessWidget {
             style: TextStyle(fontWeight: FontWeight.w700, fontSize: 18),
           ),
           Text(
-            '₱ $totalCost',
+            '₱ ${totalCost.toStringAsFixed(2)}',
             style: TextStyle(
               fontWeight: FontWeight.w700,
               fontSize: 18,

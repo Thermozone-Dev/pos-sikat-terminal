@@ -29,6 +29,7 @@ class _TerminalState extends State<Terminal> {
   Map<String, dynamic> transactionData = {
     'items': [],
     'transaction_method': null,
+    'transaction_is_digital': false,
     'transaction_fee': null,
     'cash_tendered': 0.0,
     'total_sales': 0.0,
@@ -61,6 +62,8 @@ class _TerminalState extends State<Terminal> {
       if (canAdd) {
         transactionData['items'].add(itemData);
       }
+
+      calculateValues();
     });
   }
 
@@ -69,6 +72,7 @@ class _TerminalState extends State<Terminal> {
       transactionData['items'].removeWhere(
         (item) => item['data']['id'] == itemData['data']['id'],
       );
+      calculateValues();
     });
   }
 
@@ -80,6 +84,7 @@ class _TerminalState extends State<Terminal> {
           break;
         }
       }
+      calculateValues();
     });
   }
 
@@ -95,23 +100,29 @@ class _TerminalState extends State<Terminal> {
           break;
         }
       }
+      calculateValues();
     });
   }
 
   void setCashTendered(cashTendered) {
     transactionData['cash_tendered'] = cashTendered;
+    calculateValues();
   }
 
   void setTransactionMethod(transactionMethod) {
-    transactionData['transaction_method'] = transactionMethod;
+    transactionData['transaction_method'] = transactionMethod.id;
+    transactionData['transaction_is_digital'] = transactionMethod.isDigital;
+    calculateValues();
   }
 
   void setTransactionFee(transactionFee) {
     transactionData['transaction_fee'] = transactionFee;
+    calculateValues();
   }
 
   void addToTransactionDiscounts(transactionDiscount) {
     transactionData['transaction_discounts'].add(transactionDiscount);
+    calculateValues();
   }
 
   void addGovDiscountDetails(govDiscountDetails) {
@@ -324,7 +335,10 @@ class _TerminalState extends State<Terminal> {
                   ),
 
                   // Total Cost Container
-                  Expanded(flex: 1, child: TotalCost(totalCost: 1000.00)),
+                  Expanded(
+                    flex: 1,
+                    child: TotalCost(totalCost: transactionData['total_sales']),
+                  ),
 
                   // Payment Methods, Discounts, and Actions Container
                   Expanded(

@@ -3,14 +3,12 @@ class Discount {
   final String name;
   final double value;
   final bool isPercentage;
-  final bool isFlatValue;
 
   Discount({
     required this.id,
     required this.name,
     required this.value,
     required this.isPercentage,
-    required this.isFlatValue,
   });
 
   factory Discount.fromJson(Map<String, dynamic> json) {
@@ -19,7 +17,6 @@ class Discount {
       name: json['name'],
       value: (json['value'] as num).toDouble(),
       isPercentage: json['is_percentage'] == 1,
-      isFlatValue: json['is_flat_value'] == 1,
     );
   }
 }
