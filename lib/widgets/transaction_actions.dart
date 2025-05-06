@@ -1,16 +1,26 @@
+import 'dart:ffi';
+
+import 'package:bir_pos/widgets/terminal_action_buttons.dart';
 import 'package:flutter/material.dart';
-import 'package:bir_pos/widgets/payment_methods.dart';
-import 'package:bir_pos/widgets/discounts.dart';
+import 'package:bir_pos/widgets/payment_method_buttons.dart';
+import 'package:bir_pos/widgets/discount_buttons.dart';
 import '../print_service.dart';
 
 class TransactionActions extends StatelessWidget {
   final ValueChanged setTransactionMethod;
   final VoidCallback processTransactions;
+  final VoidCallback resetTransactionData;
+  final VoidCallback toggleIsFirstPrint;
 
-  const TransactionActions({
+  bool isFirstPrint;
+
+  TransactionActions({
     Key? key,
     required this.setTransactionMethod,
     required this.processTransactions,
+    required this.resetTransactionData,
+    required this.toggleIsFirstPrint,
+    required this.isFirstPrint,
   }) : super(key: key);
 
   @override
@@ -50,38 +60,12 @@ class TransactionActions extends StatelessWidget {
                   ),
 
                   // Actions Tab
-                  ElevatedButton(
-                    onPressed: () async {
-                      processTransactions();
-                      // final printerService = PrinterService();
-
-                      // // Sample receipt data
-                      // final items = [
-                      //   {'name': 'Apple', 'quantity': '2', 'price': '\$1.00'},
-                      //   {'name': 'Banana', 'quantity': '5', 'price': '\$2.50'},
-                      // ];
-
-                      // await printerService.printReceipt(
-                      //   storeName: 'Thermozone Philippines Corp.',
-                      //   storeAddress:
-                      //       '2280 Marconi St., Brgy. San Isidro, Makati City',
-                      //   storePhone: 'TIN: 223 661 818 0000',
-                      //   items: items,
-                      //   total: 3.50,
-                      // );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.grey[400],
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      padding: EdgeInsets.zero,
-                    ),
-                    child: Text(
-                      'Test Print',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(color: Colors.black),
-                    ),
+                  TerminalActionButtons(
+                    setTransactionMethod: setTransactionMethod,
+                    processTransactions: processTransactions,
+                    resetTransactionData: resetTransactionData,
+                    toggleIsFirstPrint: toggleIsFirstPrint,
+                    isFirstPrint: isFirstPrint,
                   ),
 
                   SizedBox(width: 10),
