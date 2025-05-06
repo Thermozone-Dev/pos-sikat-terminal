@@ -44,6 +44,34 @@ class _TerminalState extends State<Terminal> {
   };
 
   bool isDigitalPayment = false;
+  bool isFirstPrint = true;
+
+  void toggleIsFirstPrint() {
+    setState(() {
+      isFirstPrint = !isFirstPrint;
+    });
+  }
+
+  void resetTransactionData() {
+    setState(() {
+      transactionData = {
+        'items': [],
+        'transaction_method': null,
+        'transaction_is_digital': false,
+        'transaction_fee': null,
+        'cash_tendered': 0.0,
+        'total_sales': 0.0,
+        'change': 0.0,
+        'gross_sales': 0.0,
+        'vatable_sales': 0.0,
+        'vat': 0.0,
+        'vat_exempt_sales': 0.0,
+        'zero_rated_sales': 0.0,
+        'transaction_discounts': [],
+        'gov_discount_details': {},
+      };
+    });
+  }
 
   void addItem(itemData) {
     setState(() {
@@ -346,6 +374,9 @@ class _TerminalState extends State<Terminal> {
                     child: TransactionActions(
                       setTransactionMethod: setTransactionMethod,
                       processTransactions: processTransactions,
+                      resetTransactionData: resetTransactionData,
+                      toggleIsFirstPrint: toggleIsFirstPrint,
+                      isFirstPrint: isFirstPrint,
                     ),
                   ),
                 ],

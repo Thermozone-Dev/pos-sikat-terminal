@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
 import 'package:bir_pos/widgets/payment_methods.dart';
 import 'package:bir_pos/widgets/discounts.dart';
@@ -6,11 +8,18 @@ import '../print_service.dart';
 class TransactionActions extends StatelessWidget {
   final ValueChanged setTransactionMethod;
   final VoidCallback processTransactions;
+  final VoidCallback resetTransactionData;
+  final VoidCallback toggleIsFirstPrint;
 
-  const TransactionActions({
+  bool isFirstPrint;
+
+  TransactionActions({
     Key? key,
     required this.setTransactionMethod,
     required this.processTransactions,
+    required this.resetTransactionData,
+    required this.toggleIsFirstPrint,
+    required this.isFirstPrint,
   }) : super(key: key);
 
   @override
@@ -52,7 +61,20 @@ class TransactionActions extends StatelessWidget {
                   // Actions Tab
                   ElevatedButton(
                     onPressed: () async {
-                      processTransactions();
+                      if (isFirstPrint) {
+                        // processTransactions();
+                        //Print Transaction Receipt
+                        print("First Print: $isFirstPrint");
+                        toggleIsFirstPrint();
+                      } else {
+                        //Print Transaction Receipt
+                        print("First Print: $isFirstPrint");
+                        resetTransactionData();
+                        toggleIsFirstPrint();
+                      }
+
+                      // Second Button is Reprinting the reciept then reset the Counter and Transaction Data
+
                       // final printerService = PrinterService();
 
                       // // Sample receipt data
@@ -78,7 +100,7 @@ class TransactionActions extends StatelessWidget {
                       padding: EdgeInsets.zero,
                     ),
                     child: Text(
-                      'Test Print',
+                      isFirstPrint ? "Process Transaction" : "Reprint Receipt",
                       textAlign: TextAlign.center,
                       style: TextStyle(color: Colors.black),
                     ),
