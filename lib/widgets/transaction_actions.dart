@@ -10,6 +10,7 @@ class TransactionActions extends StatelessWidget {
   final ValueChanged setTransactionMethod;
   final ValueChanged addToTransactionsDiscount;
   final ValueChanged addGovDiscountDetails;
+  final ValueChanged setCashTendered;
 
   final VoidCallback processTransactions;
   final VoidCallback resetTransactionData;
@@ -23,6 +24,7 @@ class TransactionActions extends StatelessWidget {
     required this.addToTransactionsDiscount,
     required this.addGovDiscountDetails,
     required this.processTransactions,
+    required this.setCashTendered,
     required this.resetTransactionData,
     required this.toggleIsFirstPrint,
     required this.isFirstPrint,
@@ -58,13 +60,13 @@ class TransactionActions extends StatelessWidget {
                 children: [
                   // Discounts Tab
                   DiscountSelector(
-                    selectedDiscount: 0,
                     addToTransactionDiscounts: addToTransactionsDiscount,
                     addGovDiscountDetails: addGovDiscountDetails,
                   ),
 
                   // Payment Methods Tab
                   PaymentMethodButtons(
+                    setCashTendered: setCashTendered,
                     setTransactionMethod: setTransactionMethod,
                   ),
 

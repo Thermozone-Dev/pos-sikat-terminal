@@ -1,12 +1,17 @@
 import 'package:bir_pos/models/payment_method.dart';
 import 'package:bir_pos/services/payment_method_service.dart';
+import 'package:bir_pos/widgets/payment_method_form.dart';
 import 'package:flutter/material.dart';
 
 class PaymentMethodButtons extends StatelessWidget {
   final ValueChanged setTransactionMethod;
+  final ValueChanged setCashTendered;
 
-  const PaymentMethodButtons({Key? key, required this.setTransactionMethod})
-    : super(key: key);
+  const PaymentMethodButtons({
+    Key? key,
+    required this.setTransactionMethod,
+    required this.setCashTendered,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -37,40 +42,27 @@ class PaymentMethodButtons extends StatelessWidget {
             itemBuilder: (context, index) {
               final method = methods[index];
 
-              return AspectRatio(
-                aspectRatio: 1,
-                child: _buildButton(
-                  label: method.name,
-                  icon: method.isDigital ? Icons.credit_card : Icons.money,
-                  color:
-                      method.isDigital ? Colors.grey[300] : Colors.brown[500],
-                  textColor: method.isDigital ? Colors.black : Colors.white,
-                  onTap: () {
-                    setTransactionMethod(method);
-                    // print('Payment Method: ${method.name}');
-                  },
-                ),
-              );
+              if (!method.isDigital) {
+                return PaymentMethodForm(setCashTendered: setCashTendered);
+              } else {
+                return AspectRatio(
+                  aspectRatio: 1,
+                  child: _buildButton(
+                    label: method.name,
+                    icon: method.isDigital ? Icons.credit_card : Icons.money,
+                    color:
+                        method.isDigital ? Colors.grey[300] : Colors.brown[500],
+                    textColor: method.isDigital ? Colors.black : Colors.white,
+                    onTap: () {
+                      setTransactionMethod(method);
+                    },
+                  ),
+                );
+              }
             },
           );
         },
       ),
-      //     const SizedBox(width: 10),
-      //     _buildButton(
-      //       label: 'GCash',
-      //       color: Colors.blue[900],
-      //       textColor: Colors.white,
-      //       onTap: () => print('Payment Method: GCash'),
-      //     ),
-      //     const SizedBox(width: 10),
-      //     _buildButton(
-      //       label: 'Maya',
-      //       color: Colors.black,
-      //       textColor: Colors.green[300],
-      //       onTap: () => print('Payment Method: Maya'),
-      //     ),
-      //   ],
-      // ),
     );
   }
 
