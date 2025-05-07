@@ -4,15 +4,12 @@ import '../models/discount.dart';
 import '../services/discount_service.dart';
 
 class DiscountSelector extends StatelessWidget {
-  final int selectedDiscount;
-
   final ValueChanged addToTransactionDiscounts;
   final ValueChanged addGovDiscountDetails;
 
   const DiscountSelector({
     Key? key,
     required this.addToTransactionDiscounts,
-    required this.selectedDiscount,
     required this.addGovDiscountDetails,
   }) : super(key: key);
 
@@ -52,7 +49,7 @@ class DiscountSelector extends StatelessWidget {
                   onPressed: () {
                     if (discount.id > 0 && discount.id < 4) {
                       DiscountInfoForm(
-                        selectedDiscount: selectedDiscount,
+                        selectedDiscount: discount.id,
                         addGovDiscountDetails: addGovDiscountDetails,
                       );
                     } // Handle other discount types if needed
