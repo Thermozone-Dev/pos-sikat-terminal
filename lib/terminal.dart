@@ -404,6 +404,7 @@ class _TerminalState extends State<Terminal> {
                       decreaseQuantity: decreaseQuantity,
                       addGovDiscountDetails: addGovDiscountDetails,
                       addItemDiscount: addItemDiscount,
+                      removeItem: removeItem,
                     ),
                   ),
 

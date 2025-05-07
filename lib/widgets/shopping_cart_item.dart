@@ -10,6 +10,7 @@ class ShoppingCartItem extends StatelessWidget {
   final ValueChanged decreaseQuantity;
   final ValueChanged addGovDiscountDetails;
   final ValueChanged addItemDiscount;
+  final ValueChanged removeItem;
 
   const ShoppingCartItem({
     Key? key,
@@ -19,6 +20,7 @@ class ShoppingCartItem extends StatelessWidget {
     required this.decreaseQuantity,
     required this.addGovDiscountDetails,
     required this.addItemDiscount,
+    required this.removeItem,
   }) : super(key: key);
 
   @override
@@ -87,7 +89,10 @@ class ShoppingCartItem extends StatelessWidget {
               addGovDiscountDetails: addGovDiscountDetails,
               addItemDiscount: addItemDiscount,
             ),
-            IconButton(onPressed: () async {}, icon: Icon(Icons.delete)),
+            IconButton(
+              onPressed: () => removeItem(index),
+              icon: Icon(Icons.delete),
+            ),
           ],
         ),
       ],

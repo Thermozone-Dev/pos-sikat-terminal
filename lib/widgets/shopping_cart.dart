@@ -9,6 +9,7 @@ class ShoppingCart extends StatelessWidget {
   final ValueChanged decreaseQuantity;
   final ValueChanged addGovDiscountDetails;
   final ValueChanged addItemDiscount;
+  final ValueChanged removeItem;
 
   const ShoppingCart({
     Key? key,
@@ -17,6 +18,7 @@ class ShoppingCart extends StatelessWidget {
     required this.decreaseQuantity,
     required this.addGovDiscountDetails,
     required this.addItemDiscount,
+    required this.removeItem,
   }) : super(key: key);
 
   @override
@@ -76,6 +78,7 @@ class ShoppingCart extends StatelessWidget {
                           decreaseQuantity: decreaseQuantity,
                           addGovDiscountDetails: addGovDiscountDetails,
                           addItemDiscount: addItemDiscount,
+                          removeItem: removeItem,
                         );
                       },
                       separatorBuilder:
