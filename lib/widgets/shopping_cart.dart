@@ -7,12 +7,16 @@ class ShoppingCart extends StatelessWidget {
 
   final ValueChanged increaseQuantity;
   final ValueChanged decreaseQuantity;
+  final ValueChanged addGovDiscountDetails;
+  final ValueChanged addItemDiscount;
 
   const ShoppingCart({
     Key? key,
     required this.transactionData,
     required this.increaseQuantity,
     required this.decreaseQuantity,
+    required this.addGovDiscountDetails,
+    required this.addItemDiscount,
   }) : super(key: key);
 
   @override
@@ -41,7 +45,7 @@ class ShoppingCart extends StatelessWidget {
             ),
 
             Text(
-              '04/08/2025 5:16 PM',
+              DateTime.now().toString(),
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
             ),
 
@@ -74,9 +78,12 @@ class ShoppingCart extends StatelessWidget {
 
                       // Item Card
                       return ShoppingCartItem(
+                        index: index,
                         item: item,
                         increaseQuantity: increaseQuantity,
                         decreaseQuantity: decreaseQuantity,
+                        addGovDiscountDetails: addGovDiscountDetails,
+                        addItemDiscount: addItemDiscount,
                       );
                     },
                   );
