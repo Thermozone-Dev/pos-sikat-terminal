@@ -33,9 +33,7 @@ class TransactionService {
     var discounts = [];
     if (data['transactions_discounts'] != null) {
       discounts =
-          data['transaction_discounts']
-              .map((discount) => discount['id'])
-              .toList();
+          data['transaction_discounts'].map((discount) => discount).toList();
     }
     return discounts;
   }
@@ -202,14 +200,14 @@ class TransactionService {
       }
 
       if (isVatable) {
-        vatableSales += totalSales / (1 + vatValue);
+        vatableSales += totalValue / (1 + vatValue);
       } else {
-        vatExemptSales += totalSales / (1 + vatValue);
+        vatExemptSales += totalValue / (1 + vatValue);
       }
     }
 
     vat = vatableSales * vatValue;
-    totalSales += vatableSales + vat;
+    totalSales += vatableSales + vat + vatExemptSales + zeroRatedSales;
 
     print("vatable, $vatableSales");
     print("total sales, $totalSales");
