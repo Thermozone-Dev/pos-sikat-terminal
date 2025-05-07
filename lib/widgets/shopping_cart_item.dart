@@ -1,16 +1,23 @@
+import 'package:bir_pos/widgets/shopping_cart_item_discount.dart';
 import 'package:flutter/material.dart';
 
 class ShoppingCartItem extends StatelessWidget {
   final Map<String, dynamic> item;
+  final int index;
 
   final ValueChanged increaseQuantity;
   final ValueChanged decreaseQuantity;
+  final ValueChanged addGovDiscountDetails;
+  final ValueChanged addItemDiscount;
 
   const ShoppingCartItem({
     Key? key,
     required this.item,
+    required this.index,
     required this.increaseQuantity,
     required this.decreaseQuantity,
+    required this.addGovDiscountDetails,
+    required this.addItemDiscount,
   }) : super(key: key);
 
   @override
@@ -72,11 +79,11 @@ class ShoppingCartItem extends StatelessWidget {
               icon: Icon(Icons.add_circle),
               onPressed: () => increaseQuantity(item),
             ),
-            IconButton(
-              icon: Icon(Icons.discount),
-              onPressed: () {
-                print("Assign Product Discount");
-              },
+            ShoppingCartItemDiscount(
+              index: index,
+              item: item,
+              addGovDiscountDetails: addGovDiscountDetails,
+              addItemDiscount: addItemDiscount,
             ),
           ],
         ),
