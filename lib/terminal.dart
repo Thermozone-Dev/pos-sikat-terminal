@@ -150,10 +150,40 @@ class _TerminalState extends State<Terminal> {
           'quantity': item['quantity'],
         };
 
-        data['data']['item_discounts'] = [item['discount_id']];
-        addItem(data);
+        if (data['data'].containsKey('product_id')) {
+          Map<String, dynamic> discountedItem = {
+            'data': {
+              'id': data['data']['id'],
+              'product_id': data['data']['product_id'],
+              'name': data['data']['name'],
+              'price': data['data']['price'],
+              'image_url': data['data']['image_url'],
+              'discount_value': item['discount_value'],
+              'total_value': item['total_value'],
+            },
+            'quantity': item['quantity'],
+          };
+          discountedItem['data']['item_discounts'] = [item['discount_id']];
+          addItem(discountedItem);
+        } else {
+          Map<String, dynamic> discountedItem = {
+            'data': {
+              'id': data['data']['id'],
+              'package_id': data['data']['package_id'],
+              'name': data['data']['name'],
+              'price': data['data']['price'],
+              'image_url': data['data']['image_url'],
+              'discount_value': item['discount_value'],
+              'total_value': item['total_value'],
+            },
+            'quantity': item['quantity'],
+          };
+          discountedItem['data']['item_discounts'] = [item['discount_id']];
+          addItem(discountedItem);
+        }
+
         initialItem['quantity'] -= item['quantity'];
-        print(initialItem['quantity']);
+        // print(initialItem['quantity']);
         if (initialItem['quantity'] < 1) {
           removeItem(item['index']);
         }
@@ -173,7 +203,7 @@ class _TerminalState extends State<Terminal> {
         data['data']['item_discounts'].add(item['discount_id']);
         addItem(data);
         initialItem['quantity'] -= item['quantity'];
-        print(initialItem['quantity']);
+        // print(initialItem['quantity']);
         if (initialItem['quantity'] < 1) {
           removeItem(item['index']);
         }
@@ -183,7 +213,17 @@ class _TerminalState extends State<Terminal> {
   }
 
   void addToTransactionDiscounts(transactionDiscount) {
-    transactionData['transaction_discounts'].add(transactionDiscount);
+    if (transactionData['transaction_discounts'] == null ||
+        transactionData['transaction_discounts'].isEmpty) {
+      transactionData['transaction_discounts'] = [];
+      transactionData['transaction_discounts'].add(transactionDiscount);
+    }
+    if (transactionData['transaction_discounts'].contains(
+      transactionDiscount,
+    )) {
+      transactionData['transaction_discounts'].add(transactionDiscount);
+    }
+    print('Transaction discounts: ${transactionData['transaction_discounts']}');
     calculateValues();
   }
 
@@ -198,8 +238,8 @@ class _TerminalState extends State<Terminal> {
             : error = 'Discount info is already set';
       }
     });
-    print('Gov discount details: ${transactionData['gov_discount_details']}');
-    print((error != null) ? error : 'Discount info added successfully');
+    // print('Gov discount details: ${transactionData['gov_discount_details']}');
+    // print((error != null) ? error : 'Discount info added successfully');
   }
 
   void calculateValues() {
@@ -210,6 +250,8 @@ class _TerminalState extends State<Terminal> {
 
   void processTransactions() {
     calculateValues();
+    // print('Processing transactions...');
+    // print('Transaction Data: $transactionData');
     final formattedData = TransactionService.formatTransactionData(
       transactionData,
     );
@@ -418,6 +460,8 @@ class _TerminalState extends State<Terminal> {
                   Expanded(
                     flex: 3,
                     child: TransactionActions(
+                      addGovDiscountDetails: addGovDiscountDetails,
+                      addToTransactionsDiscount: addToTransactionDiscounts,
                       setTransactionMethod: setTransactionMethod,
                       processTransactions: processTransactions,
                       resetTransactionData: resetTransactionData,

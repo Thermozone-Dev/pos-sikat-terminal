@@ -8,6 +8,9 @@ import '../print_service.dart';
 
 class TransactionActions extends StatelessWidget {
   final ValueChanged setTransactionMethod;
+  final ValueChanged addToTransactionsDiscount;
+  final ValueChanged addGovDiscountDetails;
+
   final VoidCallback processTransactions;
   final VoidCallback resetTransactionData;
   final VoidCallback toggleIsFirstPrint;
@@ -17,6 +20,8 @@ class TransactionActions extends StatelessWidget {
   TransactionActions({
     Key? key,
     required this.setTransactionMethod,
+    required this.addToTransactionsDiscount,
+    required this.addGovDiscountDetails,
     required this.processTransactions,
     required this.resetTransactionData,
     required this.toggleIsFirstPrint,
@@ -52,7 +57,11 @@ class TransactionActions extends StatelessWidget {
               child: TabBarView(
                 children: [
                   // Discounts Tab
-                  DiscountSelector(),
+                  DiscountSelector(
+                    selectedDiscount: 0,
+                    addToTransactionDiscounts: addToTransactionsDiscount,
+                    addGovDiscountDetails: addGovDiscountDetails,
+                  ),
 
                   // Payment Methods Tab
                   PaymentMethodButtons(

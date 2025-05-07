@@ -1,9 +1,20 @@
+import 'package:bir_pos/widgets/discount_info_form.dart';
 import 'package:flutter/material.dart';
 import '../models/discount.dart';
 import '../services/discount_service.dart';
 
 class DiscountSelector extends StatelessWidget {
-  const DiscountSelector({Key? key}) : super(key: key);
+  final int selectedDiscount;
+
+  final ValueChanged addToTransactionDiscounts;
+  final ValueChanged addGovDiscountDetails;
+
+  const DiscountSelector({
+    Key? key,
+    required this.addToTransactionDiscounts,
+    required this.selectedDiscount,
+    required this.addGovDiscountDetails,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -39,7 +50,13 @@ class DiscountSelector extends StatelessWidget {
                 aspectRatio: 1,
                 child: ElevatedButton(
                   onPressed: () {
-                    print('Discount: ${discount.name}');
+                    if (discount.id > 0 && discount.id < 4) {
+                      DiscountInfoForm(
+                        selectedDiscount: selectedDiscount,
+                        addGovDiscountDetails: addGovDiscountDetails,
+                      );
+                    } // Handle other discount types if needed
+                    addToTransactionDiscounts(discount.id);
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.grey[300],
