@@ -133,6 +133,11 @@ class SummaryPrintService {
         styles: PosStyles(align: PosAlign.right, bold: true),
       ),
     ]);
+    bytes += generator.feed(2);
+    bytes += generator.text(
+      '.',
+      styles: PosStyles(align: PosAlign.center, bold: true),
+    );
 
     await _sendToPrinter(printer, bytes);
   }
