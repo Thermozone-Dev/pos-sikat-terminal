@@ -27,33 +27,31 @@ class TerminalActionButtons extends StatelessWidget {
       children: [
         ElevatedButton(
           onPressed: () {
-            // Handle reset action
             resetTransactionData();
           },
           style: ElevatedButton.styleFrom(
             backgroundColor: Colors.grey[300],
-            iconColor: Colors.black,
+            foregroundColor: Colors.black,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(8), // Rounded rectangle
             ),
-            padding: EdgeInsets.zero,
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
           ),
-          child: Text(
+          child: const Text(
             "Clear Transaction",
-            textAlign: TextAlign.center,
-            style: const TextStyle(fontSize: 9, color: Colors.black),
+            style: TextStyle(fontSize: 14),
           ),
         ),
         ElevatedButton(
           onPressed: () async {
             if (isFirstPrint) {
               processTransactions();
-              //Print Transaction Receipt
               toggleIsFirstPrint();
+              // Call the print function after processing the transaction
             } else {
-              //Print Transaction Receipt
               resetTransactionData();
               toggleIsFirstPrint();
+              // Call the print function after resetting the transaction data
             }
 
             // Second Button is Reprinting the reciept then reset the Counter and Transaction Data
@@ -77,16 +75,15 @@ class TerminalActionButtons extends StatelessWidget {
           },
           style: ElevatedButton.styleFrom(
             backgroundColor: Colors.grey[300],
-            iconColor: Colors.black,
+            foregroundColor: Colors.black,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(8),
             ),
-            padding: EdgeInsets.zero,
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
           ),
           child: Text(
             isFirstPrint ? "Process Transaction" : "Reprint Receipt",
-            textAlign: TextAlign.center,
-            style: const TextStyle(fontSize: 9, color: Colors.black),
+            style: const TextStyle(fontSize: 14),
           ),
         ),
       ],

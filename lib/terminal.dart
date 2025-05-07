@@ -285,107 +285,105 @@ class _TerminalState extends State<Terminal> {
                       },
                     ),
 
-                    // Packages Label
-                    SectionHeader(title: 'Packages'),
-
-                    // Horizontal GridView for Packages
-                    Container(
-                      margin: const EdgeInsets.fromLTRB(20, 0, 0, 20),
-                      height: 330,
-                      child: FutureBuilder<List<Package>>(
-                        future: PackageService.getPackages(),
-                        builder: (context, snapshot) {
-                          if (snapshot.connectionState ==
-                              ConnectionState.waiting) {
-                            return const Center(
-                              child: CircularProgressIndicator(),
-                            );
-                          } else if (snapshot.hasError) {
-                            return Center(
-                              child: Text('Error: ${snapshot.error}'),
-                            );
-                          } else if (!snapshot.hasData ||
-                              snapshot.data!.isEmpty) {
-                            return const Center(
-                              child: Text('No packages found'),
-                            );
-                          }
-                          final packages = snapshot.data!;
-
-                          return GridView.builder(
-                            scrollDirection: Axis.horizontal,
-                            gridDelegate:
-                                const SliverGridDelegateWithFixedCrossAxisCount(
-                                  crossAxisCount: 1,
-                                  crossAxisSpacing: 10,
-                                  mainAxisSpacing: 10,
-                                  childAspectRatio: 1.4,
-                                ),
-                            itemCount: packages.length,
-                            itemBuilder: (context, index) {
-                              final package = packages[index];
-
-                              // Package Card
-                              return PackageCard(
-                                package: package,
-                                onPressed: addItem,
-                              );
-                            },
+                    FutureBuilder<List<Package>>(
+                      future: PackageService.getPackages(),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return const Center(
+                            child: CircularProgressIndicator(),
                           );
-                        },
-                      ),
+                        } else if (snapshot.hasError) {
+                          return Center(
+                            child: Text('Error: ${snapshot.error}'),
+                          );
+                        } else if (!snapshot.hasData ||
+                            snapshot.data!.isEmpty) {
+                          return const SizedBox.shrink(); // Hide section if no packages
+                        }
+
+                        final packages = snapshot.data!;
+
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            SectionHeader(title: 'Packages'),
+                            Container(
+                              margin: const EdgeInsets.fromLTRB(20, 0, 0, 20),
+                              height: 330,
+                              child: GridView.builder(
+                                scrollDirection: Axis.horizontal,
+                                gridDelegate:
+                                    const SliverGridDelegateWithFixedCrossAxisCount(
+                                      crossAxisCount: 1,
+                                      crossAxisSpacing: 10,
+                                      mainAxisSpacing: 10,
+                                      childAspectRatio: 1.4,
+                                    ),
+                                itemCount: packages.length,
+                                itemBuilder: (context, index) {
+                                  final package = packages[index];
+                                  return PackageCard(
+                                    package: package,
+                                    onPressed: addItem,
+                                  );
+                                },
+                              ),
+                            ),
+                          ],
+                        );
+                      },
                     ),
 
-                    // Products Label
-                    SectionHeader(title: 'Products'),
-
-                    // GridView for Products
-                    Container(
-                      margin: const EdgeInsets.fromLTRB(20, 0, 0, 20),
-                      child: FutureBuilder<List<Product>>(
-                        future: ProductService.getProducts(),
-                        builder: (context, snapshot) {
-                          if (snapshot.connectionState ==
-                              ConnectionState.waiting) {
-                            return const Center(
-                              child: CircularProgressIndicator(),
-                            );
-                          } else if (snapshot.hasError) {
-                            return Center(
-                              child: Text('Error: ${snapshot.error}'),
-                            );
-                          } else if (!snapshot.hasData ||
-                              snapshot.data!.isEmpty) {
-                            return const Center(
-                              child: Text('No products found'),
-                            );
-                          }
-
-                          final products = snapshot.data!;
-
-                          return GridView.builder(
-                            shrinkWrap: true,
-                            physics: const NeverScrollableScrollPhysics(),
-                            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount:
-                                  crossAxisCount, // Make sure this is defined above
-                              crossAxisSpacing: 10,
-                              mainAxisSpacing: 10,
-                              childAspectRatio: 0.75,
-                            ),
-                            itemCount: products.length,
-                            itemBuilder: (context, index) {
-                              final product = products[index];
-
-                              // Product Card
-                              return ProductCard(
-                                product: product,
-                                onPressed: addItem,
-                              );
-                            },
+                    FutureBuilder<List<Product>>(
+                      future: ProductService.getProducts(),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return const Center(
+                            child: CircularProgressIndicator(),
                           );
-                        },
-                      ),
+                        } else if (snapshot.hasError) {
+                          return Center(
+                            child: Text('Error: ${snapshot.error}'),
+                          );
+                        } else if (!snapshot.hasData ||
+                            snapshot.data!.isEmpty) {
+                          return const SizedBox.shrink(); // Hides the section if empty
+                        }
+
+                        final products = snapshot.data!;
+
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            SectionHeader(title: 'Products'),
+                            Container(
+                              margin: const EdgeInsets.fromLTRB(20, 0, 0, 20),
+                              child: GridView.builder(
+                                shrinkWrap: true,
+                                physics: const NeverScrollableScrollPhysics(),
+                                gridDelegate:
+                                    SliverGridDelegateWithFixedCrossAxisCount(
+                                      crossAxisCount:
+                                          crossAxisCount, // Ensure this is defined above
+                                      crossAxisSpacing: 10,
+                                      mainAxisSpacing: 10,
+                                      childAspectRatio: 0.75,
+                                    ),
+                                itemCount: products.length,
+                                itemBuilder: (context, index) {
+                                  final product = products[index];
+                                  return ProductCard(
+                                    product: product,
+                                    onPressed: addItem,
+                                  );
+                                },
+                              ),
+                            ),
+                          ],
+                        );
+                      },
                     ),
                   ],
                 ),

@@ -44,50 +44,45 @@ class ShoppingCart extends StatelessWidget {
               ],
             ),
 
-            Text(
-              DateTime.now().toString(),
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-            ),
-
             // Spacing & Border
-            SizedBox(height: 20),
+            SizedBox(height: 10),
 
             Container(color: Colors.grey[300], height: 2),
             SizedBox(height: 30),
-            Container(
-              margin: const EdgeInsets.fromLTRB(20, 0, 0, 20),
-              child: FutureBuilder<List<dynamic>>(
-                future: CartService.getCartItems(transactionData),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(child: CircularProgressIndicator());
-                  } else if (snapshot.hasError) {
-                    return Center(child: Text('Error: ${snapshot.error}'));
-                  } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                    return const Center(child: Text('No products found'));
-                  }
+            Expanded(
+              child: Container(
+                margin: const EdgeInsets.fromLTRB(20, 0, 0, 20),
+                child: FutureBuilder<List<dynamic>>(
+                  future: CartService.getCartItems(transactionData),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(child: CircularProgressIndicator());
+                    } else if (snapshot.hasError) {
+                      return Center(child: Text('Error: ${snapshot.error}'));
+                    } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                      return const Center(child: Text('No products found'));
+                    }
 
-                  final items = snapshot.data!;
+                    final items = snapshot.data!;
 
-                  return ListView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: items.length,
-                    itemBuilder: (context, index) {
-                      final item = items[index];
-
-                      // Item Card
-                      return ShoppingCartItem(
-                        index: index,
-                        item: item,
-                        increaseQuantity: increaseQuantity,
-                        decreaseQuantity: decreaseQuantity,
-                        addGovDiscountDetails: addGovDiscountDetails,
-                        addItemDiscount: addItemDiscount,
-                      );
-                    },
-                  );
-                },
+                    return ListView.separated(
+                      itemCount: items.length,
+                      itemBuilder: (context, index) {
+                        final item = items[index];
+                        return ShoppingCartItem(
+                          index: index,
+                          item: item,
+                          increaseQuantity: increaseQuantity,
+                          decreaseQuantity: decreaseQuantity,
+                          addGovDiscountDetails: addGovDiscountDetails,
+                          addItemDiscount: addItemDiscount,
+                        );
+                      },
+                      separatorBuilder:
+                          (context, index) => const SizedBox(height: 10),
+                    );
+                  },
+                ),
               ),
             ),
           ],
