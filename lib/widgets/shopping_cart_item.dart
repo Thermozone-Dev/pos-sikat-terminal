@@ -1,3 +1,4 @@
+import 'package:bir_pos/services/cart_service.dart';
 import 'package:bir_pos/widgets/shopping_cart_item_discount.dart';
 import 'package:flutter/material.dart';
 
@@ -27,13 +28,14 @@ class ShoppingCartItem extends StatelessWidget {
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             ClipRRect(
               borderRadius: BorderRadius.circular(12),
               child: Image.network(
                 item['data']['image_url'],
-                width: 60,
-                height: 60,
+                width: 50,
+                height: 50,
                 fit: BoxFit.cover,
               ),
             ),
@@ -44,7 +46,7 @@ class ShoppingCartItem extends StatelessWidget {
                 Text(
                   item['data']['name'],
                   style: TextStyle(
-                    fontSize: 16,
+                    fontSize: 14,
                     fontWeight: FontWeight.w800,
                     color: Colors.black87,
                   ),
@@ -52,7 +54,7 @@ class ShoppingCartItem extends StatelessWidget {
                 Text(
                   item['data']['price'].toString(),
                   style: TextStyle(
-                    fontSize: 14,
+                    fontSize: 13,
                     fontWeight: FontWeight.w700,
                     color: Color(0xFF0D7C66),
                   ),
@@ -85,6 +87,7 @@ class ShoppingCartItem extends StatelessWidget {
               addGovDiscountDetails: addGovDiscountDetails,
               addItemDiscount: addItemDiscount,
             ),
+            IconButton(onPressed: () async {}, icon: Icon(Icons.delete)),
           ],
         ),
       ],
