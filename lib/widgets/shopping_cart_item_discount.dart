@@ -30,14 +30,14 @@ class _ShoppingCartItemDiscountState extends State<ShoppingCartItemDiscount> {
   dynamic discounts;
 
   void setSelectedDiscount(value) {
-    this.setState(() {
+    setState(() {
       selectedDiscount = value;
       print('Selected discount: $selectedDiscount');
     });
   }
 
   void setQuantitySelected(value) {
-    this.setState(() {
+    setState(() {
       quantitySelected = value;
       print("Quantity Selected: $quantitySelected");
     });
@@ -105,6 +105,7 @@ class _ShoppingCartItemDiscountState extends State<ShoppingCartItemDiscount> {
                     'index': widget.index,
                     'quantity': quantitySelected,
                     'discount_id': selectedDiscount,
+                    'context': context,
                   });
                 }
               },

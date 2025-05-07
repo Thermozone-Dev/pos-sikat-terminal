@@ -80,9 +80,12 @@ class _TerminalState extends State<Terminal> {
       if (!transactionData['items'].isEmpty) {
         for (var item in transactionData['items']) {
           if (item['data']['id'] == itemData['data']['id']) {
-            item['quantity'] += 1;
-            canAdd = false;
-            break;
+            if (itemData['data']['item_discounts'] == null ||
+                itemData['data']['item_discounts'].isEmpty) {
+              item['quantity'] += 1;
+              canAdd = false;
+              break;
+            }
           }
         }
       }
@@ -95,38 +98,27 @@ class _TerminalState extends State<Terminal> {
     });
   }
 
-  void removeItem(itemData) {
+  void removeItem(index) {
     setState(() {
-      transactionData['items'].removeWhere(
-        (item) => item['data']['id'] == itemData['data']['id'],
-      );
+      transactionData['items'].removeAt(index);
       calculateValues();
     });
   }
 
-  void increaseQuantity(itemData) {
+  void increaseQuantity(index) {
+    final item = transactionData['items'][index];
     setState(() {
-      for (var item in transactionData['items']) {
-        if (item['data']['id'] == itemData['data']['id']) {
-          item['quantity'] += 1;
-          break;
-        }
-      }
+      item['quantity'] += 1;
       calculateValues();
     });
   }
 
-  void decreaseQuantity(itemData) {
+  void decreaseQuantity(index) {
+    final item = transactionData['items'][index];
     setState(() {
-      for (var item in transactionData['items']) {
-        if (item['data']['id'] == itemData['data']['id']) {
-          if (item['quantity'] > 1) {
-            item['quantity'] -= 1;
-          } else {
-            removeItem(itemData);
-          }
-          break;
-        }
+      item['quantity'] -= 1;
+      if (item['quantity'] < 1) {
+        removeItem(index);
       }
       calculateValues();
     });
@@ -148,13 +140,66 @@ class _TerminalState extends State<Terminal> {
     calculateValues();
   }
 
+  void addItemDiscount(item) {
+    setState(() {
+      final initialItem = transactionData['items'][item['index']];
+      if (initialItem['data']['item_discounts'] == null ||
+          initialItem['data']['item_discounts'].isEmpty) {
+        final data = {
+          'data': initialItem['data'],
+          'quantity': item['quantity'],
+        };
+
+        data['data']['item_discounts'] = [item['discount_id']];
+        addItem(data);
+        initialItem['quantity'] -= item['quantity'];
+        print(initialItem['quantity']);
+        if (initialItem['quantity'] < 1) {
+          removeItem(item['index']);
+        }
+      } else if (initialItem['item_discounts'].contains(item['discount_id'])) {
+        item['context'].showSnackBar(
+          SnackBar(
+            content: Text('Discount already applied to this item'),
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      } else {
+        final data = {
+          'data': initialItem['data'],
+          'quantity': item['quantity'],
+        };
+
+        data['data']['item_discounts'].add(item['discount_id']);
+        addItem(data);
+        initialItem['quantity'] -= item['quantity'];
+        print(initialItem['quantity']);
+        if (initialItem['quantity'] < 1) {
+          removeItem(item['index']);
+        }
+      }
+      calculateValues();
+    });
+  }
+
   void addToTransactionDiscounts(transactionDiscount) {
     transactionData['transaction_discounts'].add(transactionDiscount);
     calculateValues();
   }
 
   void addGovDiscountDetails(govDiscountDetails) {
-    transactionData['gov_discount_details'].add(govDiscountDetails);
+    String? error;
+    setState(() {
+      for (var discount in govDiscountDetails.keys) {
+        (!transactionData['gov_discount_details'].containsKey(discount))
+            ? transactionData['gov_discount_details'] = {
+              discount: govDiscountDetails[discount],
+            }
+            : error = 'Discount info is already set';
+      }
+    });
+    print('Gov discount details: ${transactionData['gov_discount_details']}');
+    print((error != null) ? error : 'Discount info added successfully');
   }
 
   void calculateValues() {
@@ -359,6 +404,8 @@ class _TerminalState extends State<Terminal> {
                       transactionData: transactionData,
                       increaseQuantity: increaseQuantity,
                       decreaseQuantity: decreaseQuantity,
+                      addGovDiscountDetails: addGovDiscountDetails,
+                      addItemDiscount: addItemDiscount,
                     ),
                   ),
 

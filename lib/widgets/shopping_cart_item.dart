@@ -65,7 +65,7 @@ class ShoppingCartItem extends StatelessWidget {
           children: [
             IconButton(
               icon: Icon(Icons.remove_circle),
-              onPressed: () => decreaseQuantity(item),
+              onPressed: () => decreaseQuantity(index),
             ),
             Text(
               item['quantity'].toString(),
@@ -77,7 +77,7 @@ class ShoppingCartItem extends StatelessWidget {
             ),
             IconButton(
               icon: Icon(Icons.add_circle),
-              onPressed: () => increaseQuantity(item),
+              onPressed: () => increaseQuantity(index),
             ),
             ShoppingCartItemDiscount(
               index: index,
