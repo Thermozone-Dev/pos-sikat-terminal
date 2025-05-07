@@ -1,3 +1,4 @@
+import 'package:bir_pos/summary_print_service.dart';
 import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
 
@@ -14,6 +15,19 @@ class MainDrawer extends StatelessWidget {
             decoration: BoxDecoration(color: Colors.brown[500]),
             child: Center(child: Image.asset('assets/img/banner-dark.png')),
           ),
+          ListTile(
+            leading: const Icon(Icons.print, color: Colors.black),
+            title: const Text(
+              'Summary Report',
+              style: TextStyle(fontWeight: FontWeight.w600),
+            ),
+            onTap: () async {
+              final printerService = SummaryPrintService();
+              await printerService.printReceipt();
+              Navigator.pop(context);
+            },
+          ),
+
           ListTile(
             leading: const Icon(Icons.print, color: Colors.black),
             title: const Text(
@@ -36,6 +50,7 @@ class MainDrawer extends StatelessWidget {
               Navigator.pop(context);
             },
           ),
+
           ListTile(
             leading: const Icon(Icons.exit_to_app, color: Colors.black),
             title: const Text(
