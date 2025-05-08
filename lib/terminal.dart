@@ -1,5 +1,5 @@
 import 'package:bir_pos/models/user.dart';
-import 'package:bir_pos/print_service.dart';
+import 'package:bir_pos/services/print_service.dart';
 import 'package:bir_pos/services/auth_service.dart';
 import 'package:bir_pos/services/transaction_service.dart';
 import 'package:bir_pos/widgets/greeter.dart';
