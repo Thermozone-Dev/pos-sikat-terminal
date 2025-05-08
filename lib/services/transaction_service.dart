@@ -81,7 +81,7 @@ class TransactionService {
     return encodedData;
   }
 
-  static void saveTransactionData(dynamic data) async {
+  static Future<int?> saveTransactionData(dynamic data) async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
 
@@ -103,6 +103,7 @@ class TransactionService {
       if (response.statusCode == 201) {
         final data = jsonDecode(response.body);
         print('Transaction saved successfully: $data');
+        return data['transaction details']['id'];
       } else {
         final errorData = jsonDecode(response.body);
         final message = errorData ?? 'Transaction failed';
@@ -111,6 +112,7 @@ class TransactionService {
     } catch (e) {
       print(e);
     }
+    return null;
   }
 
   static Map<String, dynamic> processCalculations(

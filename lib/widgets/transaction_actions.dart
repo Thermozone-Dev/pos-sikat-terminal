@@ -15,6 +15,7 @@ class TransactionActions extends StatelessWidget {
   final VoidCallback processTransactions;
   final VoidCallback resetTransactionData;
   final VoidCallback toggleIsFirstPrint;
+  final VoidCallback printReceipt;
 
   bool isFirstPrint;
 
@@ -27,6 +28,7 @@ class TransactionActions extends StatelessWidget {
     required this.setCashTendered,
     required this.resetTransactionData,
     required this.toggleIsFirstPrint,
+    required this.printReceipt,
     required this.isFirstPrint,
   }) : super(key: key);
 
@@ -76,6 +78,7 @@ class TransactionActions extends StatelessWidget {
                     processTransactions: processTransactions,
                     resetTransactionData: resetTransactionData,
                     toggleIsFirstPrint: toggleIsFirstPrint,
+                    printReceipt: printReceipt,
                     isFirstPrint: isFirstPrint,
                   ),
 

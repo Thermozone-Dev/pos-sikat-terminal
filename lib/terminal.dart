@@ -1,4 +1,5 @@
 import 'package:bir_pos/models/user.dart';
+import 'package:bir_pos/print_service.dart';
 import 'package:bir_pos/services/auth_service.dart';
 import 'package:bir_pos/services/transaction_service.dart';
 import 'package:bir_pos/widgets/greeter.dart';
@@ -43,6 +44,7 @@ class _TerminalState extends State<Terminal> {
     'gov_discount_details': {},
   };
 
+  String invoiceId = "";
   bool isDigitalPayment = false;
   bool isFirstPrint = true;
 
@@ -71,6 +73,10 @@ class _TerminalState extends State<Terminal> {
         'gov_discount_details': {},
       };
     });
+  }
+
+  void setInvoice(id) {
+    invoiceId = id.toString();
   }
 
   void addItem(itemData) {
@@ -255,7 +261,57 @@ class _TerminalState extends State<Terminal> {
     final formattedData = TransactionService.formatTransactionData(
       transactionData,
     );
-    TransactionService.saveTransactionData(formattedData);
+    TransactionService.saveTransactionData(
+      formattedData,
+    ).then((id) => setInvoice(id));
+  }
+
+  void printReceipt() {
+    final printerService = PrinterService();
+    final user = AuthService.getUser(context);
+
+    final items =
+        transactionData['items']
+            .map(
+              (data) => {
+                'name': data['data']['name'],
+                'quantity': data['quantity'],
+                'price': data['data']['price'],
+              },
+            )
+            .toList();
+
+    final accountingData = {
+      'transaction_method': transactionData['transaction_method'].toString(),
+      'transaction_fee': transactionData['transaction_fee'].toString(),
+      'cash_tendered': transactionData['cash_tendered'].toString(),
+      'total_sales': transactionData['total_sales'].toString(),
+      'change': transactionData['change'].toString(),
+      'gross_sales': transactionData['gross_sales'].toString(),
+      'vatable_sales': transactionData['vatable_sales'].toString(),
+      'vat': transactionData['vat'].toString(),
+      'vat_exempt_sales': transactionData['vat_exempt_sales'].toString(),
+      'zero_rated_sales': transactionData['zero_rated_sales'].toString(),
+    };
+
+    user.then((data) {
+      final userData = {
+        'id': data.id.toString(),
+        'name': data.name,
+        'email': data.email.toString(),
+      };
+
+      printerService.printReceipt(
+        storeName: 'Thermozone Philippines Corp.',
+        storeAddress: '2280 Marconi St., Brgy. San Isidro, Makati City',
+        storePhone: 'TIN: 223 661 818 0000',
+        userData: userData,
+        invoiceId: invoiceId,
+        accountingData: accountingData,
+        items: items,
+        dateTime: DateTime.now().toIso8601String().toString(),
+      );
+    });
   }
 
   @override
@@ -467,6 +523,7 @@ class _TerminalState extends State<Terminal> {
                       processTransactions: processTransactions,
                       resetTransactionData: resetTransactionData,
                       toggleIsFirstPrint: toggleIsFirstPrint,
+                      printReceipt: printReceipt,
                       isFirstPrint: isFirstPrint,
                     ),
                   ),

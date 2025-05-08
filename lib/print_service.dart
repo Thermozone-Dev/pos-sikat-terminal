@@ -11,8 +11,11 @@ class PrinterService {
     required String storeName,
     required String storeAddress,
     required String storePhone,
+    required Map<String, String> userData,
+    required String invoiceId,
     required List<Map<String, String>> items,
-    required double total,
+    required Map<String, String> accountingData,
+    required String dateTime,
   }) async {
     var devices = <BluetoothPrinter>[];
     BluetoothPrinter? selectedPrinter;
@@ -49,8 +52,11 @@ class PrinterService {
           storeName,
           storeAddress,
           storePhone,
+          userData,
+          invoiceId,
           items,
-          total,
+          accountingData,
+          dateTime,
         );
         _subscription?.cancel(); // Cancel the discovery stream after printing
       }
@@ -68,8 +74,11 @@ class PrinterService {
     String storeName,
     String storeAddress,
     String storePhone,
+    Map<String, String> userData,
+    String invoiceId,
     List<Map<String, String>> items,
-    double total,
+    Map<String, String> accountingData,
+    String dateTime,
   ) async {
     final profile = await CapabilityProfile.load(name: 'XP-N160I');
     final generator = Generator(PaperSize.mm58, profile);
@@ -122,19 +131,19 @@ class PrinterService {
     );
     bytes += generator.feed(1);
     bytes += generator.text(
-      'Issued by: Angelo S. Marquez',
+      'Issued by: ${userData['name']}',
       styles: PosStyles(align: PosAlign.left),
     );
     bytes += generator.text(
-      'INVOICE NO: 000012',
+      'INVOICE NO: ${invoiceId.padLeft(6 - invoiceId.length, '0')}',
       styles: PosStyles(align: PosAlign.left),
     );
     bytes += generator.text(
-      'Date: April 11, 2025 - 9:19 AM',
+      'Date: ${dateTime}',
       styles: PosStyles(align: PosAlign.left),
     );
     bytes += generator.text(
-      'Payment Method: Cash',
+      'Payment Method: ${accountingData['transaction_method']}',
       styles: PosStyles(align: PosAlign.left),
     );
     bytes += generator.feed(1);
@@ -150,7 +159,7 @@ class PrinterService {
     bytes += generator.row([
       PosColumn(text: 'Name:', width: 2),
       PosColumn(
-        text: 'Angelo San Mateo',
+        text: '................',
         width: 10,
         styles: PosStyles(bold: true),
       ),
@@ -158,7 +167,7 @@ class PrinterService {
     bytes += generator.row([
       PosColumn(text: 'Address:', width: 2),
       PosColumn(
-        text: '2924 Finlandia St., Makati City',
+        text: '...............................',
         width: 10,
         styles: PosStyles(bold: true),
       ),
@@ -173,7 +182,7 @@ class PrinterService {
     ]);
     bytes += generator.row([
       PosColumn(text: 'Business Style:', width: 2),
-      PosColumn(text: 'Lorem Ipsum', width: 10, styles: PosStyles(bold: true)),
+      PosColumn(text: '...........', width: 10, styles: PosStyles(bold: true)),
     ]);
     bytes += generator.feed(1);
     bytes += generator.hr();
@@ -231,7 +240,7 @@ class PrinterService {
         styles: PosStyles(align: PosAlign.left),
       ),
       PosColumn(
-        text: 'P 0.00',
+        text: 'P ${accountingData['transaction_fee']}',
         width: 3,
         styles: PosStyles(align: PosAlign.right),
       ),
@@ -243,7 +252,7 @@ class PrinterService {
         styles: PosStyles(align: PosAlign.left),
       ),
       PosColumn(
-        text: 'P 500.00',
+        text: 'P ${accountingData['cash_tendered']}',
         width: 3,
         styles: PosStyles(align: PosAlign.right),
       ),
@@ -255,7 +264,7 @@ class PrinterService {
         styles: PosStyles(align: PosAlign.left),
       ),
       PosColumn(
-        text: 'P 450.00',
+        text: 'P ${accountingData['vatable_sales']}',
         width: 3,
         styles: PosStyles(align: PosAlign.right),
       ),
@@ -267,7 +276,7 @@ class PrinterService {
         styles: PosStyles(align: PosAlign.left),
       ),
       PosColumn(
-        text: 'P 50.00',
+        text: 'P ${accountingData['change']}',
         width: 3,
         styles: PosStyles(align: PosAlign.right),
       ),
@@ -279,7 +288,7 @@ class PrinterService {
         styles: PosStyles(align: PosAlign.left),
       ),
       PosColumn(
-        text: 'P 54.00',
+        text: 'P ${accountingData['vat']}',
         width: 3,
         styles: PosStyles(align: PosAlign.right),
       ),
@@ -291,19 +300,7 @@ class PrinterService {
         styles: PosStyles(align: PosAlign.left),
       ),
       PosColumn(
-        text: 'P 0.00',
-        width: 3,
-        styles: PosStyles(align: PosAlign.right),
-      ),
-    ]);
-    bytes += generator.row([
-      PosColumn(
-        text: 'VAT Exempt:',
-        width: 9,
-        styles: PosStyles(align: PosAlign.left),
-      ),
-      PosColumn(
-        text: 'P 0.00',
+        text: 'P ${accountingData['vat_exempt_sales']}',
         width: 3,
         styles: PosStyles(align: PosAlign.right),
       ),
@@ -315,7 +312,19 @@ class PrinterService {
         styles: PosStyles(align: PosAlign.left),
       ),
       PosColumn(
-        text: 'P 0.00',
+        text: 'P ${accountingData['zero_rated_sales']}',
+        width: 3,
+        styles: PosStyles(align: PosAlign.right),
+      ),
+    ]);
+    bytes += generator.row([
+      PosColumn(
+        text: 'Total Sales:',
+        width: 9,
+        styles: PosStyles(align: PosAlign.left),
+      ),
+      PosColumn(
+        text: 'P ${accountingData['total_sales']}',
         width: 3,
         styles: PosStyles(align: PosAlign.right),
       ),

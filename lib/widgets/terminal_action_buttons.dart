@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:bir_pos/services/transaction_service.dart';
 
 class TerminalActionButtons extends StatelessWidget {
   final ValueChanged setTransactionMethod;
   final VoidCallback processTransactions;
   final VoidCallback resetTransactionData;
   final VoidCallback toggleIsFirstPrint;
+  final VoidCallback printReceipt;
 
   bool isFirstPrint;
 
@@ -15,6 +15,7 @@ class TerminalActionButtons extends StatelessWidget {
     required this.processTransactions,
     required this.resetTransactionData,
     required this.toggleIsFirstPrint,
+    required this.printReceipt,
     required this.isFirstPrint,
   }) : super(key: key);
 
@@ -46,32 +47,15 @@ class TerminalActionButtons extends StatelessWidget {
           onPressed: () async {
             if (isFirstPrint) {
               processTransactions();
+              printReceipt();
               toggleIsFirstPrint();
-              // Call the print function after processing the transaction
             } else {
+              printReceipt();
               resetTransactionData();
               toggleIsFirstPrint();
-              // Call the print function after resetting the transaction data
             }
 
             // Second Button is Reprinting the reciept then reset the Counter and Transaction Data
-
-            // final printerService = PrinterService();
-
-            // // Sample receipt data
-            // final items = [
-            //   {'name': 'Apple', 'quantity': '2', 'price': '\$1.00'},
-            //   {'name': 'Banana', 'quantity': '5', 'price': '\$2.50'},
-            // ];
-
-            // await printerService.printReceipt(
-            //   storeName: 'Thermozone Philippines Corp.',
-            //   storeAddress:
-            //       '2280 Marconi St., Brgy. San Isidro, Makati City',
-            //   storePhone: 'TIN: 223 661 818 0000',
-            //   items: items,
-            //   total: 3.50,
-            // );
           },
           style: ElevatedButton.styleFrom(
             backgroundColor: Colors.grey[300],
