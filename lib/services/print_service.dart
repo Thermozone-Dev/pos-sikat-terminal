@@ -1,6 +1,4 @@
 import 'dart:async';
-import 'dart:developer';
-import 'dart:io';
 import 'package:esc_pos_utils/esc_pos_utils.dart';
 import 'package:flutter_pos_printer_platform_image_3/flutter_pos_printer_platform_image_3.dart';
 
@@ -23,8 +21,8 @@ class PrinterService {
     bool isPrinted = false; // Flag to check if printed already
 
     // Discover USB printers
-    StreamSubscription<PrinterDevice>? _subscription;
-    _subscription = printerManager.discovery(type: PrinterType.usb).listen((
+    StreamSubscription<PrinterDevice>? subscription;
+    subscription = printerManager.discovery(type: PrinterType.usb).listen((
       device,
     ) async {
       if (isPrinted) return; // Prevent multiple prints if already printed
@@ -40,9 +38,7 @@ class PrinterService {
       devices.add(newPrinter);
 
       // Auto-select the first detected printer
-      if (selectedPrinter == null) {
-        selectedPrinter = newPrinter;
-      }
+      selectedPrinter = selectedPrinter ?? newPrinter;
 
       // Once a printer is selected, proceed to print and stop the stream
       if (selectedPrinter != null && !isPrinted) {
@@ -58,7 +54,7 @@ class PrinterService {
           accountingData,
           dateTime,
         );
-        _subscription?.cancel(); // Cancel the discovery stream after printing
+        subscription?.cancel(); // Cancel the discovery stream after printing
       }
     });
 
@@ -66,7 +62,7 @@ class PrinterService {
     await Future.delayed(const Duration(seconds: 2));
 
     // Cancel the subscription after it's no longer needed
-    _subscription?.cancel();
+    subscription.cancel();
   }
 
   Future<void> _printReceiptToDevice(
@@ -139,7 +135,7 @@ class PrinterService {
       styles: PosStyles(align: PosAlign.left),
     );
     bytes += generator.text(
-      'Date: ${dateTime}',
+      'Date: $dateTime',
       styles: PosStyles(align: PosAlign.left),
     );
     bytes += generator.text(

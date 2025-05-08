@@ -234,7 +234,7 @@ class _TerminalState extends State<Terminal> {
   }
 
   void addGovDiscountDetails(govDiscountDetails) {
-    String? error;
+    String error;
     setState(() {
       for (var discount in govDiscountDetails.keys) {
         (!transactionData['gov_discount_details'].containsKey(discount))

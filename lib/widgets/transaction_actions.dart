@@ -1,10 +1,7 @@
-import 'dart:ffi';
-
 import 'package:bir_pos/widgets/terminal_action_buttons.dart';
 import 'package:flutter/material.dart';
 import 'package:bir_pos/widgets/payment_method_buttons.dart';
 import 'package:bir_pos/widgets/discount_buttons.dart';
-import '../services/print_service.dart';
 
 class TransactionActions extends StatelessWidget {
   final ValueChanged setTransactionMethod;
@@ -17,7 +14,7 @@ class TransactionActions extends StatelessWidget {
   final VoidCallback toggleIsFirstPrint;
   final VoidCallback printReceipt;
 
-  bool isFirstPrint;
+  final isFirstPrint;
 
   TransactionActions({
     Key? key,

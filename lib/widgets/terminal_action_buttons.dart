@@ -7,7 +7,7 @@ class TerminalActionButtons extends StatelessWidget {
   final VoidCallback toggleIsFirstPrint;
   final VoidCallback printReceipt;
 
-  bool isFirstPrint;
+  final bool isFirstPrint;
 
   TerminalActionButtons({
     Key? key,

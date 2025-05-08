@@ -3,12 +3,8 @@ import 'dart:convert';
 import 'package:bir_pos/models/discount.dart';
 import 'package:bir_pos/services/discount_service.dart';
 import 'package:http/http.dart' as http;
-import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'dart:convert'; // For jsonEncode & jsonDecode
 import 'package:flutter_dotenv/flutter_dotenv.dart'; // For dev env variables
-import 'package:device_info_plus/device_info_plus.dart'; // For Device Info
-import 'package:flutter_secure_storage/flutter_secure_storage.dart'; // Secure Storage
 
 class TransactionService {
   static Map<String, dynamic> decodeTransactionData(String data) {
@@ -102,7 +98,7 @@ class TransactionService {
       );
       if (response.statusCode == 201) {
         final data = jsonDecode(response.body);
-        print('Transaction saved successfully: $data');
+        // print('Transaction saved successfully: $data');
         return data['transaction details']['id'];
       } else {
         final errorData = jsonDecode(response.body);
