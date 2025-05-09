@@ -1,7 +1,6 @@
 import 'package:bir_pos/models/payment_method.dart';
 import 'package:bir_pos/services/payment_method_service.dart';
 import 'package:bir_pos/widgets/payment_method_form.dart';
-import 'package:bir_pos/widgets/terminal_menu_button.dart';
 import 'package:flutter/material.dart';
 
 class PaymentMethodButtons extends StatelessWidget {
