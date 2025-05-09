@@ -135,14 +135,14 @@ class _TerminalState extends State<Terminal> {
     calculateValues();
   }
 
-  void setTransactionMethod(transactionMethod) {
-    transactionData['transaction_method'] = transactionMethod.id;
-    transactionData['transaction_is_digital'] = transactionMethod.isDigital;
+  void setTransactionFee(transactionFee) {
+    transactionData['transaction_fee'] = transactionFee;
     calculateValues();
   }
 
-  void setTransactionFee(transactionFee) {
-    transactionData['transaction_fee'] = transactionFee;
+  void setTransactionMethod(transactionMethod) {
+    transactionData['transaction_method'] = transactionMethod.id;
+    transactionData['transaction_is_digital'] = transactionMethod.isDigital;
     calculateValues();
   }
 
@@ -520,6 +520,7 @@ class _TerminalState extends State<Terminal> {
                       addToTransactionsDiscount: addToTransactionDiscounts,
                       setTransactionMethod: setTransactionMethod,
                       setCashTendered: setCashTendered,
+                      setTransactionFee: setCashTendered,
                       processTransactions: processTransactions,
                       resetTransactionData: resetTransactionData,
                       toggleIsFirstPrint: toggleIsFirstPrint,

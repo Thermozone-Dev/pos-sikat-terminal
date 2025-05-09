@@ -1,16 +1,19 @@
 import 'package:bir_pos/models/payment_method.dart';
 import 'package:bir_pos/services/payment_method_service.dart';
 import 'package:bir_pos/widgets/payment_method_form.dart';
+import 'package:bir_pos/widgets/terminal_menu_button.dart';
 import 'package:flutter/material.dart';
 
 class PaymentMethodButtons extends StatelessWidget {
   final ValueChanged setTransactionMethod;
   final ValueChanged setCashTendered;
+  final ValueChanged setTransactionFee;
 
   const PaymentMethodButtons({
     Key? key,
     required this.setTransactionMethod,
     required this.setCashTendered,
+    required this.setTransactionFee,
   }) : super(key: key);
 
   @override
@@ -43,61 +46,29 @@ class PaymentMethodButtons extends StatelessWidget {
               final method = methods[index];
 
               if (!method.isDigital) {
-                return PaymentMethodForm(setCashTendered: setCashTendered);
+                return PaymentMethodForm(
+                  isDigital: method.isDigital,
+                  modalFunction: setCashTendered,
+                  label: method.name,
+                  icon: method.isDigital ? Icons.credit_card : Icons.money,
+                  color:
+                      method.isDigital ? Colors.grey[300] : Colors.brown[500],
+                  textColor: method.isDigital ? Colors.black : Colors.white,
+                );
               } else {
-                return AspectRatio(
-                  aspectRatio: 1,
-                  child: _buildButton(
-                    label: method.name,
-                    icon: method.isDigital ? Icons.credit_card : Icons.money,
-                    color:
-                        method.isDigital ? Colors.grey[300] : Colors.brown[500],
-                    textColor: method.isDigital ? Colors.black : Colors.white,
-                    onTap: () {
-                      setTransactionMethod(method);
-                    },
-                  ),
+                return PaymentMethodForm(
+                  isDigital: method.isDigital,
+                  modalFunction: setTransactionFee,
+                  label: method.name,
+                  icon: method.isDigital ? Icons.credit_card : Icons.money,
+                  color:
+                      method.isDigital ? Colors.grey[300] : Colors.brown[500],
+                  textColor: method.isDigital ? Colors.black : Colors.white,
                 );
               }
             },
           );
         },
-      ),
-    );
-  }
-
-  Widget _buildButton({
-    required String label,
-    IconData? icon,
-    required Color? color,
-    required Color? textColor,
-    required VoidCallback onTap,
-  }) {
-    return Expanded(
-      child: AspectRatio(
-        aspectRatio: 1,
-        child: ElevatedButton(
-          onPressed: onTap,
-          style: ElevatedButton.styleFrom(
-            backgroundColor: color,
-            iconColor: textColor,
-            padding: EdgeInsets.zero,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-          ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              if (icon != null) Icon(icon, color: textColor),
-              Text(
-                label,
-                textAlign: TextAlign.center,
-                style: TextStyle(color: textColor),
-              ),
-            ],
-          ),
-        ),
       ),
     );
   }
