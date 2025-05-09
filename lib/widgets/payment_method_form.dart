@@ -11,8 +11,6 @@ class PaymentMethodForm extends StatefulWidget {
 }
 
 class _PaymentMethodFormState extends State<PaymentMethodForm> {
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-
   final TextEditingController quantitySelectedController =
       TextEditingController();
 

@@ -1,4 +1,4 @@
-import 'package:bir_pos/summary_print_service.dart';
+import 'package:bir_pos/services/summary_print_service.dart';
 import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
 

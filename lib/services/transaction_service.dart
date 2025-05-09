@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:bir_pos/models/discount.dart';
 import 'package:bir_pos/services/discount_service.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -122,11 +121,7 @@ class TransactionService {
     double vatExemptSales = 0.0;
     double zeroRatedSales = 0.0;
 
-    bool isVatable = true;
-
     for (var item in transactionData['items']) {
-      isVatable = true;
-
       double initialValue = 0.0;
       double totalValue = 0.0;
       double discountValue = 0.0;
@@ -134,8 +129,6 @@ class TransactionService {
       initialValue = item['data']['price'] * item['quantity'];
 
       if (item['data']['item_discounts'] != null) {
-        isVatable = false;
-
         //Remove VAT from initial sales
         totalValue = initialValue / (1 + vatValue);
 
@@ -145,7 +138,6 @@ class TransactionService {
         //Calculate Discount Values
         for (var discountId in item['data']['item_discounts']) {
           final futureDiscount = DiscountService.getDiscount(discountId);
-          Discount discount;
 
           futureDiscount.then((val) {
             final discount = val;
@@ -164,11 +156,8 @@ class TransactionService {
       item['data']['discount_value'] = discountValue;
       item['data']['total_value'] = totalValue;
 
-      if (isVatable) {
-        vatableSales += totalValue / (1 + vatValue);
-      } else {
-        vatExemptSales += totalValue / (1 + vatValue);
-      }
+      vatableSales += totalValue + (totalValue * 0.12);
+      vatExemptSales += vatableSales - initialValue;
     }
 
     if (transactionData['transaction_discounts'] != null) {
@@ -176,15 +165,12 @@ class TransactionService {
       double initialValue = 0.0;
       double discountValue = 0.0;
 
-      isVatable = false;
-
       //Remove VAT from initial sales
       totalValue = initialValue / (1 + vatValue);
 
       //Calculate Discount Values
       for (var discountId in transactionData['transaction_discounts']) {
         final futureDiscount = DiscountService.getDiscount(discountId);
-        Discount discount;
 
         futureDiscount.then((val) {
           final discount = val;
@@ -197,11 +183,8 @@ class TransactionService {
         });
       }
 
-      if (isVatable) {
-        vatableSales += totalValue / (1 + vatValue);
-      } else {
-        vatExemptSales += totalValue / (1 + vatValue);
-      }
+      vatableSales += totalValue + (totalValue * 0.12);
+      vatExemptSales += vatableSales - initialValue;
     }
 
     vat = vatableSales * vatValue;
