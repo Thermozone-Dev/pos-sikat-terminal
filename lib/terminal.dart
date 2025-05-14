@@ -1,4 +1,8 @@
+import 'package:bir_pos/models/discount.dart';
+import 'package:bir_pos/models/payment_method.dart';
 import 'package:bir_pos/models/user.dart';
+import 'package:bir_pos/services/discount_service.dart';
+import 'package:bir_pos/services/payment_method_service.dart';
 import 'package:bir_pos/services/print_service.dart';
 import 'package:bir_pos/services/auth_service.dart';
 import 'package:bir_pos/services/transaction_service.dart';
@@ -47,6 +51,20 @@ class _TerminalState extends State<Terminal> {
   String invoiceId = "";
   bool isDigitalPayment = false;
   bool isFirstPrint = true;
+  late Future<List<Product>> _productsFuture;
+  late Future<List<Package>> _packagesFuture;
+  late Future<User> _userFuture;
+  late Future<List<Discount>> _discountsFuture;
+  late Future<List<PaymentMethod>> _transactionMethodsFuture;
+
+  void initState() {
+    super.initState();
+    _userFuture = AuthService.getUser(context);
+    _productsFuture = ProductService.getProducts();
+    _packagesFuture = PackageService.getPackages();
+    _discountsFuture = DiscountService.getDiscounts();
+    _transactionMethodsFuture = PaymentMethodService.getMethods();
+  }
 
   void toggleIsFirstPrint() {
     setState(() {
@@ -363,7 +381,7 @@ class _TerminalState extends State<Terminal> {
                   children: [
                     // Welcome Container
                     FutureBuilder<User>(
-                      future: AuthService.getUser(context),
+                      future: _userFuture,
                       builder: (context, snapshot) {
                         if (snapshot.connectionState ==
                             ConnectionState.waiting) {
@@ -384,7 +402,7 @@ class _TerminalState extends State<Terminal> {
                     ),
 
                     FutureBuilder<List<Package>>(
-                      future: PackageService.getPackages(),
+                      future: _packagesFuture,
                       builder: (context, snapshot) {
                         if (snapshot.connectionState ==
                             ConnectionState.waiting) {
@@ -434,7 +452,7 @@ class _TerminalState extends State<Terminal> {
                     ),
 
                     FutureBuilder<List<Product>>(
-                      future: ProductService.getProducts(),
+                      future: _productsFuture,
                       builder: (context, snapshot) {
                         if (snapshot.connectionState ==
                             ConnectionState.waiting) {
@@ -516,6 +534,8 @@ class _TerminalState extends State<Terminal> {
                   Expanded(
                     flex: 3,
                     child: TransactionActions(
+                      futureTransactionMethods: _transactionMethodsFuture,
+                      futureDiscounts: _discountsFuture,
                       addGovDiscountDetails: addGovDiscountDetails,
                       addToTransactionsDiscount: addToTransactionDiscounts,
                       setTransactionMethod: setTransactionMethod,

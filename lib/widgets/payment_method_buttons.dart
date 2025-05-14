@@ -7,8 +7,11 @@ class PaymentMethodButtons extends StatelessWidget {
   final ValueChanged setTransactionMethod;
   final ValueChanged setCashTendered;
 
+  final Future<List<PaymentMethod>> futureTransactionMethods;
+
   const PaymentMethodButtons({
     Key? key,
+    required this.futureTransactionMethods,
     required this.setTransactionMethod,
     required this.setCashTendered,
   }) : super(key: key);
@@ -18,7 +21,7 @@ class PaymentMethodButtons extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.all(20),
       child: FutureBuilder<List<PaymentMethod>>(
-        future: PaymentMethodService.getMethods(),
+        future: futureTransactionMethods,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());

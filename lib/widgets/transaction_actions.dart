@@ -1,3 +1,5 @@
+import 'package:bir_pos/models/discount.dart';
+import 'package:bir_pos/models/payment_method.dart';
 import 'package:bir_pos/widgets/terminal_action_buttons.dart';
 import 'package:flutter/material.dart';
 import 'package:bir_pos/widgets/payment_method_buttons.dart';
@@ -9,6 +11,9 @@ class TransactionActions extends StatelessWidget {
   final ValueChanged addGovDiscountDetails;
   final ValueChanged setCashTendered;
 
+  final Future<List<Discount>> futureDiscounts;
+  final Future<List<PaymentMethod>> futureTransactionMethods;
+
   final VoidCallback processTransactions;
   final VoidCallback resetTransactionData;
   final VoidCallback toggleIsFirstPrint;
@@ -18,6 +23,8 @@ class TransactionActions extends StatelessWidget {
 
   TransactionActions({
     Key? key,
+    required this.futureDiscounts,
+    required this.futureTransactionMethods,
     required this.setTransactionMethod,
     required this.addToTransactionsDiscount,
     required this.addGovDiscountDetails,
@@ -61,12 +68,14 @@ class TransactionActions extends StatelessWidget {
                   DiscountSelector(
                     addToTransactionDiscounts: addToTransactionsDiscount,
                     addGovDiscountDetails: addGovDiscountDetails,
+                    futureDiscounts: futureDiscounts,
                   ),
 
                   // Payment Methods Tab
                   PaymentMethodButtons(
                     setCashTendered: setCashTendered,
                     setTransactionMethod: setTransactionMethod,
+                    futureTransactionMethods: futureTransactionMethods,
                   ),
 
                   // Actions Tab

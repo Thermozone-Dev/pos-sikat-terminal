@@ -6,11 +6,13 @@ import '../services/discount_service.dart';
 class DiscountSelector extends StatelessWidget {
   final ValueChanged addToTransactionDiscounts;
   final ValueChanged addGovDiscountDetails;
+  final Future<List<Discount>> futureDiscounts;
 
   const DiscountSelector({
     Key? key,
     required this.addToTransactionDiscounts,
     required this.addGovDiscountDetails,
+    required this.futureDiscounts,
   }) : super(key: key);
 
   @override
@@ -19,7 +21,7 @@ class DiscountSelector extends StatelessWidget {
       margin: const EdgeInsets.all(10),
       height: 120,
       child: FutureBuilder<List<Discount>>(
-        future: DiscountService.getDiscounts(),
+        future: futureDiscounts,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
