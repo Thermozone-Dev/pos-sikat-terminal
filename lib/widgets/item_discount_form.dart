@@ -41,7 +41,7 @@ class _ItemDiscountFormState extends State<ItemDiscountForm> {
             items:
                 widget.discounts.map((discount) {
                   return DropdownMenuItem(
-                    value: discount.id,
+                    value: discount,
                     child: Text(discount.name),
                   );
                 }).toList(),

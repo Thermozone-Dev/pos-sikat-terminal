@@ -48,6 +48,8 @@ class PaymentMethodButtons extends StatelessWidget {
                 return PaymentMethodForm(
                   isDigital: method.isDigital,
                   modalFunction: setCashTendered,
+                  methodFunction: setTransactionMethod,
+                  method: method,
                   label: method.name,
                   icon: method.isDigital ? Icons.credit_card : Icons.money,
                   color:
@@ -58,6 +60,8 @@ class PaymentMethodButtons extends StatelessWidget {
                 return PaymentMethodForm(
                   isDigital: method.isDigital,
                   modalFunction: setTransactionFee,
+                  methodFunction: setTransactionMethod,
+                  method: method,
                   label: method.name,
                   icon: method.isDigital ? Icons.credit_card : Icons.money,
                   color:

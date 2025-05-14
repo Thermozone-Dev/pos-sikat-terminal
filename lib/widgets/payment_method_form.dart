@@ -1,9 +1,12 @@
+import 'package:bir_pos/models/payment_method.dart';
 import 'package:bir_pos/widgets/terminal_menu_button.dart';
 import 'package:flutter/material.dart';
 
 class PaymentMethodForm extends StatefulWidget {
   final ValueChanged modalFunction;
+  final ValueChanged methodFunction;
 
+  final PaymentMethod method;
   final String label;
   final Color? color;
   final Color? textColor;
@@ -13,6 +16,8 @@ class PaymentMethodForm extends StatefulWidget {
   const PaymentMethodForm({
     Key? key,
     required this.modalFunction,
+    required this.methodFunction,
+    required this.method,
     required this.label,
     required this.color,
     required this.textColor,
@@ -43,6 +48,8 @@ class _PaymentMethodFormState extends State<PaymentMethodForm> {
               context,
               widget.isDigital,
               widget.modalFunction,
+              widget.methodFunction,
+              widget.method,
             ),
       ),
     );
@@ -53,6 +60,8 @@ void _paymentMethodDialogBuilder(
   BuildContext context,
   isDigital,
   modalFunction,
+  methodFunction,
+  method,
 ) {
   int? savedValue;
 
@@ -89,6 +98,7 @@ void _paymentMethodDialogBuilder(
           ),
           TextButton(
             onPressed: () {
+              methodFunction(method);
               modalFunction(savedValue);
               Navigator.of(context).pop();
             },

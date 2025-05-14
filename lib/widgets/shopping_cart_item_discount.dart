@@ -26,20 +26,23 @@ class ShoppingCartItemDiscount extends StatefulWidget {
 
 class _ShoppingCartItemDiscountState extends State<ShoppingCartItemDiscount> {
   int selectedDiscount = 0;
+  double selectedDisountValue = 0;
+  bool selectedDiscountIsPercentage = false;
+
   int quantitySelected = 0;
   dynamic discounts;
 
   void setSelectedDiscount(value) {
     setState(() {
-      selectedDiscount = value;
-      print('Selected discount: $selectedDiscount');
+      selectedDiscount = value.id;
+      selectedDisountValue = value.value;
+      selectedDiscountIsPercentage = value.isPercentage;
     });
   }
 
   void setQuantitySelected(value) {
     setState(() {
       quantitySelected = value;
-      print("Quantity Selected: $quantitySelected");
     });
   }
 
@@ -105,6 +108,8 @@ class _ShoppingCartItemDiscountState extends State<ShoppingCartItemDiscount> {
                     'index': widget.index,
                     'quantity': quantitySelected,
                     'discount_id': selectedDiscount,
+                    'discount_value': selectedDisountValue,
+                    'discount_is_percentage': selectedDiscountIsPercentage,
                     'context': context,
                   });
                 }
