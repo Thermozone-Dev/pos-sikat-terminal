@@ -1,4 +1,6 @@
 import 'package:bir_pos/services/summary_print_service.dart';
+import 'package:bir_pos/services/x_print_service.dart';
+import 'package:bir_pos/services/z_print_service.dart';
 import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
 
@@ -34,8 +36,9 @@ class MainDrawer extends StatelessWidget {
               'X-Reading',
               style: TextStyle(fontWeight: FontWeight.w600),
             ),
-            onTap: () {
-              print('X - Reading Print');
+            onTap: () async {
+              final printerService = XReadingPrintService();
+              await printerService.printReceipt();
               Navigator.pop(context);
             },
           ),
@@ -45,8 +48,9 @@ class MainDrawer extends StatelessWidget {
               'Z-Reading',
               style: TextStyle(fontWeight: FontWeight.w600),
             ),
-            onTap: () {
-              print('Z - Reading Print');
+            onTap: () async {
+              final printerService = ZReadingPrintService();
+              await printerService.printReceipt();
               Navigator.pop(context);
             },
           ),
