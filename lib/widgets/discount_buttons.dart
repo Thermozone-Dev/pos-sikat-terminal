@@ -47,13 +47,17 @@ class DiscountSelector extends StatelessWidget {
                 aspectRatio: 1,
                 child: ElevatedButton(
                   onPressed: () {
+                    addToTransactionDiscounts({
+                      'discount_id': discount.id,
+                      'discount_value': discount.value,
+                      'discount_is_percentage': discount.isPercentage,
+                    });
                     if (discount.id > 0 && discount.id < 4) {
                       DiscountInfoForm(
                         selectedDiscount: discount.id,
                         addGovDiscountDetails: addGovDiscountDetails,
                       );
                     } // Handle other discount types if needed
-                    addToTransactionDiscounts(discount.id);
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.grey[300],

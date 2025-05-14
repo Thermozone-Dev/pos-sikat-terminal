@@ -1,4 +1,3 @@
-import 'package:bir_pos/services/cart_service.dart';
 import 'package:bir_pos/widgets/shopping_cart_item_discount.dart';
 import 'package:flutter/material.dart';
 

@@ -17,7 +17,6 @@ class PrinterService {
   }) async {
     var devices = <BluetoothPrinter>[];
     BluetoothPrinter? selectedPrinter;
-    List<int> bytes = [];
     bool isPrinted = false; // Flag to check if printed already
 
     // Discover USB printers
