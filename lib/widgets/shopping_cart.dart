@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 class ShoppingCart extends StatelessWidget {
   final Map<String, dynamic> transactionData;
 
+  final Future<List<dynamic>> futureCartItems;
+
   final ValueChanged increaseQuantity;
   final ValueChanged decreaseQuantity;
   final ValueChanged addGovDiscountDetails;
@@ -14,6 +16,7 @@ class ShoppingCart extends StatelessWidget {
   const ShoppingCart({
     Key? key,
     required this.transactionData,
+    required this.futureCartItems,
     required this.increaseQuantity,
     required this.decreaseQuantity,
     required this.addGovDiscountDetails,
@@ -55,7 +58,7 @@ class ShoppingCart extends StatelessWidget {
               child: Container(
                 margin: const EdgeInsets.fromLTRB(20, 0, 0, 20),
                 child: FutureBuilder<List<dynamic>>(
-                  future: CartService.getCartItems(transactionData),
+                  future: futureCartItems,
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       return const Center(child: CircularProgressIndicator());

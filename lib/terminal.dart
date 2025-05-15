@@ -1,6 +1,7 @@
 import 'package:bir_pos/models/discount.dart';
 import 'package:bir_pos/models/payment_method.dart';
 import 'package:bir_pos/models/user.dart';
+import 'package:bir_pos/services/cart_service.dart';
 import 'package:bir_pos/services/discount_service.dart';
 import 'package:bir_pos/services/payment_method_service.dart';
 import 'package:bir_pos/services/print_service.dart';
@@ -52,11 +53,13 @@ class _TerminalState extends State<Terminal> {
   String invoiceId = "";
   bool isDigitalPayment = false;
   bool isFirstPrint = true;
+
   late Future<List<Product>> _productsFuture;
   late Future<List<Package>> _packagesFuture;
   late Future<User> _userFuture;
   late Future<List<Discount>> _discountsFuture;
   late Future<List<PaymentMethod>> _transactionMethodsFuture;
+  late Future<List<dynamic>> _cartItemsFuture;
 
   void initState() {
     super.initState();
@@ -65,6 +68,7 @@ class _TerminalState extends State<Terminal> {
     _packagesFuture = PackageService.getPackages();
     _discountsFuture = DiscountService.getDiscounts();
     _transactionMethodsFuture = PaymentMethodService.getMethods();
+    _cartItemsFuture = CartService.getCartItems(transactionData);
   }
 
   void toggleIsFirstPrint() {
@@ -515,6 +519,7 @@ class _TerminalState extends State<Terminal> {
                     flex: 6,
                     child: ShoppingCart(
                       transactionData: transactionData,
+                      futureCartItems: _cartItemsFuture,
                       increaseQuantity: increaseQuantity,
                       decreaseQuantity: decreaseQuantity,
                       addGovDiscountDetails: addGovDiscountDetails,
