@@ -97,6 +97,7 @@ class _TerminalState extends State<Terminal> {
         'zero_rated_sales': 0.0,
         'gov_discount_details': {},
       };
+      isFirstPrint = true;
     });
   }
 

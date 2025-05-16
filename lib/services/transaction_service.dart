@@ -196,7 +196,7 @@ class TransactionService {
     transactionData['change'] =
         transactionData['transaction_is_digital']
             ? 0.00
-            : totalSales - transactionData['cash_tendered'];
+            : transactionData['cash_tendered'] - totalSales;
 
     transactionData['total_sales'] = totalSales;
     transactionData['gross_sales'] = grossSales;
