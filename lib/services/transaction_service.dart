@@ -136,7 +136,8 @@ class TransactionService {
       //Add Checking for Vat Inclusive and Exclusive Sales
       grossSales += initialValue / (1 + vatValue);
 
-      if (item['data']['item_discounts'] != null) {
+      if (item['data']['item_discounts'] != null &&
+          !(item['data']['item_discounts'].entries.isEmpty)) {
         //Calculate Discount Values
         final discount = item['data']['item_discounts'];
         if (discount['is_percentage']) {
@@ -159,9 +160,9 @@ class TransactionService {
     }
 
     if (transactionData['transaction_discounts'] != null &&
-        !(transactionData['transaction_discounts'].isEmpty)) {
+        !(transactionData['transaction_discounts'].entries.isEmpty)) {
       double totalValue = 0.0;
-      double initialValue = totalValue;
+      double initialValue = vatableSales;
       double discountValue = 0.0;
 
       //Remove VAT from initial sales
@@ -171,12 +172,12 @@ class TransactionService {
 
       //Calculate Discount Values
       final discount = transactionData['transaction_discounts'];
-      if (discount['isPercentage']) {
+      if (discount['is_percentage']) {
         discountValue += totalValue * (discount['value'] / 100);
       } else {
         discountValue += discount['value'];
       }
-      vatableSales += totalValue;
+      vatableSales = totalValue - discountValue;
 
       double exemptCalc = vatableSales - initialValue;
       double adjustCalc = initialVat - (discountValue * vatValue);
@@ -195,7 +196,7 @@ class TransactionService {
     transactionData['change'] =
         transactionData['transaction_is_digital']
             ? 0.00
-            : totalSales - transactionData['cash_tendered'];
+            : transactionData['cash_tendered'] - totalSales;
 
     transactionData['total_sales'] = totalSales;
     transactionData['gross_sales'] = grossSales;

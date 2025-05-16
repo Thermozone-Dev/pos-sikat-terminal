@@ -15,6 +15,9 @@ class TransactionActions extends StatelessWidget {
   final Future<List<Discount>> futureDiscounts;
   final Future<List<PaymentMethod>> futureTransactionMethods;
 
+  final bool itemsHasDiscount;
+  final Map<dynamic, dynamic> transactionDiscountData;
+
   final VoidCallback processTransactions;
   final VoidCallback resetTransactionData;
   final VoidCallback toggleIsFirstPrint;
@@ -26,6 +29,7 @@ class TransactionActions extends StatelessWidget {
     Key? key,
     required this.futureDiscounts,
     required this.futureTransactionMethods,
+    required this.transactionDiscountData,
     required this.setTransactionMethod,
     required this.addToTransactionsDiscount,
     required this.addGovDiscountDetails,
@@ -36,6 +40,7 @@ class TransactionActions extends StatelessWidget {
     required this.toggleIsFirstPrint,
     required this.printReceipt,
     required this.isFirstPrint,
+    required this.itemsHasDiscount,
   }) : super(key: key);
 
   @override
@@ -67,11 +72,12 @@ class TransactionActions extends StatelessWidget {
               child: TabBarView(
                 children: [
                   // Discounts Tab
-                  DiscountSelector(
-                    addToTransactionDiscounts: addToTransactionsDiscount,
-                    addGovDiscountDetails: addGovDiscountDetails,
-                    futureDiscounts: futureDiscounts,
-                  ),
+                  if (!itemsHasDiscount)
+                    DiscountSelector(
+                      addToTransactionDiscounts: addToTransactionsDiscount,
+                      addGovDiscountDetails: addGovDiscountDetails,
+                      futureDiscounts: futureDiscounts,
+                    ),
 
                   // Payment Methods Tab
                   PaymentMethodButtons(
