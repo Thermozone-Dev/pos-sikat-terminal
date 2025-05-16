@@ -115,13 +115,16 @@ class _TerminalState extends State<Terminal> {
             continue;
           }
           print('Product same id');
-          if (itemData['data']['item_discounts'] != null &&
-              item['data']['item_discounts'] != null) {
-            print('New Discounts ${itemData['data']['item_discounts']}');
-            print('Existing Discounts ${item['data']['item_discounts']}');
-            print('Product Has Discount');
-            if (itemData['data']['item_discounts']['id'] !=
-                item['data']['item_discounts']['id']) {
+
+          if (itemData['data']['item_discounts'] != null) {
+            print('New Product Has Discount');
+            if (item['data']['item_discounts'] != null) {
+              print('Product Has Discount');
+              if (itemData['data']['item_discounts']['id'] !=
+                  item['data']['item_discounts']['id']) {
+                continue;
+              }
+            } else {
               continue;
             }
           }
@@ -143,9 +146,6 @@ class _TerminalState extends State<Terminal> {
       calculateValues();
       checkDiscount();
     });
-
-    print('itemsHasDiscount: $itemsHasDiscount');
-    print('transactionHasDiscount: $transactionHasDiscount');
   }
 
   void removeItem(index) {
@@ -154,9 +154,6 @@ class _TerminalState extends State<Terminal> {
       calculateValues();
       checkDiscount();
     });
-
-    print('itemsHasDiscount: $itemsHasDiscount');
-    print('transactionHasDiscount: $transactionHasDiscount');
   }
 
   void increaseQuantity(index) {
@@ -166,9 +163,6 @@ class _TerminalState extends State<Terminal> {
       calculateValues();
       checkDiscount();
     });
-
-    print('itemsHasDiscount: $itemsHasDiscount');
-    print('transactionHasDiscount: $transactionHasDiscount');
   }
 
   void decreaseQuantity(index) {
@@ -180,9 +174,6 @@ class _TerminalState extends State<Terminal> {
       }
       calculateValues();
       checkDiscount();
-
-      print('itemsHasDiscount: $itemsHasDiscount');
-      print('transactionHasDiscount: $transactionHasDiscount');
     });
   }
 
