@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:esc_pos_utils/esc_pos_utils.dart';
 import 'package:flutter_pos_printer_platform_image_3/flutter_pos_printer_platform_image_3.dart';
+import 'package:intl/intl.dart';
 
 class XReadingPrintService {
   final PrinterManager printerManager = PrinterManager.instance;
@@ -49,6 +50,10 @@ class XReadingPrintService {
   Future<void> _printReceiptToDevice(BluetoothPrinter printer) async {
     final profile = await CapabilityProfile.load(name: 'XP-N160I');
     final generator = Generator(PaperSize.mm58, profile);
+
+    String currentDate = DateFormat('MMMM d, yyyy').format(DateTime.now());
+    String currentTime = DateFormat('hh:mm a').format(DateTime.now());
+
     List<int> bytes = [];
     bytes += generator.feed(1);
     bytes += generator.text(
@@ -80,7 +85,7 @@ class XReadingPrintService {
     bytes += generator.row([
       PosColumn(text: 'Report Date:', width: 6, styles: PosStyles(bold: false)),
       PosColumn(
-        text: 'May 13, 2025',
+        text: currentDate,
         width: 6,
         styles: PosStyles(bold: false, align: PosAlign.right),
       ),
@@ -88,7 +93,7 @@ class XReadingPrintService {
     bytes += generator.row([
       PosColumn(text: 'Report Time:', width: 6, styles: PosStyles(bold: false)),
       PosColumn(
-        text: '3:19 PM',
+        text: currentTime,
         width: 6,
         styles: PosStyles(bold: false, align: PosAlign.right),
       ),
