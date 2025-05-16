@@ -53,6 +53,8 @@ class _TerminalState extends State<Terminal> {
   String invoiceId = "";
   bool isDigitalPayment = false;
   bool isFirstPrint = true;
+  bool itemsHasDiscount = false;
+  bool transactionHasDiscount = false;
 
   late Future<List<Product>> _productsFuture;
   late Future<List<Package>> _packagesFuture;
@@ -93,7 +95,6 @@ class _TerminalState extends State<Terminal> {
         'vat_exempt_sales': 0.0,
         'vat_adjust_sales': 0.0,
         'zero_rated_sales': 0.0,
-        'transaction_discounts': {},
         'gov_discount_details': {},
       };
     });
@@ -115,6 +116,8 @@ class _TerminalState extends State<Terminal> {
           print('Product same id');
           if (itemData['data']['item_discounts'] != null &&
               item['data']['item_discounts'] != null) {
+            print('New Discounts ${itemData['data']['item_discounts']}');
+            print('Existing Discounts ${item['data']['item_discounts']}');
             print('Product Has Discount');
             if (itemData['data']['item_discounts']['id'] !=
                 item['data']['item_discounts']['id']) {
@@ -122,6 +125,9 @@ class _TerminalState extends State<Terminal> {
             }
           }
           print('Product Discount Checked');
+
+          print('New Product ${itemData['data']}');
+          print('Existing Product ${item['data']}');
 
           item['quantity'] += 1;
           canAdd = false;
@@ -134,15 +140,22 @@ class _TerminalState extends State<Terminal> {
       }
 
       calculateValues();
+      checkDiscount();
     });
+
+    print('itemsHasDiscount: $itemsHasDiscount');
+    print('transactionHasDiscount: $transactionHasDiscount');
   }
 
   void removeItem(index) {
-    print(transactionData);
     setState(() {
       transactionData['items'].removeAt(index);
       calculateValues();
+      checkDiscount();
     });
+
+    print('itemsHasDiscount: $itemsHasDiscount');
+    print('transactionHasDiscount: $transactionHasDiscount');
   }
 
   void increaseQuantity(index) {
@@ -150,7 +163,11 @@ class _TerminalState extends State<Terminal> {
     setState(() {
       item['quantity'] += 1;
       calculateValues();
+      checkDiscount();
     });
+
+    print('itemsHasDiscount: $itemsHasDiscount');
+    print('transactionHasDiscount: $transactionHasDiscount');
   }
 
   void decreaseQuantity(index) {
@@ -161,6 +178,10 @@ class _TerminalState extends State<Terminal> {
         removeItem(index);
       }
       calculateValues();
+      checkDiscount();
+
+      print('itemsHasDiscount: $itemsHasDiscount');
+      print('transactionHasDiscount: $transactionHasDiscount');
     });
   }
 
@@ -178,7 +199,6 @@ class _TerminalState extends State<Terminal> {
     transactionData['transaction_method'] = transactionMethod.id;
     transactionData['transaction_is_digital'] = transactionMethod.isDigital;
     calculateValues();
-    print(transactionData);
   }
 
   void addItemDiscount(item) {
@@ -243,13 +263,16 @@ class _TerminalState extends State<Terminal> {
   }
 
   void addToTransactionDiscounts(transactionDiscount) {
-    transactionData['transaction_discounts'] = {
-      'id': transactionDiscount['discount_id'],
-      'value': transactionDiscount['discount_value'],
-      'is_percentage': transactionDiscount['discount_is_percentage'],
-    };
-    calculateValues();
-    print(transactionData);
+    setState(() {
+      transactionData['transaction_discounts'] = {
+        'id': transactionDiscount['discount_id'],
+        'value': transactionDiscount['discount_value'],
+        'is_percentage': transactionDiscount['discount_is_percentage'],
+      };
+      calculateValues();
+      checkDiscount();
+      print(transactionData);
+    });
   }
 
   void addGovDiscountDetails(govDiscountDetails) {
@@ -271,7 +294,6 @@ class _TerminalState extends State<Terminal> {
     setState(() {
       transactionData = TransactionService.processCalculations(transactionData);
     });
-    print(transactionData);
   }
 
   void processTransactions() {
@@ -284,6 +306,23 @@ class _TerminalState extends State<Terminal> {
     TransactionService.saveTransactionData(
       formattedData,
     ).then((id) => setInvoice(id));
+  }
+
+  void checkDiscount() {
+    itemsHasDiscount = false;
+    transactionHasDiscount = false;
+
+    if (transactionData['transaction_discounts'] != null &&
+        !transactionData['transaction_discounts'].isEmpty) {
+      transactionHasDiscount = true;
+    }
+
+    for (var item in transactionData['items']) {
+      if (item['item_discounts'] == null || item['item_discounts'].isEmpty) {
+        continue;
+      }
+      itemsHasDiscount = true;
+    }
   }
 
   void printReceipt() {
@@ -519,7 +558,6 @@ class _TerminalState extends State<Terminal> {
                     flex: 6,
                     child: ShoppingCart(
                       transactionData: transactionData,
-                      futureCartItems: _cartItemsFuture,
                       increaseQuantity: increaseQuantity,
                       decreaseQuantity: decreaseQuantity,
                       addGovDiscountDetails: addGovDiscountDetails,
@@ -540,6 +578,8 @@ class _TerminalState extends State<Terminal> {
                     child: TransactionActions(
                       futureTransactionMethods: _transactionMethodsFuture,
                       futureDiscounts: _discountsFuture,
+                      transactionDiscountData:
+                          transactionData['transaction_discounts'] ?? {},
                       addGovDiscountDetails: addGovDiscountDetails,
                       addToTransactionsDiscount: addToTransactionDiscounts,
                       setTransactionMethod: setTransactionMethod,
@@ -550,6 +590,7 @@ class _TerminalState extends State<Terminal> {
                       toggleIsFirstPrint: toggleIsFirstPrint,
                       printReceipt: printReceipt,
                       isFirstPrint: isFirstPrint,
+                      itemsHasDiscount: itemsHasDiscount,
                     ),
                   ),
                 ],
