@@ -637,7 +637,7 @@ class _TerminalState extends State<Terminal> {
               : Center(
                 child: ElevatedButton(
                   onPressed: initializePage,
-                  child: Text('Shift In'),
+                  child: Text('Start Shift'),
                 ),
               ),
     );

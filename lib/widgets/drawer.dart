@@ -1,3 +1,4 @@
+import 'package:bir_pos/services/shift_service.dart';
 import 'package:bir_pos/services/summary_print_service.dart';
 import 'package:bir_pos/services/x_print_service.dart';
 import 'package:bir_pos/services/z_print_service.dart';
@@ -54,7 +55,16 @@ class MainDrawer extends StatelessWidget {
               Navigator.pop(context);
             },
           ),
-
+          ListTile(
+            title: const Text(
+              'End Shift',
+              style: TextStyle(fontWeight: FontWeight.w600),
+            ),
+            leading: Icon(
+              Icons.logout,
+            ), // You can change the icon to match your use case
+            onTap: () => endShift(),
+          ),
           ListTile(
             leading: const Icon(Icons.exit_to_app, color: Colors.black),
             title: const Text(
@@ -63,6 +73,7 @@ class MainDrawer extends StatelessWidget {
             ),
             onTap: () {
               AuthService.signOut(context);
+              endShift();
             },
           ),
         ],
