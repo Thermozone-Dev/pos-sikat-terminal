@@ -21,6 +21,7 @@ import 'package:bir_pos/widgets/shopping_cart.dart';
 import 'package:bir_pos/widgets/total_cost.dart';
 import 'package:bir_pos/widgets/transaction_actions.dart';
 import 'package:bir_pos/utils/responsive_util.dart';
+import 'package:bir_pos/services/shift_service.dart';
 
 class Terminal extends StatefulWidget {
   final String token;
@@ -28,10 +29,32 @@ class Terminal extends StatefulWidget {
   const Terminal({Key? key, required this.token}) : super(key: key);
 
   @override
-  State<Terminal> createState() => _TerminalState();
+  _TerminalState createState() => _TerminalState();
 }
 
 class _TerminalState extends State<Terminal> {
+  bool isInitialized = false;
+  bool isLoading = false;
+  String? error;
+
+  Future<void> initializePage() async {
+    setState(() {
+      isLoading = true;
+      error = null;
+    });
+
+    final result = await initializeShift();
+
+    setState(() {
+      isLoading = false;
+      if (result.success) {
+        isInitialized = true;
+      } else {
+        error = result.error;
+      }
+    });
+  }
+
   Map<String, dynamic> transactionData = {
     'items': [],
     'transaction_method': null,
@@ -403,194 +426,220 @@ class _TerminalState extends State<Terminal> {
       ),
       drawer: const MainDrawer(),
       backgroundColor: Colors.grey[300],
-      body: Center(
-        child: Row(
-          children: [
-            Expanded(
-              flex: 7,
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.only(bottom: 20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+      body:
+          isInitialized
+              ? Center(
+                child: Row(
                   children: [
-                    // Welcome Container
-                    FutureBuilder<User>(
-                      future: _userFuture,
-                      builder: (context, snapshot) {
-                        if (snapshot.connectionState ==
-                            ConnectionState.waiting) {
-                          return const Center(
-                            child: CircularProgressIndicator(),
-                          );
-                        } else if (snapshot.hasError) {
-                          return Center(
-                            child: Text('Error: ${snapshot.error}'),
-                          );
-                        } else if (!snapshot.hasData) {
-                          return const Center(child: Text('No user found'));
-                        }
-                        final User user = snapshot.data!;
-
-                        return Greeter(user: user);
-                      },
-                    ),
-
-                    FutureBuilder<List<Package>>(
-                      future: _packagesFuture,
-                      builder: (context, snapshot) {
-                        if (snapshot.connectionState ==
-                            ConnectionState.waiting) {
-                          return const Center(
-                            child: CircularProgressIndicator(),
-                          );
-                        } else if (snapshot.hasError) {
-                          return Center(
-                            child: Text('Error: ${snapshot.error}'),
-                          );
-                        } else if (!snapshot.hasData ||
-                            snapshot.data!.isEmpty) {
-                          return const SizedBox.shrink(); // Hide section if no packages
-                        }
-
-                        final packages = snapshot.data!;
-
-                        return Column(
+                    Expanded(
+                      flex: 7,
+                      child: SingleChildScrollView(
+                        padding: const EdgeInsets.only(bottom: 20),
+                        child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            SectionHeader(title: 'Packages'),
-                            Container(
-                              margin: const EdgeInsets.fromLTRB(20, 0, 0, 20),
-                              height: 330,
-                              child: GridView.builder(
-                                scrollDirection: Axis.horizontal,
-                                gridDelegate:
-                                    const SliverGridDelegateWithFixedCrossAxisCount(
-                                      crossAxisCount: 1,
-                                      crossAxisSpacing: 10,
-                                      mainAxisSpacing: 10,
-                                      childAspectRatio: 1.4,
-                                    ),
-                                itemCount: packages.length,
-                                itemBuilder: (context, index) {
-                                  final package = packages[index];
-                                  return PackageCard(
-                                    package: package,
-                                    onPressed: addItem,
+                            // Welcome Container
+                            FutureBuilder<User>(
+                              future: _userFuture,
+                              builder: (context, snapshot) {
+                                if (snapshot.connectionState ==
+                                    ConnectionState.waiting) {
+                                  return const Center(
+                                    child: CircularProgressIndicator(),
                                   );
-                                },
-                              ),
+                                } else if (snapshot.hasError) {
+                                  return Center(
+                                    child: Text('Error: ${snapshot.error}'),
+                                  );
+                                } else if (!snapshot.hasData) {
+                                  return const Center(
+                                    child: Text('No user found'),
+                                  );
+                                }
+                                final User user = snapshot.data!;
+
+                                return Greeter(user: user);
+                              },
+                            ),
+
+                            FutureBuilder<List<Package>>(
+                              future: _packagesFuture,
+                              builder: (context, snapshot) {
+                                if (snapshot.connectionState ==
+                                    ConnectionState.waiting) {
+                                  return const Center(
+                                    child: CircularProgressIndicator(),
+                                  );
+                                } else if (snapshot.hasError) {
+                                  return Center(
+                                    child: Text('Error: ${snapshot.error}'),
+                                  );
+                                } else if (!snapshot.hasData ||
+                                    snapshot.data!.isEmpty) {
+                                  return const SizedBox.shrink(); // Hide section if no packages
+                                }
+
+                                final packages = snapshot.data!;
+
+                                return Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    SectionHeader(title: 'Packages'),
+                                    Container(
+                                      margin: const EdgeInsets.fromLTRB(
+                                        20,
+                                        0,
+                                        0,
+                                        20,
+                                      ),
+                                      height: 330,
+                                      child: GridView.builder(
+                                        scrollDirection: Axis.horizontal,
+                                        gridDelegate:
+                                            const SliverGridDelegateWithFixedCrossAxisCount(
+                                              crossAxisCount: 1,
+                                              crossAxisSpacing: 10,
+                                              mainAxisSpacing: 10,
+                                              childAspectRatio: 1.4,
+                                            ),
+                                        itemCount: packages.length,
+                                        itemBuilder: (context, index) {
+                                          final package = packages[index];
+                                          return PackageCard(
+                                            package: package,
+                                            onPressed: addItem,
+                                          );
+                                        },
+                                      ),
+                                    ),
+                                  ],
+                                );
+                              },
+                            ),
+
+                            FutureBuilder<List<Product>>(
+                              future: _productsFuture,
+                              builder: (context, snapshot) {
+                                if (snapshot.connectionState ==
+                                    ConnectionState.waiting) {
+                                  return const Center(
+                                    child: CircularProgressIndicator(),
+                                  );
+                                } else if (snapshot.hasError) {
+                                  return Center(
+                                    child: Text('Error: ${snapshot.error}'),
+                                  );
+                                } else if (!snapshot.hasData ||
+                                    snapshot.data!.isEmpty) {
+                                  return const SizedBox.shrink(); // Hides the section if empty
+                                }
+
+                                final products = snapshot.data!;
+
+                                return Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    SectionHeader(title: 'Products'),
+                                    Container(
+                                      margin: const EdgeInsets.fromLTRB(
+                                        20,
+                                        0,
+                                        0,
+                                        20,
+                                      ),
+                                      child: GridView.builder(
+                                        shrinkWrap: true,
+                                        physics:
+                                            const NeverScrollableScrollPhysics(),
+                                        gridDelegate:
+                                            SliverGridDelegateWithFixedCrossAxisCount(
+                                              crossAxisCount:
+                                                  crossAxisCount, // Ensure this is defined above
+                                              crossAxisSpacing: 10,
+                                              mainAxisSpacing: 10,
+                                              childAspectRatio: 0.75,
+                                            ),
+                                        itemCount: products.length,
+                                        itemBuilder: (context, index) {
+                                          final product = products[index];
+                                          return ProductCard(
+                                            product: product,
+                                            onPressed: addItem,
+                                          );
+                                        },
+                                      ),
+                                    ),
+                                  ],
+                                );
+                              },
                             ),
                           ],
-                        );
-                      },
+                        ),
+                      ),
                     ),
 
-                    FutureBuilder<List<Product>>(
-                      future: _productsFuture,
-                      builder: (context, snapshot) {
-                        if (snapshot.connectionState ==
-                            ConnectionState.waiting) {
-                          return const Center(
-                            child: CircularProgressIndicator(),
-                          );
-                        } else if (snapshot.hasError) {
-                          return Center(
-                            child: Text('Error: ${snapshot.error}'),
-                          );
-                        } else if (!snapshot.hasData ||
-                            snapshot.data!.isEmpty) {
-                          return const SizedBox.shrink(); // Hides the section if empty
-                        }
-
-                        final products = snapshot.data!;
-
-                        return Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            SectionHeader(title: 'Products'),
-                            Container(
-                              margin: const EdgeInsets.fromLTRB(20, 0, 0, 20),
-                              child: GridView.builder(
-                                shrinkWrap: true,
-                                physics: const NeverScrollableScrollPhysics(),
-                                gridDelegate:
-                                    SliverGridDelegateWithFixedCrossAxisCount(
-                                      crossAxisCount:
-                                          crossAxisCount, // Ensure this is defined above
-                                      crossAxisSpacing: 10,
-                                      mainAxisSpacing: 10,
-                                      childAspectRatio: 0.75,
-                                    ),
-                                itemCount: products.length,
-                                itemBuilder: (context, index) {
-                                  final product = products[index];
-                                  return ProductCard(
-                                    product: product,
-                                    onPressed: addItem,
-                                  );
-                                },
-                              ),
+                    // Right Panel
+                    Expanded(
+                      flex: 3,
+                      child: Column(
+                        children: [
+                          // Shopping Cart Container
+                          Expanded(
+                            flex: 6,
+                            child: ShoppingCart(
+                              transactionData: transactionData,
+                              increaseQuantity: increaseQuantity,
+                              decreaseQuantity: decreaseQuantity,
+                              addGovDiscountDetails: addGovDiscountDetails,
+                              addItemDiscount: addItemDiscount,
+                              removeItem: removeItem,
                             ),
-                          ],
-                        );
-                      },
+                          ),
+
+                          // Total Cost Container
+                          Expanded(
+                            flex: 1,
+                            child: TotalCost(
+                              totalCost: transactionData['total_sales'],
+                            ),
+                          ),
+
+                          // Payment Methods, Discounts, and Actions Container
+                          Expanded(
+                            flex: 3,
+                            child: TransactionActions(
+                              futureTransactionMethods:
+                                  _transactionMethodsFuture,
+                              futureDiscounts: _discountsFuture,
+                              transactionDiscountData:
+                                  transactionData['transaction_discounts'] ??
+                                  {},
+                              addGovDiscountDetails: addGovDiscountDetails,
+                              addToTransactionsDiscount:
+                                  addToTransactionDiscounts,
+                              setTransactionMethod: setTransactionMethod,
+                              setCashTendered: setCashTendered,
+                              setTransactionFee: setCashTendered,
+                              processTransactions: processTransactions,
+                              resetTransactionData: resetTransactionData,
+                              toggleIsFirstPrint: toggleIsFirstPrint,
+                              printReceipt: printReceipt,
+                              isFirstPrint: isFirstPrint,
+                              itemsHasDiscount: itemsHasDiscount,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ],
                 ),
+              )
+              : Center(
+                child: ElevatedButton(
+                  onPressed: initializePage,
+                  child: Text('Start Shift'),
+                ),
               ),
-            ),
-
-            // Right Panel
-            Expanded(
-              flex: 3,
-              child: Column(
-                children: [
-                  // Shopping Cart Container
-                  Expanded(
-                    flex: 6,
-                    child: ShoppingCart(
-                      transactionData: transactionData,
-                      increaseQuantity: increaseQuantity,
-                      decreaseQuantity: decreaseQuantity,
-                      addGovDiscountDetails: addGovDiscountDetails,
-                      addItemDiscount: addItemDiscount,
-                      removeItem: removeItem,
-                    ),
-                  ),
-
-                  // Total Cost Container
-                  Expanded(
-                    flex: 1,
-                    child: TotalCost(totalCost: transactionData['total_sales']),
-                  ),
-
-                  // Payment Methods, Discounts, and Actions Container
-                  Expanded(
-                    flex: 3,
-                    child: TransactionActions(
-                      futureTransactionMethods: _transactionMethodsFuture,
-                      futureDiscounts: _discountsFuture,
-                      transactionDiscountData:
-                          transactionData['transaction_discounts'] ?? {},
-                      addGovDiscountDetails: addGovDiscountDetails,
-                      addToTransactionsDiscount: addToTransactionDiscounts,
-                      setTransactionMethod: setTransactionMethod,
-                      setCashTendered: setCashTendered,
-                      setTransactionFee: setCashTendered,
-                      processTransactions: processTransactions,
-                      resetTransactionData: resetTransactionData,
-                      toggleIsFirstPrint: toggleIsFirstPrint,
-                      printReceipt: printReceipt,
-                      isFirstPrint: isFirstPrint,
-                      itemsHasDiscount: itemsHasDiscount,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }
