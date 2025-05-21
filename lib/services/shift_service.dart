@@ -13,6 +13,8 @@ Future<ShiftServiceResult> initializeShift() async {
   final prefs = await SharedPreferences.getInstance();
   final token = prefs.getString('token');
   final String apiSecret = dotenv.env['POS_API_SECRET'] ?? "";
+  final String apiUri = dotenv.env['POS_API_URL'] ?? "";
+  final url = Uri.parse('$apiUri/api/v1/shift/start');
 
   if (token == null || token.isEmpty) {
     return ShiftServiceResult(success: false, error: 'No token found');
@@ -20,7 +22,7 @@ Future<ShiftServiceResult> initializeShift() async {
 
   try {
     final response = await http.post(
-      Uri.parse('http://bir-pos.test/api/v1/shift/start'),
+      url,
       headers: {
         'Authorization': 'Bearer $token',
         'Accept': 'application/json',
@@ -53,8 +55,7 @@ Future<void> endShift() async {
     print('No shift ID found in preferences.');
     return;
   }
-
-  final url = Uri.parse('http://bir-pos.test/api/v1/shift/end/$shiftId');
+  final url = Uri.parse('apiUri/api/v1/shift/end/$shiftId');
 
   try {
     final response = await http.put(
