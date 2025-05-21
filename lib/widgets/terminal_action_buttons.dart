@@ -51,8 +51,8 @@ class TerminalActionButtons extends StatelessWidget {
               toggleIsFirstPrint();
             } else {
               printReceipt();
-              resetTransactionData();
               toggleIsFirstPrint();
+              resetTransactionData();
             }
 
             // Second Button is Reprinting the reciept then reset the Counter and Transaction Data
