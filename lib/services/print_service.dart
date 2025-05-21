@@ -11,7 +11,7 @@ class PrinterService {
     required String storePhone,
     required Map<String, String> userData,
     required String invoiceId,
-    required List<Map<String, String>> items,
+    required List<dynamic> items,
     required Map<String, String> accountingData,
     required String dateTime,
   }) async {

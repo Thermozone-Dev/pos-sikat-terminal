@@ -50,12 +50,13 @@ Future<void> endShift() async {
   final token = prefs.getString('token');
   final shiftId = prefs.getString('shift_id');
   final String apiSecret = dotenv.env['POS_API_SECRET'] ?? "";
+  final String apiUri = dotenv.env['POS_API_URL'] ?? "";
+  final url = Uri.parse('$apiUri/api/v1/shift/end/$shiftId');
 
   if (shiftId == null) {
     print('No shift ID found in preferences.');
     return;
   }
-  final url = Uri.parse('apiUri/api/v1/shift/end/$shiftId');
 
   try {
     final response = await http.put(
