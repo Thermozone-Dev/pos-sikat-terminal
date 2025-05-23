@@ -8,6 +8,8 @@ import '../services/auth_service.dart';
 class MainDrawer extends StatelessWidget {
   const MainDrawer({Key? key}) : super(key: key);
 
+  // String endingBalance = "0.0";
+
   @override
   Widget build(BuildContext context) {
     return Drawer(
@@ -63,7 +65,10 @@ class MainDrawer extends StatelessWidget {
             leading: Icon(
               Icons.logout,
             ), // You can change the icon to match your use case
-            onTap: () => endShift(),
+            onTap: () {
+              String endingBalance = "0.0";
+              endShift(endingBalance);
+            },
           ),
           ListTile(
             leading: const Icon(Icons.exit_to_app, color: Colors.black),
@@ -72,8 +77,9 @@ class MainDrawer extends StatelessWidget {
               style: TextStyle(fontWeight: FontWeight.w600),
             ),
             onTap: () {
+              String endingBalance = "0.0";
               AuthService.signOut(context);
-              endShift();
+              endShift(endingBalance);
             },
           ),
         ],

@@ -35,15 +35,54 @@ class Terminal extends StatefulWidget {
 class _TerminalState extends State<Terminal> {
   bool isInitialized = false;
   bool isLoading = false;
+  String openingBalance = "0.0";
   String? error;
 
-  Future<void> initializePage() async {
+  Future<void> showOpeningBalanceModal(
+    BuildContext context,
+    Future<void> Function(String) onSubmit,
+  ) async {
+    final TextEditingController controller = TextEditingController();
+    String userInput = '';
+
+    await showDialog(
+      context: context,
+      builder:
+          (context) => AlertDialog(
+            title: Text('Enter Opening Balance'),
+            content: TextField(
+              controller: controller,
+              keyboardType: TextInputType.numberWithOptions(decimal: true),
+              decoration: InputDecoration(hintText: 'e.g., 100.00'),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text('Cancel'),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  userInput = controller.text;
+                  Navigator.pop(context);
+                },
+                child: Text('Submit'),
+              ),
+            ],
+          ),
+    );
+
+    if (userInput.isNotEmpty) {
+      await onSubmit(userInput); // This calls initializePage(userInput)
+    }
+  }
+
+  Future<void> initializePage(String openingBalance) async {
     setState(() {
       isLoading = true;
       error = null;
     });
 
-    final result = await initializeShift();
+    final result = await initializeShift(openingBalance);
 
     setState(() {
       isLoading = false;
@@ -636,7 +675,8 @@ class _TerminalState extends State<Terminal> {
               )
               : Center(
                 child: ElevatedButton(
-                  onPressed: initializePage,
+                  onPressed:
+                      () => showOpeningBalanceModal(context, initializePage),
                   child: Text('Start Shift'),
                 ),
               ),
