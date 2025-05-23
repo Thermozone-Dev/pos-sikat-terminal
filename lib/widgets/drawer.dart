@@ -8,6 +8,44 @@ import '../services/auth_service.dart';
 class MainDrawer extends StatelessWidget {
   const MainDrawer({Key? key}) : super(key: key);
 
+  Future<void> showEndingBalanceModal(
+    BuildContext context,
+    Future<void> Function(String) onSubmit,
+  ) async {
+    final TextEditingController controller = TextEditingController();
+    String userInput = '';
+
+    await showDialog(
+      context: context,
+      builder:
+          (context) => AlertDialog(
+            title: Text('Enter Ending Balance'),
+            content: TextField(
+              controller: controller,
+              keyboardType: TextInputType.numberWithOptions(decimal: true),
+              decoration: InputDecoration(hintText: 'e.g., 100.00'),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text('Cancel'),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  userInput = controller.text;
+                  Navigator.pop(context);
+                },
+                child: Text('Submit'),
+              ),
+            ],
+          ),
+    );
+
+    if (userInput.isNotEmpty) {
+      await onSubmit(userInput);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Drawer(
@@ -38,6 +76,10 @@ class MainDrawer extends StatelessWidget {
               style: TextStyle(fontWeight: FontWeight.w600),
             ),
             onTap: () async {
+              await showEndingBalanceModal(
+                context,
+                (String endingBalance) async {},
+              );
               final printerService = XReadingPrintService();
               await printerService.printReceipt();
               Navigator.pop(context);
@@ -63,7 +105,13 @@ class MainDrawer extends StatelessWidget {
             leading: Icon(
               Icons.logout,
             ), // You can change the icon to match your use case
-            onTap: () => endShift(),
+            onTap: () async {
+              await showEndingBalanceModal(context, (
+                String endingBalance,
+              ) async {
+                await endShift(endingBalance);
+              });
+            },
           ),
           ListTile(
             leading: const Icon(Icons.exit_to_app, color: Colors.black),
@@ -71,9 +119,13 @@ class MainDrawer extends StatelessWidget {
               'Sign Out',
               style: TextStyle(fontWeight: FontWeight.w600),
             ),
-            onTap: () {
-              AuthService.signOut(context);
-              endShift();
+            onTap: () async {
+              await showEndingBalanceModal(context, (
+                String endingBalance,
+              ) async {
+                await endShift(endingBalance);
+                AuthService.signOut(context);
+              });
             },
           ),
         ],
