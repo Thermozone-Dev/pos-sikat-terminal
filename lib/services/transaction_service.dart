@@ -70,7 +70,7 @@ class TransactionService {
       'zero_rated_sales': data['zero_rated_sales'] ?? 0.00,
       'transaction_discounts':
           encodedDiscounts.isEmpty ? null : encodedDiscounts,
-      'gov_discount_details': {},
+      'gov_discount_details': data['gov_discount_details'],
     });
 
     return encodedData;

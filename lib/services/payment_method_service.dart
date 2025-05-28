@@ -23,7 +23,9 @@ class PaymentMethodService {
     );
 
     if (response.statusCode == 200) {
-      final List<dynamic> data = jsonDecode(response.body);
+      final jsonResponse = jsonDecode(response.body);
+      final List<dynamic> data =
+          jsonResponse is List ? jsonResponse : jsonResponse['data'];
       return data.map((json) => PaymentMethod.fromJson(json)).toList();
     } else {
       throw Exception('Failed to load products');

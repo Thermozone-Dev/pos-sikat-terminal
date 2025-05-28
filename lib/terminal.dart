@@ -330,18 +330,20 @@ class _TerminalState extends State<Terminal> {
   }
 
   void addGovDiscountDetails(govDiscountDetails) {
-    String error;
+    String? error;
     setState(() {
       for (var discount in govDiscountDetails.keys) {
-        (!transactionData['gov_discount_details'].containsKey(discount))
-            ? transactionData['gov_discount_details'] = {
-              discount: govDiscountDetails[discount],
-            }
-            : error = 'Discount info is already set';
+        if (transactionData['gov_discount_details'].containsKey(discount)) {
+          error = 'Discount info is already set';
+        } else {
+          transactionData['gov_discount_details'][discount] =
+              govDiscountDetails[discount];
+        }
       }
     });
-    // print('Gov discount details: ${transactionData['gov_discount_details']}');
-    // print((error != null) ? error : 'Discount info added successfully');
+    print('Gov discount details: ${transactionData['gov_discount_details']}');
+    print((error != null) ? error : 'Discount info added successfully');
+    print('Transaction Data: ${transactionData}');
   }
 
   void calculateValues() {
