@@ -61,7 +61,7 @@ class TransactionActions extends StatelessWidget {
               unselectedLabelColor: Colors.grey,
               indicatorColor: Colors.brown,
               tabs: [
-                Tab(text: 'Discounts'),
+                // Tab(text: 'Discounts'),
                 Tab(text: 'Payment Method'),
                 Tab(text: 'Actions'),
               ],
@@ -72,12 +72,12 @@ class TransactionActions extends StatelessWidget {
               child: TabBarView(
                 children: [
                   // Discounts Tab
-                  if (!itemsHasDiscount)
-                    DiscountSelector(
-                      addToTransactionDiscounts: addToTransactionsDiscount,
-                      addGovDiscountDetails: addGovDiscountDetails,
-                      futureDiscounts: futureDiscounts,
-                    ),
+                  // if (!itemsHasDiscount)
+                  //   DiscountSelector(
+                  //     addToTransactionDiscounts: addToTransactionsDiscount,
+                  //     addGovDiscountDetails: addGovDiscountDetails,
+                  //     futureDiscounts: futureDiscounts,
+                  //   ),
 
                   // Payment Methods Tab
                   PaymentMethodButtons(
