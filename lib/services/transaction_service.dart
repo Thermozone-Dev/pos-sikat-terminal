@@ -16,8 +16,8 @@ class TransactionService {
 
   static List formatTransactionItemDiscounts(Map<String, dynamic> data) {
     var itemDiscounts = [];
-    if (data['items']['discounts'] != null) {
-      itemDiscounts = data['items']['discounts'].map(
+    if (data['items']['item_discounts'] != null) {
+      itemDiscounts = data['items']['item_discounts'].map(
         (discount) => discount['id'],
       );
     }
@@ -36,16 +36,10 @@ class TransactionService {
   static Map<String, dynamic> formatTransactionData(Map<String, dynamic> data) {
     final mappedItems =
         data['items'].map((item) {
-          var itemDiscounts = [];
-          if (item['discounts'] != null) {
-            itemDiscounts = item['discounts'].map((discount) => discount['id']);
-          }
-          final discountList = itemDiscounts;
-
           final itemParsed = {
             'item_id': item['data']['id'],
             'item_quantity': item['quantity'],
-            'item_discounts': discountList.isEmpty ? null : discountList,
+            'item_discounts': item['data']['item_discounts'],
             'discount_value': item['data']['discount_value'],
             'total_value': item['data']['total_value'],
           };
@@ -97,7 +91,7 @@ class TransactionService {
       );
       if (response.statusCode == 201) {
         final data = jsonDecode(response.body);
-        // print('Transaction saved successfully: $data');
+        print('Transaction saved successfully: $data');
         return data['transaction details']['id'];
       } else {
         final errorData = jsonDecode(response.body);
