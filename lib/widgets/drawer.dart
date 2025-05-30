@@ -56,6 +56,7 @@ class MainDrawer extends StatelessWidget {
             decoration: BoxDecoration(color: Colors.brown[500]),
             child: Center(child: Image.asset('assets/img/banner-dark.png')),
           ),
+          // Summary Report
           ListTile(
             leading: const Icon(Icons.print, color: Colors.black),
             title: const Text(
@@ -68,7 +69,7 @@ class MainDrawer extends StatelessWidget {
               Navigator.pop(context);
             },
           ),
-
+          // X Reading
           ListTile(
             leading: const Icon(Icons.print, color: Colors.black),
             title: const Text(
@@ -85,6 +86,7 @@ class MainDrawer extends StatelessWidget {
               Navigator.pop(context);
             },
           ),
+          // Z-Reading
           ListTile(
             leading: const Icon(Icons.print, color: Colors.black),
             title: const Text(
@@ -97,6 +99,7 @@ class MainDrawer extends StatelessWidget {
               Navigator.pop(context);
             },
           ),
+          // End Shift
           ListTile(
             title: const Text(
               'End Shift',
@@ -113,6 +116,7 @@ class MainDrawer extends StatelessWidget {
               });
             },
           ),
+          // Sign Out
           ListTile(
             leading: const Icon(Icons.exit_to_app, color: Colors.black),
             title: const Text(
