@@ -2,7 +2,10 @@ import 'package:bir_pos/services/shift_service.dart';
 import 'package:bir_pos/services/summary_print_service.dart';
 import 'package:bir_pos/services/x_print_service.dart';
 import 'package:bir_pos/services/z_print_service.dart';
+import 'package:bir_pos/terminal.dart';
+import 'package:bir_pos/void.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../services/auth_service.dart';
 
 class MainDrawer extends StatelessWidget {
@@ -97,6 +100,20 @@ class MainDrawer extends StatelessWidget {
               final printerService = ZReadingPrintService();
               await printerService.printReceipt();
               Navigator.pop(context);
+            },
+          ),
+          // Voiding
+          ListTile(
+            leading: const Icon(Icons.cancel, color: Colors.black),
+            title: const Text(
+              'Voiding',
+              style: TextStyle(fontWeight: FontWeight.w600),
+            ),
+            onTap: () {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => VoidWidget()),
+              );
             },
           ),
           // End Shift
