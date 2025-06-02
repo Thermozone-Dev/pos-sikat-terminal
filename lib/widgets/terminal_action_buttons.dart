@@ -47,7 +47,6 @@ class TerminalActionButtons extends StatelessWidget {
           onPressed: () async {
             if (isFirstPrint) {
               processTransactions();
-              printReceipt();
               toggleIsFirstPrint();
             } else {
               printReceipt();
