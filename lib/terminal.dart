@@ -113,6 +113,7 @@ class _TerminalState extends State<Terminal> {
     'gov_discount_details': {},
   };
 
+  String transactionMethodName = "";
   String invoiceId = "";
   bool isDigitalPayment = false;
   bool isFirstPrint = true;
@@ -253,6 +254,7 @@ class _TerminalState extends State<Terminal> {
   void setTransactionMethod(transactionMethod) {
     transactionData['transaction_method'] = transactionMethod.id;
     transactionData['transaction_is_digital'] = transactionMethod.isDigital;
+    transactionMethodName = transactionMethod.label;
     calculateValues();
   }
 
@@ -430,6 +432,7 @@ class _TerminalState extends State<Terminal> {
         userData: userData,
         invoiceId: invoiceId,
         accountingData: accountingData,
+        methodName: transactionMethodName,
         items: items,
         dateTime: formattedDate,
       );
