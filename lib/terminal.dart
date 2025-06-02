@@ -254,7 +254,7 @@ class _TerminalState extends State<Terminal> {
   void setTransactionMethod(transactionMethod) {
     transactionData['transaction_method'] = transactionMethod.id;
     transactionData['transaction_is_digital'] = transactionMethod.isDigital;
-    transactionMethodName = transactionMethod.label;
+    transactionMethodName = transactionMethod.name;
     calculateValues();
   }
 
