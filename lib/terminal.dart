@@ -695,7 +695,7 @@ class _TerminalState extends State<Terminal> {
                               showOpeningBalanceModal(context, initializePage),
                       child: Text('Start Shift'),
                     ),
-                    const SizedBox(width: 20),
+                    const SizedBox(width: 10),
                     ElevatedButton(
                       onPressed: () async {
                         final result = await continueShift();
