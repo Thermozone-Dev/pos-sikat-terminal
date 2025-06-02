@@ -140,14 +140,7 @@ class MainDrawer extends StatelessWidget {
               'Sign Out',
               style: TextStyle(fontWeight: FontWeight.w600),
             ),
-            onTap: () async {
-              await showEndingBalanceModal(context, (
-                String endingBalance,
-              ) async {
-                await endShift(endingBalance);
-                AuthService.signOut(context);
-              });
-            },
+            onTap: () => AuthService.signOut(context),
           ),
         ],
       ),
