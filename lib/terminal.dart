@@ -22,6 +22,7 @@ import 'package:bir_pos/widgets/total_cost.dart';
 import 'package:bir_pos/widgets/transaction_actions.dart';
 import 'package:bir_pos/utils/responsive_util.dart';
 import 'package:bir_pos/services/shift_service.dart';
+import 'package:intl/intl.dart';
 
 class Terminal extends StatefulWidget {
   final String token;
@@ -420,6 +421,8 @@ class _TerminalState extends State<Terminal> {
         'email': data.email.toString(),
       };
 
+      String formattedDate = DateFormat('MMMM d, y').format(DateTime.now());
+
       printerService.printReceipt(
         storeName: 'Thermozone Philippines Corp.',
         storeAddress: '2280 Marconi St., Brgy. San Isidro, Makati City',
@@ -428,7 +431,7 @@ class _TerminalState extends State<Terminal> {
         invoiceId: invoiceId,
         accountingData: accountingData,
         items: items,
-        dateTime: DateTime.now().toIso8601String().toString(),
+        dateTime: formattedDate,
       );
     });
   }
