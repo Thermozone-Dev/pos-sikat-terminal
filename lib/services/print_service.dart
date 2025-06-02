@@ -130,7 +130,7 @@ class PrinterService {
       styles: PosStyles(align: PosAlign.left),
     );
     bytes += generator.text(
-      'INVOICE NO: ${invoiceId.padLeft(6 - invoiceId.length, '0')}',
+      'INVOICE NO: ${invoiceId.padLeft(8 - invoiceId.length, '0')}',
       styles: PosStyles(align: PosAlign.left),
     );
     bytes += generator.text(
@@ -338,8 +338,11 @@ class PrinterService {
       ),
     );
     bytes += generator.feed(2);
+    String formattedInvoiceId = invoiceId.padLeft(6, '0');
+    String fullUpc = formattedInvoiceId.padLeft(12, '0');
+    List<int> barcodeData = fullUpc.split('').map(int.parse).toList();
     bytes += generator.barcode(
-      Barcode.upcA([1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2]),
+      Barcode.upcA(barcodeData),
       height: 40,
       textPos: BarcodeText.below,
     );
