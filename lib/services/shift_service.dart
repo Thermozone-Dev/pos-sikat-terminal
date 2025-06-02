@@ -11,6 +11,14 @@ class ShiftServiceResult {
   ShiftServiceResult({required this.success, this.error});
 }
 
+class ContinueShiftResult {
+  final bool success;
+  final String? shiftId;
+  final String? error;
+
+  ContinueShiftResult({required this.success, this.shiftId, this.error});
+}
+
 Future<ShiftServiceResult> initializeShift(String openingBalance) async {
   final prefs = await SharedPreferences.getInstance();
   final token = prefs.getString('token');
@@ -91,5 +99,45 @@ Future<void> endShift(String endingBalance) async {
     }
   } catch (e) {
     print('Error: $e');
+  }
+}
+
+Future<ContinueShiftResult> continueShift() async {
+  final prefs = await SharedPreferences.getInstance();
+  final token = prefs.getString('token');
+  final shiftId = prefs.getString('shift_id');
+  final String apiSecret = dotenv.env['POS_API_SECRET'] ?? "";
+  final String apiUri = dotenv.env['POS_API_URL'] ?? "";
+
+  if (token == null || token.isEmpty) {
+    return ContinueShiftResult(success: false, error: 'No token found');
+  }
+
+  if (shiftId == null || shiftId.isEmpty) {
+    return ContinueShiftResult(success: false, error: 'No active shift found');
+  }
+
+  final url = Uri.parse('$apiUri/api/v1/shift/$shiftId');
+
+  try {
+    final response = await http.get(
+      url,
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Accept': 'application/json',
+        'Pos-Secret-Key': apiSecret,
+      },
+    );
+
+    if (response.statusCode == 200) {
+      print('Continuing shift: $shiftId');
+      return ContinueShiftResult(success: true, shiftId: shiftId);
+    } else {
+      print('Failed to continue shift: ${response.body}');
+      return ContinueShiftResult(success: false, error: response.body);
+    }
+  } catch (e) {
+    print('Error: $e');
+    return ContinueShiftResult(success: false, error: e.toString());
   }
 }

@@ -685,10 +685,33 @@ class _TerminalState extends State<Terminal> {
                 ),
               )
               : Center(
-                child: ElevatedButton(
-                  onPressed:
-                      () => showOpeningBalanceModal(context, initializePage),
-                  child: Text('Start Shift'),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    ElevatedButton(
+                      onPressed:
+                          () =>
+                              showOpeningBalanceModal(context, initializePage),
+                      child: Text('Start Shift'),
+                    ),
+                    const SizedBox(width: 20),
+                    ElevatedButton(
+                      onPressed: () async {
+                        final result = await continueShift();
+                        if (result.success) {
+                          setState(() {
+                            isInitialized = true;
+                          });
+                        } else {
+                          setState(() {
+                            error = result.error;
+                          });
+                        }
+                      },
+                      child: Text('Continue Shift'),
+                    ),
+                  ],
                 ),
               ),
     );
