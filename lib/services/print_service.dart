@@ -11,6 +11,7 @@ class PrinterService {
     required String storePhone,
     required Map<String, String> userData,
     required String invoiceId,
+    required String methodName,
     required List<dynamic> items,
     required Map<String, String> accountingData,
     required String dateTime,
@@ -49,6 +50,7 @@ class PrinterService {
           storePhone,
           userData,
           invoiceId,
+          methodName,
           items,
           accountingData,
           dateTime,
@@ -71,6 +73,7 @@ class PrinterService {
     String storePhone,
     Map<String, String> userData,
     String invoiceId,
+    String methodName,
     List<dynamic> items,
     Map<String, String> accountingData,
     String dateTime,
@@ -138,7 +141,7 @@ class PrinterService {
       styles: PosStyles(align: PosAlign.left),
     );
     bytes += generator.text(
-      'Payment Method: ${accountingData['transaction_method']}',
+      'Payment Method: ${methodName.toUpperCase()}',
       styles: PosStyles(align: PosAlign.left),
     );
     bytes += generator.feed(1);
