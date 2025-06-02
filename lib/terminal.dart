@@ -98,7 +98,7 @@ class _TerminalState extends State<Terminal> {
     'items': [],
     'transaction_method': null,
     'transaction_is_digital': false,
-    'transaction_fee': null,
+    'transaction_fee': 0.0,
     'cash_tendered': 0.0,
     'total_sales': 0.0,
     'change': 0.0,
@@ -147,7 +147,7 @@ class _TerminalState extends State<Terminal> {
         'items': [],
         'transaction_method': null,
         'transaction_is_digital': false,
-        'transaction_fee': null,
+        'transaction_fee': 0.0,
         'cash_tendered': 0.0,
         'total_sales': 0.0,
         'change': 0.0,
@@ -361,9 +361,10 @@ class _TerminalState extends State<Terminal> {
     );
     // print('Formatting transactions...');
     // print('Formatted Transaction Data: $formattedData');
-    TransactionService.saveTransactionData(
-      formattedData,
-    ).then((id) => setInvoice(id));
+    TransactionService.saveTransactionData(formattedData).then((id) {
+      setInvoice(id);
+      printReceipt();
+    });
   }
 
   void checkDiscount() {

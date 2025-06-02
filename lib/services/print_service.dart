@@ -201,13 +201,13 @@ class PrinterService {
     for (var item in items) {
       bytes += generator.row([
         PosColumn(
-          text: item['quantity']!,
+          text: item['quantity']!.toString(),
           width: 3,
           styles: PosStyles(align: PosAlign.left),
         ),
         PosColumn(text: item['name']!, width: 6),
         PosColumn(
-          text: item['price']!,
+          text: item['price']!.toString(),
           width: 3,
           styles: PosStyles(align: PosAlign.right),
         ),
@@ -235,7 +235,10 @@ class PrinterService {
         styles: PosStyles(align: PosAlign.left),
       ),
       PosColumn(
-        text: 'P ${accountingData['transaction_fee']}',
+        text:
+            accountingData['transaction_fee'] == null
+                ? 'P 0.00'
+                : 'P ${accountingData['transaction_fee']}',
         width: 3,
         styles: PosStyles(align: PosAlign.right),
       ),
