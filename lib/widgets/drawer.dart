@@ -127,10 +127,24 @@ class MainDrawer extends StatelessWidget {
               style: TextStyle(fontWeight: FontWeight.w600),
             ),
             onTap: () {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (context) => VoidTransactionForm()),
-              );
+              AuthService.isManager(context).then((isManager) {
+                if (isManager) {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => VoidTransactionForm(),
+                    ),
+                  );
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        'You are not authorized to void transactions',
+                      ),
+                    ),
+                  );
+                }
+              });
             },
           ),
           // End Shift
