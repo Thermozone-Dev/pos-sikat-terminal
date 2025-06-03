@@ -13,7 +13,7 @@ class TransactionActions extends StatelessWidget {
   final ValueChanged setTransactionFee;
 
   final Future<List<Discount>> futureDiscounts;
-  final Future<List<PaymentMethod>> futureTransactionMethods;
+  // final Future<List<PaymentMethod>> futureTransactionMethods;
 
   final bool itemsHasDiscount;
   final Map<dynamic, dynamic> transactionDiscountData;
@@ -23,12 +23,13 @@ class TransactionActions extends StatelessWidget {
   final VoidCallback toggleIsFirstPrint;
   final VoidCallback printReceipt;
 
+  final double total;
   final isFirstPrint;
 
   TransactionActions({
     Key? key,
     required this.futureDiscounts,
-    required this.futureTransactionMethods,
+    // required this.futureTransactionMethods,
     required this.transactionDiscountData,
     required this.setTransactionMethod,
     required this.addToTransactionsDiscount,
@@ -41,6 +42,7 @@ class TransactionActions extends StatelessWidget {
     required this.printReceipt,
     required this.isFirstPrint,
     required this.itemsHasDiscount,
+    required this.total,
   }) : super(key: key);
 
   @override
@@ -84,7 +86,8 @@ class TransactionActions extends StatelessWidget {
                     setCashTendered: setCashTendered,
                     setTransactionFee: setTransactionFee,
                     setTransactionMethod: setTransactionMethod,
-                    futureTransactionMethods: futureTransactionMethods,
+                    // futureTransactionMethods: futureTransactionMethods,
+                    total: total,
                   ),
 
                   // Actions Tab
