@@ -187,7 +187,7 @@ class TransactionService {
             ? totalSales
             : transactionData['cash_tendered'];
 
-    if (transactionData['transaction_is_digital']) {
+    if (!transactionData['transaction_is_digital']) {
       final change = transactionData['cash_tendered'] - totalSales;
       transactionData['change'] =
           change < 0 ? 0.00 : change; // Ensure change is not negative
