@@ -8,14 +8,17 @@ class PaymentMethodButtons extends StatelessWidget {
   final ValueChanged setCashTendered;
   final ValueChanged setTransactionFee;
 
-  final Future<List<PaymentMethod>> futureTransactionMethods;
+  final double total;
+
+  // final Future<List<PaymentMethod>> futureTransactionMethods;
 
   const PaymentMethodButtons({
     Key? key,
-    required this.futureTransactionMethods,
+    // required this.futureTransactionMethods,
     required this.setTransactionMethod,
     required this.setCashTendered,
     required this.setTransactionFee,
+    required this.total,
   }) : super(key: key);
 
   @override
@@ -23,7 +26,8 @@ class PaymentMethodButtons extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.all(20),
       child: FutureBuilder<List<PaymentMethod>>(
-        future: futureTransactionMethods,
+        // future: futureTransactionMethods,
+        future: PaymentMethodService.getMethods(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
@@ -50,6 +54,7 @@ class PaymentMethodButtons extends StatelessWidget {
               if (!method.isDigital) {
                 return PaymentMethodForm(
                   isDigital: method.isDigital,
+                  total: total,
                   modalFunction: setCashTendered,
                   methodFunction: setTransactionMethod,
                   method: method,
@@ -62,6 +67,7 @@ class PaymentMethodButtons extends StatelessWidget {
               } else {
                 return PaymentMethodForm(
                   isDigital: method.isDigital,
+                  total: total,
                   modalFunction: setTransactionFee,
                   methodFunction: setTransactionMethod,
                   method: method,

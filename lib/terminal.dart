@@ -669,8 +669,8 @@ class _TerminalState extends State<Terminal> {
                           Expanded(
                             flex: 3,
                             child: TransactionActions(
-                              futureTransactionMethods:
-                                  _transactionMethodsFuture,
+                              // futureTransactionMethods:
+                              //     _transactionMethodsFuture,
                               futureDiscounts: _discountsFuture,
                               transactionDiscountData:
                                   transactionData['transaction_discounts'] ??
@@ -687,6 +687,7 @@ class _TerminalState extends State<Terminal> {
                               printReceipt: printReceipt,
                               isFirstPrint: isFirstPrint,
                               itemsHasDiscount: itemsHasDiscount,
+                              total: transactionData['total_sales'],
                             ),
                           ),
                         ],

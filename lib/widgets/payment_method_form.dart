@@ -12,6 +12,7 @@ class PaymentMethodForm extends StatefulWidget {
   final Color? textColor;
   final IconData? icon;
   final bool isDigital;
+  final double total;
 
   const PaymentMethodForm({
     Key? key,
@@ -22,6 +23,7 @@ class PaymentMethodForm extends StatefulWidget {
     required this.color,
     required this.textColor,
     required this.isDigital,
+    required this.total,
     this.icon,
   }) : super(key: key);
 
@@ -50,6 +52,7 @@ class _PaymentMethodFormState extends State<PaymentMethodForm> {
               widget.modalFunction,
               widget.methodFunction,
               widget.method,
+              widget.total,
             ),
       ),
     );
@@ -62,33 +65,57 @@ void _paymentMethodDialogBuilder(
   modalFunction,
   methodFunction,
   method,
+  total,
 ) {
+  final TextEditingController cashTenderedSelectedController =
+      TextEditingController();
+
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
   int? savedValue;
 
   showDialog(
     context: context,
     builder: (context) {
       return AlertDialog(
+        key: _formKey,
         title: Text(isDigital ? 'Transaction Fee' : "Cash Tendered"),
         scrollable: true,
         content: Padding(
           padding: EdgeInsets.all(8.0),
-          child: Column(
-            children: [
-              TextFormField(
-                keyboardType: TextInputType.number,
-                decoration: InputDecoration(
-                  labelText:
-                      isDigital
-                          ? 'Enter Transaction Fee'
-                          : 'Enter Amount Tendered',
-                  border: OutlineInputBorder(),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              children: [
+                TextFormField(
+                  controller: cashTenderedSelectedController,
+                  keyboardType: TextInputType.number,
+                  decoration: InputDecoration(
+                    labelText:
+                        isDigital
+                            ? 'Enter Transaction Fee'
+                            : 'Enter Amount Tendered',
+                    border: OutlineInputBorder(),
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter a value';
+                    }
+                    final amount = int.tryParse(value);
+                    if (amount == null || amount < 0) {
+                      return 'Please enter a valid amount';
+                    }
+                    if (!isDigital && amount < total) {
+                      return 'Amount must be greater than or equal to total';
+                    }
+                    return null;
+                  },
+                  onChanged: (value) {
+                    savedValue = int.parse(value);
+                  },
                 ),
-                onChanged: (value) {
-                  savedValue = int.parse(value);
-                },
-              ),
-            ],
+              ],
+            ),
           ),
         ),
         actions: [
@@ -98,9 +125,11 @@ void _paymentMethodDialogBuilder(
           ),
           TextButton(
             onPressed: () {
-              methodFunction(method);
-              modalFunction(savedValue);
-              Navigator.of(context).pop();
+              if (_formKey.currentState!.validate()) {
+                methodFunction(method);
+                modalFunction(savedValue);
+                Navigator.of(context).pop();
+              }
             },
             child: Text('Save'),
           ),
