@@ -1,3 +1,4 @@
+import 'package:bir_pos/services/report_service.dart';
 import 'package:bir_pos/services/shift_service.dart';
 import 'package:bir_pos/services/summary_print_service.dart';
 import 'package:bir_pos/services/x_print_service.dart';
@@ -84,8 +85,18 @@ class MainDrawer extends StatelessWidget {
               style: TextStyle(fontWeight: FontWeight.w600),
             ),
             onTap: () async {
-              final printerService = SummaryPrintService();
-              await printerService.printReceipt();
+              ReportService.dailyProductSummary()
+                  .then((products) async {
+                    final printerService = SummaryPrintService();
+                    await printerService.printReceipt(products: products);
+                  })
+                  .catchError((error) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Error fetching summary report: $error'),
+                      ),
+                    );
+                  });
               Navigator.pop(context);
             },
           ),

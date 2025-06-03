@@ -1,11 +1,13 @@
 import 'dart:async';
+import 'package:bir_pos/models/product.dart';
+import 'package:bir_pos/models/product_summary.dart';
 import 'package:esc_pos_utils/esc_pos_utils.dart';
 import 'package:flutter_pos_printer_platform_image_3/flutter_pos_printer_platform_image_3.dart';
 
 class SummaryPrintService {
   final PrinterManager printerManager = PrinterManager.instance;
 
-  Future<void> printReceipt() async {
+  Future<void> printReceipt({required List<ProductSummary> products}) async {
     var devices = <BluetoothPrinter>[];
     BluetoothPrinter? selectedPrinter;
     bool isPrinted = false; // Flag to check if printed already
@@ -33,7 +35,7 @@ class SummaryPrintService {
       // Once a printer is selected, proceed to print and stop the stream
       if (selectedPrinter != null && !isPrinted) {
         isPrinted = true;
-        await _printReceiptToDevice(selectedPrinter!);
+        await _printReceiptToDevice(selectedPrinter!, products);
         subscription?.cancel(); // Cancel the discovery stream after printing
       }
     });
@@ -45,7 +47,7 @@ class SummaryPrintService {
     subscription.cancel();
   }
 
-  Future<void> _printReceiptToDevice(BluetoothPrinter printer) async {
+  Future<void> _printReceiptToDevice(BluetoothPrinter printer, products) async {
     final profile = await CapabilityProfile.load(name: 'XP-N160I');
     final generator = Generator(PaperSize.mm58, profile);
     List<int> bytes = [];
@@ -74,60 +76,26 @@ class SummaryPrintService {
       ),
     ]);
     bytes += generator.feed(1);
-    bytes += generator.row([
-      PosColumn(text: 'DM1', width: 4, styles: PosStyles(bold: true)),
-      PosColumn(
-        text: 'P200',
-        width: 3,
-        styles: PosStyles(align: PosAlign.right, bold: true),
-      ),
-      PosColumn(
-        text: '20',
-        width: 2,
-        styles: PosStyles(align: PosAlign.right, bold: true),
-      ),
-      PosColumn(
-        text: 'P4,000',
-        width: 3,
-        styles: PosStyles(align: PosAlign.right, bold: true),
-      ),
-    ]);
-    bytes += generator.row([
-      PosColumn(text: 'DM2', width: 4, styles: PosStyles(bold: true)),
-      PosColumn(
-        text: 'P300',
-        width: 3,
-        styles: PosStyles(align: PosAlign.right, bold: true),
-      ),
-      PosColumn(
-        text: '5',
-        width: 2,
-        styles: PosStyles(align: PosAlign.right, bold: true),
-      ),
-      PosColumn(
-        text: 'P1,500',
-        width: 3,
-        styles: PosStyles(align: PosAlign.right, bold: true),
-      ),
-    ]);
-    bytes += generator.row([
-      PosColumn(text: 'DM3', width: 4, styles: PosStyles(bold: true)),
-      PosColumn(
-        text: 'P180',
-        width: 3,
-        styles: PosStyles(align: PosAlign.right, bold: true),
-      ),
-      PosColumn(
-        text: '2',
-        width: 2,
-        styles: PosStyles(align: PosAlign.right, bold: true),
-      ),
-      PosColumn(
-        text: 'P360',
-        width: 3,
-        styles: PosStyles(align: PosAlign.right, bold: true),
-      ),
-    ]);
+    for (var product in products) {
+      bytes += generator.row([
+        PosColumn(text: product.name, width: 4, styles: PosStyles(bold: true)),
+        PosColumn(
+          text: (product.price as double).toStringAsFixed(2),
+          width: 3,
+          styles: PosStyles(align: PosAlign.right, bold: true),
+        ),
+        PosColumn(
+          text: (product.quantity as double).toStringAsFixed(2),
+          width: 2,
+          styles: PosStyles(align: PosAlign.right, bold: true),
+        ),
+        PosColumn(
+          text: (product.total as double).toStringAsFixed(2),
+          width: 3,
+          styles: PosStyles(align: PosAlign.right, bold: true),
+        ),
+      ]);
+    }
     bytes += generator.feed(2);
     bytes += generator.text(
       '.',
