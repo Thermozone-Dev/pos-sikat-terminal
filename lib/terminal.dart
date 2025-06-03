@@ -664,13 +664,6 @@ class _TerminalState extends State<Terminal> {
                             flex: 1,
                             child: TotalSummary(
                               totalCost: transactionData['total_sales'],
-                              totalChange: transactionData['change'],
-                            ),
-                          ),
-
-                          Expanded(
-                            flex: 1,
-                            child: TotalChange(
                               totalChange:
                                   transactionData['change'] < 0
                                       ? 0.00
