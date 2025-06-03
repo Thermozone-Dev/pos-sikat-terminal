@@ -129,7 +129,7 @@ class MainDrawer extends StatelessWidget {
             onTap: () {
               Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(builder: (context) => VoidWidget()),
+                MaterialPageRoute(builder: (context) => VoidTransactionForm()),
               );
             },
           ),
