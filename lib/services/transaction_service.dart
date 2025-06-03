@@ -205,6 +205,7 @@ class TransactionService {
     transactionData['vat_exempt_sales'] = vatExemptSales;
     transactionData['vat_adjust_sales'] = vatAdjustSales;
     transactionData['zero_rated_sales'] = zeroRatedSales;
+    transactionData['discount_value'] = totalDiscount;
 
     return transactionData;
   }
