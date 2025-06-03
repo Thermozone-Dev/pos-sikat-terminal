@@ -23,8 +23,20 @@ class ReportService {
     );
 
     if (response.statusCode == 200) {
-      final List<dynamic> data = jsonDecode(response.body);
-      return data.map((json) => ProductSummary.fromJson(json)).toList();
+      final dynamic data = jsonDecode(response.body);
+      final List<dynamic> dataList = [];
+      data.forEach((k, v) {
+        dataList.add({
+          'name': v['name'],
+          'price': v['price'],
+          'qty': v['qty'],
+          'total': v['total'],
+        });
+      });
+
+      return dataList
+          .map((json) => ProductSummary.fromJson(json as Map<String, dynamic>))
+          .toList();
     } else {
       throw Exception('Failed to load products');
     }
