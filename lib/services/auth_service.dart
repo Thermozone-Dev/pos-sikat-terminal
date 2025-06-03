@@ -96,4 +96,39 @@ class AuthService {
       throw Exception('User Data error: $e');
     }
   }
+
+  static Future<bool> isManager(BuildContext context) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+
+    try {
+      if (token == null) {
+        print('No token found');
+      }
+
+      final String apiSecret = dotenv.env['POS_API_SECRET'] ?? "";
+      final String apiUri = dotenv.env['POS_API_URL'] ?? "";
+      final url = Uri.parse('$apiUri/api/auth/manager');
+
+      final response = await http.get(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Authorization': 'Bearer $token',
+          'Pos-Secret-key': apiSecret,
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> data = jsonDecode(response.body);
+        return data['is_manager'];
+      } else {
+        print('User Data Call failed: ${response.body}');
+        throw Exception('User Data Call failed: ${response.body}');
+      }
+    } catch (e) {
+      throw Exception('User Data error: $e');
+    }
+  }
 }
