@@ -83,6 +83,8 @@ flutter:
     - assets/img/gravy.jpg
     - assets/img/banner-dark.png
     - assets/img/banner-light.png
+    - assets/img/clark-logo.png
+    - assets/img/dino-logo.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
