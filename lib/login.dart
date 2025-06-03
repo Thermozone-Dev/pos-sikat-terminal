@@ -128,7 +128,7 @@ class _LoginFormState extends State<Login> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Image(image: AssetImage('assets/img/banner-light.png')),
+                Image(image: AssetImage('assets/img/clark-logo.png')),
                 SizedBox(height: 20),
                 TextFormField(
                   controller: _emailController,

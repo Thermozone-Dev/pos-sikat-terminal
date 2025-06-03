@@ -462,7 +462,7 @@ class _TerminalState extends State<Terminal> {
         title: Row(
           children: [
             Image.asset(
-              'assets/img/logo.png', // Replace with your image path
+              'assets/img/dino-logo.png', // Replace with your image path
               height: 40, // Adjust size as needed
             ),
             const SizedBox(width: 10), // Spacing between image and text
