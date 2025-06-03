@@ -187,10 +187,13 @@ class TransactionService {
             ? totalSales
             : transactionData['cash_tendered'];
 
-    transactionData['change'] =
-        transactionData['transaction_is_digital']
-            ? 0.00
-            : transactionData['cash_tendered'] - totalSales;
+    if (transactionData['transaction_is_digital']) {
+      final change = transactionData['cash_tendered'] - totalSales;
+      transactionData['change'] =
+          change < 0 ? 0.00 : change; // Ensure change is not negative
+    } else {
+      transactionData['change'] = 0.00;
+    }
 
     transactionData['total_sales'] = totalSales;
     transactionData['gross_sales'] = grossSales;
@@ -199,6 +202,8 @@ class TransactionService {
     transactionData['vat_exempt_sales'] = vatExemptSales;
     transactionData['vat_adjust_sales'] = vatAdjustSales;
     transactionData['zero_rated_sales'] = zeroRatedSales;
+
+    print("Transaction Data Change ${transactionData['change']}");
 
     return transactionData;
   }
