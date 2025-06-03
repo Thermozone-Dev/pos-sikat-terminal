@@ -662,8 +662,9 @@ class _TerminalState extends State<Terminal> {
                           // Total Cost Container
                           Expanded(
                             flex: 1,
-                            child: TotalCost(
+                            child: TotalSummary(
                               totalCost: transactionData['total_sales'],
+                              totalChange: transactionData['change'],
                             ),
                           ),
 

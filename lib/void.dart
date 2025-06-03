@@ -66,6 +66,49 @@ class _VoidTransactionFormState extends State<VoidTransactionForm> {
     }
   }
 
+  Future<void> _restoreTransaction() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    setState(() {
+      _isLoading = true;
+      _feedback = null;
+    });
+
+    final id = _transactionIdController.text.trim();
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+
+    final String apiSecret = dotenv.env['POS_API_SECRET'] ?? "";
+    final String apiUri = dotenv.env['POS_API_URL'] ?? "";
+    final url = Uri.parse('$apiUri/api/v1/restore/$id');
+
+    try {
+      final response = await http.post(
+        url,
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Accept': 'application/json',
+          'Pos-Secret-key': apiSecret,
+        },
+      );
+
+      if (response.statusCode == 200) {
+        setState(() => _feedback = '✅ Transaction restored successfully!');
+      } else {
+        setState(() => _feedback = '⚠️ Failed: ${response.body}');
+      }
+      Future.delayed(const Duration(seconds: 3), () {
+        if (mounted) {
+          setState(() => _feedback = null);
+        }
+      });
+    } catch (e) {
+      setState(() => _feedback = '❌ Error: $e');
+    } finally {
+      setState(() => _isLoading = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -147,28 +190,66 @@ class _VoidTransactionFormState extends State<VoidTransactionForm> {
                       const SizedBox(height: 16),
                       SizedBox(
                         width: double.infinity,
-                        child: ElevatedButton.icon(
-                          onPressed: _isLoading ? null : _voidTransaction,
-                          icon:
-                              _isLoading
-                                  ? const SizedBox(
-                                    width: 16,
-                                    height: 16,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                    ),
-                                  )
-                                  : const Icon(Icons.cancel),
-                          label: Text(
-                            _isLoading ? 'Voiding...' : 'Void Transaction',
-                          ),
-                          style: ElevatedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(vertical: 12),
-                            textStyle: const TextStyle(fontSize: 15),
-                            iconColor: Colors.white,
-                            foregroundColor: Colors.white,
-                            backgroundColor: Colors.brown[500],
-                          ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            ElevatedButton.icon(
+                              onPressed: _isLoading ? null : _voidTransaction,
+                              icon:
+                                  _isLoading
+                                      ? const SizedBox(
+                                        width: 16,
+                                        height: 16,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                        ),
+                                      )
+                                      : const Icon(Icons.cancel),
+                              label: Text(
+                                _isLoading ? 'Voiding...' : 'Void Transaction',
+                              ),
+                              style: ElevatedButton.styleFrom(
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 15,
+                                  horizontal: 15,
+                                ),
+                                textStyle: const TextStyle(fontSize: 15),
+                                iconColor: Colors.white,
+                                foregroundColor: Colors.white,
+                                backgroundColor: Colors.brown[500],
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            ElevatedButton.icon(
+                              onPressed:
+                                  _isLoading ? null : _restoreTransaction,
+                              icon:
+                                  _isLoading
+                                      ? const SizedBox(
+                                        width: 16,
+                                        height: 16,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                        ),
+                                      )
+                                      : const Icon(Icons.check_circle),
+                              label: Text(
+                                _isLoading
+                                    ? 'Restoring...'
+                                    : 'Restore Transaction',
+                              ),
+                              style: ElevatedButton.styleFrom(
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 15,
+                                  horizontal: 15,
+                                ),
+                                textStyle: const TextStyle(fontSize: 15),
+                                iconColor: Colors.white,
+                                foregroundColor: Colors.white,
+                                backgroundColor: Colors.brown[500],
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                       if (_feedback != null) ...[
