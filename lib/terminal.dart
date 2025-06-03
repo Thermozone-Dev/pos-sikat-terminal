@@ -8,6 +8,7 @@ import 'package:bir_pos/services/print_service.dart';
 import 'package:bir_pos/services/auth_service.dart';
 import 'package:bir_pos/services/transaction_service.dart';
 import 'package:bir_pos/widgets/greeter.dart';
+import 'package:bir_pos/widgets/total_change.dart';
 import 'package:flutter/material.dart';
 import 'models/product.dart';
 import 'models/package.dart';
@@ -651,6 +652,16 @@ class _TerminalState extends State<Terminal> {
                             flex: 1,
                             child: TotalCost(
                               totalCost: transactionData['total_sales'],
+                            ),
+                          ),
+
+                          Expanded(
+                            flex: 1,
+                            child: TotalChange(
+                              totalChange:
+                                  transactionData['change'] < 0
+                                      ? 0.00
+                                      : transactionData['change'],
                             ),
                           ),
 
