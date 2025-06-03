@@ -663,10 +663,7 @@ class _TerminalState extends State<Terminal> {
                             flex: 1,
                             child: TotalSummary(
                               totalCost: transactionData['total_sales'],
-<<<<<<< Updated upstream
-=======
                               totalChange: transactionData['change'],
->>>>>>> Stashed changes
                             ),
                           ),
 
