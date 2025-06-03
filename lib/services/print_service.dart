@@ -145,7 +145,10 @@ class PrinterService {
         styles: PosStyles(align: PosAlign.left),
       ),
       PosColumn(
-        text: 'P 0.00',
+        text:
+            accountingData['discount_value'] == null
+                ? 'P 0.00'
+                : 'P ${accountingData['discount_value']}',
         width: 3,
         styles: PosStyles(align: PosAlign.right),
       ),

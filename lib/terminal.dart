@@ -122,6 +122,7 @@ class _TerminalState extends State<Terminal> {
     'zero_rated_sales': 0.0,
     'transaction_discounts': {},
     'gov_discount_details': {},
+    'discount_value': 0.0,
   };
 
   String transactionMethodName = "";
@@ -173,6 +174,7 @@ class _TerminalState extends State<Terminal> {
         'vat_adjust_sales': 0.0,
         'zero_rated_sales': 0.0,
         'gov_discount_details': {},
+        'discount_value': 0.0,
       };
       isFirstPrint = true;
     });
@@ -427,6 +429,7 @@ class _TerminalState extends State<Terminal> {
       'vat_exempt_sales': transactionData['vat_exempt_sales'].toString(),
       'vat_adjust_sales': transactionData['vat_adjust_sales'].toString(),
       'zero_rated_sales': transactionData['zero_rated_sales'].toString(),
+      'discount_value': transactionData['discount_value'].toString(),
     };
 
     user.then((data) {

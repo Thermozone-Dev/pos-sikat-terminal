@@ -115,6 +115,7 @@ class TransactionService {
     double vatExemptSales = 0.0;
     double vatAdjustSales = 0.0;
     double zeroRatedSales = 0.0;
+    double totalDiscount = 0.0;
 
     for (var item in transactionData['items']) {
       double initialValue = 0.0;
@@ -146,6 +147,7 @@ class TransactionService {
       item['data']['total_value'] = totalValue;
 
       vatableSales += totalValue;
+      totalDiscount += discountValue;
 
       double exemptCalc = vatableSales - initialValue;
       double adjustCalc = initialVat - (discountValue * vatValue);
@@ -176,6 +178,7 @@ class TransactionService {
       double exemptCalc = vatableSales - initialValue;
       double adjustCalc = initialVat - (discountValue * vatValue);
 
+      totalDiscount += discountValue;
       vatAdjustSales += adjustCalc;
     }
 
@@ -202,8 +205,6 @@ class TransactionService {
     transactionData['vat_exempt_sales'] = vatExemptSales;
     transactionData['vat_adjust_sales'] = vatAdjustSales;
     transactionData['zero_rated_sales'] = zeroRatedSales;
-
-    print("Transaction Data Change ${transactionData['change']}");
 
     return transactionData;
   }
