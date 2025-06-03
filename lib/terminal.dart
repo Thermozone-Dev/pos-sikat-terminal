@@ -10,6 +10,7 @@ import 'package:bir_pos/services/transaction_service.dart';
 import 'package:bir_pos/widgets/greeter.dart';
 import 'package:bir_pos/widgets/total_change.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'models/product.dart';
 import 'models/package.dart';
 import 'package:bir_pos/services/package_service.dart';
@@ -26,7 +27,7 @@ import 'package:bir_pos/services/shift_service.dart';
 import 'package:intl/intl.dart';
 
 class Terminal extends StatefulWidget {
-  final String token;
+  final String? token;
 
   const Terminal({Key? key, required this.token}) : super(key: key);
 
@@ -37,6 +38,8 @@ class Terminal extends StatefulWidget {
 class _TerminalState extends State<Terminal> {
   bool isInitialized = false;
   bool isLoading = false;
+  bool shiftActive = false;
+
   String openingBalance = "0.0";
   String? error;
 
@@ -96,6 +99,13 @@ class _TerminalState extends State<Terminal> {
     });
   }
 
+  Future<void> checkShift() async {
+    final valid = await isTodayShiftValid();
+    setState(() {
+      showContinueShiftButton = valid;
+    });
+  }
+
   Map<String, dynamic> transactionData = {
     'items': [],
     'transaction_method': null,
@@ -120,6 +130,7 @@ class _TerminalState extends State<Terminal> {
   bool isFirstPrint = true;
   bool itemsHasDiscount = false;
   bool transactionHasDiscount = false;
+  bool showContinueShiftButton = false;
 
   late Future<List<Product>> _productsFuture;
   late Future<List<Package>> _packagesFuture;
@@ -130,6 +141,7 @@ class _TerminalState extends State<Terminal> {
 
   void initState() {
     super.initState();
+    checkShift();
     _userFuture = AuthService.getUser(context);
     _productsFuture = ProductService.getProducts();
     _packagesFuture = PackageService.getPackages();
@@ -701,28 +713,32 @@ class _TerminalState extends State<Terminal> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    ElevatedButton(
-                      onPressed:
-                          () =>
-                              showOpeningBalanceModal(context, initializePage),
-                      child: Text('Start Shift'),
-                    ),
+                    if (showContinueShiftButton == false)
+                      ElevatedButton(
+                        onPressed:
+                            () => showOpeningBalanceModal(
+                              context,
+                              initializePage,
+                            ),
+                        child: Text('Start Shift'),
+                      ),
                     const SizedBox(width: 10),
-                    ElevatedButton(
-                      onPressed: () async {
-                        final result = await continueShift();
-                        if (result.success) {
-                          setState(() {
-                            isInitialized = true;
-                          });
-                        } else {
-                          setState(() {
-                            error = result.error;
-                          });
-                        }
-                      },
-                      child: Text('Continue Shift'),
-                    ),
+                    if (showContinueShiftButton)
+                      ElevatedButton(
+                        onPressed: () async {
+                          final result = await continueShift();
+                          if (result.success) {
+                            setState(() {
+                              isInitialized = true;
+                            });
+                          } else {
+                            setState(() {
+                              error = result.error;
+                            });
+                          }
+                        },
+                        child: Text('Continue Shift'),
+                      ),
                   ],
                 ),
               ),

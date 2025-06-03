@@ -141,3 +141,42 @@ Future<ContinueShiftResult> continueShift() async {
     return ContinueShiftResult(success: false, error: e.toString());
   }
 }
+
+Future<bool> isTodayShiftValid() async {
+  final prefs = await SharedPreferences.getInstance();
+  final token = prefs.getString('token');
+  final shiftId = prefs.getString('shift_id');
+  final String apiSecret = dotenv.env['POS_API_SECRET'] ?? "";
+  final String apiUri = dotenv.env['POS_API_URL'] ?? "";
+
+  if (token == null || token.isEmpty || shiftId == null || shiftId.isEmpty) {
+    return false;
+  }
+
+  final url = Uri.parse('$apiUri/api/v1/shift/$shiftId');
+
+  try {
+    final response = await http.get(
+      url,
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Accept': 'application/json',
+        'Pos-Secret-Key': apiSecret,
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      final createdAt = DateTime.parse(data['created_at']);
+      final now = DateTime.now();
+
+      return createdAt.year == now.year &&
+          createdAt.month == now.month &&
+          createdAt.day == now.day;
+    }
+  } catch (e) {
+    print('Error: $e');
+  }
+
+  return false;
+}
