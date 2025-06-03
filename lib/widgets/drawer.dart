@@ -59,6 +59,23 @@ class MainDrawer extends StatelessWidget {
             decoration: BoxDecoration(color: Colors.brown[500]),
             child: Center(child: Image.asset('assets/img/banner-dark.png')),
           ),
+          // Terminal
+          ListTile(
+            leading: const Icon(Icons.dashboard, color: Colors.black),
+            title: const Text(
+              'Terminal',
+              style: TextStyle(fontWeight: FontWeight.w600),
+            ),
+            onTap: () async {
+              final prefs = await SharedPreferences.getInstance();
+              final token = prefs.getString('token');
+
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => Terminal(token: token)),
+              );
+            },
+          ),
           // Summary Report
           ListTile(
             leading: const Icon(Icons.print, color: Colors.black),
