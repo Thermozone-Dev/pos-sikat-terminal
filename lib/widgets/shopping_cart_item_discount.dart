@@ -95,7 +95,7 @@ class _ShoppingCartItemDiscountState extends State<ShoppingCartItemDiscount> {
             ElevatedButton(
               onPressed: () {
                 Navigator.of(context).pop();
-                if (selectedDiscount > 0 && selectedDiscount < 4) {
+                if (selectedDiscount > 0 && selectedDiscount < 5) {
                   showDialog(
                     context: context,
                     builder:
@@ -104,15 +104,15 @@ class _ShoppingCartItemDiscountState extends State<ShoppingCartItemDiscount> {
                           addGovDiscountDetails: widget.addGovDiscountDetails,
                         ),
                   );
-                  widget.addItemDiscount({
-                    'index': widget.index,
-                    'quantity': quantitySelected,
-                    'discount_id': selectedDiscount,
-                    'discount_value': selectedDisountValue,
-                    'discount_is_percentage': selectedDiscountIsPercentage,
-                    'context': context,
-                  });
                 }
+                widget.addItemDiscount({
+                  'index': widget.index,
+                  'quantity': quantitySelected,
+                  'discount_id': selectedDiscount,
+                  'discount_value': selectedDisountValue,
+                  'discount_is_percentage': selectedDiscountIsPercentage,
+                  'context': context,
+                });
               },
               child: Text('Add'),
             ),

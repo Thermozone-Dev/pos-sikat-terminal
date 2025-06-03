@@ -147,7 +147,7 @@ class TransactionService {
       item['data']['total_value'] = totalValue;
 
       vatableSales += totalValue;
-      totalDiscount += discountValue;
+      totalDiscount += discountValue + (discountValue * vatValue);
 
       double exemptCalc = vatableSales - initialValue;
       double adjustCalc = initialVat - (discountValue * vatValue);
@@ -178,7 +178,7 @@ class TransactionService {
       double exemptCalc = vatableSales - initialValue;
       double adjustCalc = initialVat - (discountValue * vatValue);
 
-      totalDiscount += discountValue;
+      totalDiscount += discountValue + (discountValue * vatValue);
       vatAdjustSales += adjustCalc;
     }
 
