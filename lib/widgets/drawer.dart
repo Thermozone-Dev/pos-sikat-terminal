@@ -101,35 +101,35 @@ class MainDrawer extends StatelessWidget {
             },
           ),
           // X Reading
-          ListTile(
-            leading: const Icon(Icons.print, color: Colors.black),
-            title: const Text(
-              'X-Reading',
-              style: TextStyle(fontWeight: FontWeight.w600),
-            ),
-            onTap: () async {
-              await showEndingBalanceModal(
-                context,
-                (String endingBalance) async {},
-              );
-              final printerService = XReadingPrintService();
-              await printerService.printReceipt();
-              Navigator.pop(context);
-            },
-          ),
+          // ListTile(
+          //   leading: const Icon(Icons.print, color: Colors.black),
+          //   title: const Text(
+          //     'X-Reading',
+          //     style: TextStyle(fontWeight: FontWeight.w600),
+          //   ),
+          //   onTap: () async {
+          //     await showEndingBalanceModal(
+          //       context,
+          //       (String endingBalance) async {},
+          //     );
+          //     final printerService = XReadingPrintService();
+          //     await printerService.printReceipt();
+          //     Navigator.pop(context);
+          //   },
+          // ),
           // Z-Reading
-          ListTile(
-            leading: const Icon(Icons.print, color: Colors.black),
-            title: const Text(
-              'Z-Reading',
-              style: TextStyle(fontWeight: FontWeight.w600),
-            ),
-            onTap: () async {
-              final printerService = ZReadingPrintService();
-              await printerService.printReceipt();
-              Navigator.pop(context);
-            },
-          ),
+          // ListTile(
+          //   leading: const Icon(Icons.print, color: Colors.black),
+          //   title: const Text(
+          //     'Z-Reading',
+          //     style: TextStyle(fontWeight: FontWeight.w600),
+          //   ),
+          //   onTap: () async {
+          //     final printerService = ZReadingPrintService();
+          //     await printerService.printReceipt();
+          //     Navigator.pop(context);
+          //   },
+          // ),
           // Voiding
           ListTile(
             leading: const Icon(Icons.cancel, color: Colors.black),
