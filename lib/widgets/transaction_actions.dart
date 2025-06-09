@@ -54,7 +54,7 @@ class TransactionActions extends StatelessWidget {
         borderRadius: BorderRadius.circular(5),
       ),
       child: DefaultTabController(
-        length: 3, // Number of tabs
+        length: 2, // Number of tabs
         child: Column(
           children: [
             // TabBar at the top

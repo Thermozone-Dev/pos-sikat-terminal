@@ -498,7 +498,7 @@ class _TerminalState extends State<Terminal> {
                 child: Row(
                   children: [
                     Expanded(
-                      flex: 7,
+                      flex: 6,
                       child: SingleChildScrollView(
                         padding: const EdgeInsets.only(bottom: 20),
                         child: Column(
@@ -646,7 +646,7 @@ class _TerminalState extends State<Terminal> {
 
                     // Right Panel
                     Expanded(
-                      flex: 3,
+                      flex: 4,
                       child: Column(
                         children: [
                           // Shopping Cart Container
