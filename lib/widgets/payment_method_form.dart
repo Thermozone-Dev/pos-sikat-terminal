@@ -39,22 +39,20 @@ class _PaymentMethodFormState extends State<PaymentMethodForm> {
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-      child: TerminalMenuButton(
-        label: widget.label,
-        icon: widget.icon,
-        color: widget.color,
-        textColor: widget.textColor,
-        onTap:
-            () => _paymentMethodDialogBuilder(
-              context,
-              widget.isDigital,
-              widget.modalFunction,
-              widget.methodFunction,
-              widget.method,
-              widget.total,
-            ),
-      ),
+    return TerminalMenuButton(
+      label: widget.label,
+      icon: widget.icon,
+      color: widget.color,
+      textColor: widget.textColor,
+      onTap:
+          () => _paymentMethodDialogBuilder(
+            context,
+            widget.isDigital,
+            widget.modalFunction,
+            widget.methodFunction,
+            widget.method,
+            widget.total,
+          ),
     );
   }
 }
