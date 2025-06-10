@@ -464,11 +464,8 @@ class _TerminalState extends State<Terminal> {
         backgroundColor: Colors.brown[500],
         title: Row(
           children: [
-            Image.asset(
-              'assets/img/dino-logo.png', // Replace with your image path
-              height: 40, // Adjust size as needed
-            ),
-            const SizedBox(width: 10), // Spacing between image and text
+            Image.asset('assets/img/dino-logo.png', height: 40),
+            const SizedBox(width: 10),
             const Text(
               'PoS Terminal',
               style: TextStyle(
@@ -479,15 +476,12 @@ class _TerminalState extends State<Terminal> {
           ],
         ),
         leading: Builder(
-          builder: (context) {
-            return IconButton(
-              color: Colors.white,
-              icon: const Icon(Icons.menu),
-              onPressed: () {
-                Scaffold.of(context).openDrawer();
-              },
-            );
-          },
+          builder:
+              (context) => IconButton(
+                color: Colors.white,
+                icon: const Icon(Icons.menu),
+                onPressed: () => Scaffold.of(context).openDrawer(),
+              ),
         ),
       ),
       drawer: const MainDrawer(),
@@ -497,14 +491,14 @@ class _TerminalState extends State<Terminal> {
               ? Center(
                 child: Row(
                   children: [
-                    Expanded(
-                      flex: 6,
+                    // Left Panel
+                    SizedBox(
+                      width: MediaQuery.of(context).size.width * 0.6,
                       child: SingleChildScrollView(
                         padding: const EdgeInsets.only(bottom: 20),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            // Welcome Container
                             FutureBuilder<User>(
                               future: _userFuture,
                               builder: (context, snapshot) {
@@ -522,12 +516,9 @@ class _TerminalState extends State<Terminal> {
                                     child: Text('No user found'),
                                   );
                                 }
-                                final User user = snapshot.data!;
-
-                                return Greeter(user: user);
+                                return Greeter(user: snapshot.data!);
                               },
                             ),
-
                             FutureBuilder<List<Package>>(
                               future: _packagesFuture,
                               builder: (context, snapshot) {
@@ -542,11 +533,9 @@ class _TerminalState extends State<Terminal> {
                                   );
                                 } else if (!snapshot.hasData ||
                                     snapshot.data!.isEmpty) {
-                                  return const SizedBox.shrink(); // Hide section if no packages
+                                  return const SizedBox.shrink();
                                 }
-
                                 final packages = snapshot.data!;
-
                                 return Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
@@ -569,20 +558,17 @@ class _TerminalState extends State<Terminal> {
                                               childAspectRatio: 1.4,
                                             ),
                                         itemCount: packages.length,
-                                        itemBuilder: (context, index) {
-                                          final package = packages[index];
-                                          return PackageCard(
-                                            package: package,
-                                            onPressed: addItem,
-                                          );
-                                        },
+                                        itemBuilder:
+                                            (context, index) => PackageCard(
+                                              package: packages[index],
+                                              onPressed: addItem,
+                                            ),
                                       ),
                                     ),
                                   ],
                                 );
                               },
                             ),
-
                             FutureBuilder<List<Product>>(
                               future: _productsFuture,
                               builder: (context, snapshot) {
@@ -597,11 +583,9 @@ class _TerminalState extends State<Terminal> {
                                   );
                                 } else if (!snapshot.hasData ||
                                     snapshot.data!.isEmpty) {
-                                  return const SizedBox.shrink(); // Hides the section if empty
+                                  return const SizedBox.shrink();
                                 }
-
                                 final products = snapshot.data!;
-
                                 return Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
@@ -619,20 +603,17 @@ class _TerminalState extends State<Terminal> {
                                             const NeverScrollableScrollPhysics(),
                                         gridDelegate:
                                             SliverGridDelegateWithFixedCrossAxisCount(
-                                              crossAxisCount:
-                                                  crossAxisCount, // Ensure this is defined above
+                                              crossAxisCount: crossAxisCount,
                                               crossAxisSpacing: 10,
                                               mainAxisSpacing: 10,
                                               childAspectRatio: 0.75,
                                             ),
                                         itemCount: products.length,
-                                        itemBuilder: (context, index) {
-                                          final product = products[index];
-                                          return ProductCard(
-                                            product: product,
-                                            onPressed: addItem,
-                                          );
-                                        },
+                                        itemBuilder:
+                                            (context, index) => ProductCard(
+                                              product: products[index],
+                                              onPressed: addItem,
+                                            ),
                                       ),
                                     ),
                                   ],
@@ -645,13 +626,12 @@ class _TerminalState extends State<Terminal> {
                     ),
 
                     // Right Panel
-                    Expanded(
-                      flex: 4,
+                    SizedBox(
+                      width: MediaQuery.of(context).size.width * 0.4,
                       child: Column(
                         children: [
-                          // Shopping Cart Container
-                          Expanded(
-                            flex: 6,
+                          SizedBox(
+                            height: MediaQuery.of(context).size.height * 0.55,
                             child: ShoppingCart(
                               transactionData: transactionData,
                               increaseQuantity: increaseQuantity,
@@ -661,10 +641,8 @@ class _TerminalState extends State<Terminal> {
                               removeItem: removeItem,
                             ),
                           ),
-
-                          // Total Cost Container
-                          Expanded(
-                            flex: 1,
+                          SizedBox(
+                            height: MediaQuery.of(context).size.height * 0.1,
                             child: TotalSummary(
                               totalCost: transactionData['total_sales'],
                               totalChange:
@@ -673,13 +651,8 @@ class _TerminalState extends State<Terminal> {
                                       : transactionData['change'],
                             ),
                           ),
-
-                          // Payment Methods, Discounts, and Actions Container
-                          Expanded(
-                            flex: 3,
+                          Flexible(
                             child: TransactionActions(
-                              // futureTransactionMethods:
-                              //     _transactionMethodsFuture,
                               futureDiscounts: _discountsFuture,
                               transactionDiscountData:
                                   transactionData['transaction_discounts'] ??
@@ -710,14 +683,14 @@ class _TerminalState extends State<Terminal> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    if (showContinueShiftButton == false)
+                    if (!showContinueShiftButton)
                       ElevatedButton(
                         onPressed:
                             () => showOpeningBalanceModal(
                               context,
                               initializePage,
                             ),
-                        child: Text('Start Shift'),
+                        child: const Text('Start Shift'),
                       ),
                     const SizedBox(width: 10),
                     if (showContinueShiftButton)
@@ -725,16 +698,12 @@ class _TerminalState extends State<Terminal> {
                         onPressed: () async {
                           final result = await continueShift();
                           if (result.success) {
-                            setState(() {
-                              isInitialized = true;
-                            });
+                            setState(() => isInitialized = true);
                           } else {
-                            setState(() {
-                              error = result.error;
-                            });
+                            setState(() => error = result.error);
                           }
                         },
-                        child: Text('Continue Shift'),
+                        child: const Text('Continue Shift'),
                       ),
                   ],
                 ),

@@ -24,9 +24,8 @@ class PaymentMethodButtons extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(20),
+      padding: EdgeInsets.all(20),
       child: FutureBuilder<List<PaymentMethod>>(
-        // future: futureTransactionMethods,
         future: PaymentMethodService.getMethods(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -34,51 +33,49 @@ class PaymentMethodButtons extends StatelessWidget {
           } else if (snapshot.hasError) {
             return Center(child: Text('Error: ${snapshot.error}'));
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(child: Text('No discounts found'));
+            return const Center(child: Text('No payment methods found'));
           }
 
           final methods = snapshot.data!;
 
-          return GridView.builder(
-            scrollDirection: Axis.horizontal,
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 1,
-              crossAxisSpacing: 10,
-              mainAxisSpacing: 10,
-              childAspectRatio: 1.4,
-            ),
-            itemCount: methods.length,
-            itemBuilder: (context, index) {
-              final method = methods[index];
+          return Center(
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                return GridView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  scrollDirection: Axis.vertical,
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 5,
+                    crossAxisSpacing: 10,
+                    mainAxisSpacing: 10,
+                    childAspectRatio: 1,
+                  ),
+                  itemCount: methods.length,
+                  itemBuilder: (context, index) {
+                    final method = methods[index];
 
-              if (!method.isDigital) {
-                return PaymentMethodForm(
-                  isDigital: method.isDigital,
-                  total: total,
-                  modalFunction: setCashTendered,
-                  methodFunction: setTransactionMethod,
-                  method: method,
-                  label: method.name,
-                  icon: method.isDigital ? Icons.credit_card : Icons.money,
-                  color:
-                      method.isDigital ? Colors.grey[300] : Colors.brown[500],
-                  textColor: method.isDigital ? Colors.black : Colors.white,
+                    return PaymentMethodForm(
+                      isDigital: method.isDigital,
+                      total: total,
+                      modalFunction:
+                          method.isDigital
+                              ? setTransactionFee
+                              : setCashTendered,
+                      methodFunction: setTransactionMethod,
+                      method: method,
+                      label: method.name,
+                      icon: method.isDigital ? Icons.credit_card : Icons.money,
+                      color:
+                          method.isDigital
+                              ? Colors.grey[300]
+                              : Colors.brown[500],
+                      textColor: method.isDigital ? Colors.black : Colors.white,
+                    );
+                  },
                 );
-              } else {
-                return PaymentMethodForm(
-                  isDigital: method.isDigital,
-                  total: total,
-                  modalFunction: setTransactionFee,
-                  methodFunction: setTransactionMethod,
-                  method: method,
-                  label: method.name,
-                  icon: method.isDigital ? Icons.credit_card : Icons.money,
-                  color:
-                      method.isDigital ? Colors.grey[300] : Colors.brown[500],
-                  textColor: method.isDigital ? Colors.black : Colors.white,
-                );
-              }
-            },
+              },
+            ),
           );
         },
       ),

@@ -54,43 +54,24 @@ class TransactionActions extends StatelessWidget {
         borderRadius: BorderRadius.circular(5),
       ),
       child: DefaultTabController(
-        length: 2, // Number of tabs
+        length: 2,
         child: Column(
           children: [
-            // TabBar at the top
             const TabBar(
               labelColor: Colors.black,
               unselectedLabelColor: Colors.grey,
               indicatorColor: Colors.brown,
-              tabs: [
-                // Tab(text: 'Discounts'),
-                Tab(text: 'Payment Method'),
-                Tab(text: 'Actions'),
-              ],
+              tabs: [Tab(text: 'Payment Method'), Tab(text: 'Actions')],
             ),
-
-            // Tab content
-            Expanded(
+            Flexible(
               child: TabBarView(
                 children: [
-                  // Discounts Tab
-                  // if (!itemsHasDiscount)
-                  //   DiscountSelector(
-                  //     addToTransactionDiscounts: addToTransactionsDiscount,
-                  //     addGovDiscountDetails: addGovDiscountDetails,
-                  //     futureDiscounts: futureDiscounts,
-                  //   ),
-
-                  // Payment Methods Tab
                   PaymentMethodButtons(
                     setCashTendered: setCashTendered,
                     setTransactionFee: setTransactionFee,
                     setTransactionMethod: setTransactionMethod,
-                    // futureTransactionMethods: futureTransactionMethods,
                     total: total,
                   ),
-
-                  // Actions Tab
                   TerminalActionButtons(
                     setTransactionMethod: setTransactionMethod,
                     processTransactions: processTransactions,
@@ -99,8 +80,6 @@ class TransactionActions extends StatelessWidget {
                     printReceipt: printReceipt,
                     isFirstPrint: isFirstPrint,
                   ),
-
-                  SizedBox(width: 10),
                 ],
               ),
             ),
