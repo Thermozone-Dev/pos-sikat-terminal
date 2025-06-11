@@ -126,10 +126,11 @@ class SummaryPrintService {
       ]);
     }
     bytes += generator.feed(1);
+    final formatter = NumberFormat('#,##0.00', 'en_US');
     bytes += generator.row([
       PosColumn(text: 'Grand Total:', width: 5, styles: PosStyles(bold: false)),
       PosColumn(
-        text: 'P ${(grandTotal).toStringAsFixed(2)}',
+        text: 'P ${formatter.format(grandTotal)}',
         width: 7,
         styles: PosStyles(align: PosAlign.right, bold: true),
       ),
