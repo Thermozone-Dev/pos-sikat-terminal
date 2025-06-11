@@ -2,7 +2,7 @@ import 'package:bir_pos/models/product_summary.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:flutter_dotenv/flutter_dotenv.dart'; // For dev env variables
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class ReportService {
   static Future<List<ProductSummary>> dailyProductSummary() async {
@@ -11,7 +11,9 @@ class ReportService {
 
     final String apiSecret = dotenv.env['POS_API_SECRET'] ?? "";
     final String apiUri = dotenv.env['POS_API_URL'] ?? "";
-    final url = Uri.parse('$apiUri/api/v1/transactions-daily-summary');
+    final url = Uri.parse(
+      '$apiUri/api/v1/transactions-role-base-daily-summary',
+    );
 
     final response = await http.get(
       url,
@@ -23,19 +25,10 @@ class ReportService {
     );
 
     if (response.statusCode == 200) {
-      final dynamic data = jsonDecode(response.body);
-      final List<dynamic> dataList = [];
-      data.forEach((k, v) {
-        dataList.add({
-          'name': v['name'],
-          'price': v['price'],
-          'qty': v['qty'],
-          'total': v['total'],
-        });
-      });
+      final List<dynamic> data = jsonDecode(response.body);
 
-      return dataList
-          .map((json) => ProductSummary.fromJson(json as Map<String, dynamic>))
+      return data
+          .map((item) => ProductSummary.fromJson(item as Map<String, dynamic>))
           .toList();
     } else {
       throw Exception('Failed to load products');

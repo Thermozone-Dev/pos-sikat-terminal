@@ -164,9 +164,7 @@ class MainDrawer extends StatelessWidget {
               'End Shift',
               style: TextStyle(fontWeight: FontWeight.w600),
             ),
-            leading: Icon(
-              Icons.logout,
-            ), // You can change the icon to match your use case
+            leading: Icon(Icons.logout),
             onTap: () async {
               await showEndingBalanceModal(context, (
                 String endingBalance,
