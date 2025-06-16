@@ -1,8 +1,12 @@
 import 'dart:async';
 import 'package:bir_pos/models/product.dart';
 import 'package:bir_pos/models/product_summary.dart';
+import 'package:bir_pos/models/user.dart';
+import 'package:bir_pos/services/auth_service.dart';
 import 'package:esc_pos_utils/esc_pos_utils.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_pos_printer_platform_image_3/flutter_pos_printer_platform_image_3.dart';
+import 'package:intl/intl.dart';
 
 class SummaryPrintService {
   final PrinterManager printerManager = PrinterManager.instance;
@@ -50,12 +54,36 @@ class SummaryPrintService {
   Future<void> _printReceiptToDevice(BluetoothPrinter printer, products) async {
     final profile = await CapabilityProfile.load(name: 'XP-N160I');
     final generator = Generator(PaperSize.mm58, profile);
+    double grandTotal = 0;
+
     List<int> bytes = [];
     bytes += generator.feed(1);
     bytes += generator.text(
       '----- SUMMARY REPORT -----',
       styles: PosStyles(align: PosAlign.center, bold: true),
     );
+    bytes += generator.feed(1);
+    bytes += generator.row([
+      PosColumn(text: 'Cashier:', width: 5, styles: PosStyles(bold: false)),
+      PosColumn(
+        text: 'data',
+        width: 7,
+        styles: PosStyles(align: PosAlign.right, bold: true),
+      ),
+    ]);
+
+    final String formattedData = DateFormat(
+      'MMMM dd, yyyy',
+    ).format(DateTime.now());
+
+    bytes += generator.row([
+      PosColumn(text: 'Date:', width: 5, styles: PosStyles(bold: false)),
+      PosColumn(
+        text: formattedData,
+        width: 7,
+        styles: PosStyles(align: PosAlign.right, bold: true),
+      ),
+    ]);
     bytes += generator.feed(1);
     bytes += generator.row([
       PosColumn(text: 'NAME', width: 4, styles: PosStyles(bold: true)),
@@ -77,25 +105,36 @@ class SummaryPrintService {
     ]);
     bytes += generator.feed(1);
     for (var product in products) {
+      grandTotal += product.total as double;
       bytes += generator.row([
-        PosColumn(text: product.name, width: 4, styles: PosStyles(bold: true)),
+        PosColumn(text: product.name, width: 4, styles: PosStyles(bold: false)),
         PosColumn(
           text: (product.price as double).toStringAsFixed(2),
           width: 3,
-          styles: PosStyles(align: PosAlign.right, bold: true),
+          styles: PosStyles(align: PosAlign.right, bold: false),
         ),
         PosColumn(
-          text: (product.quantity as double).toStringAsFixed(2),
+          text: (product.quantity as double).toStringAsFixed(0),
           width: 2,
-          styles: PosStyles(align: PosAlign.right, bold: true),
+          styles: PosStyles(align: PosAlign.right, bold: false),
         ),
         PosColumn(
           text: (product.total as double).toStringAsFixed(2),
           width: 3,
-          styles: PosStyles(align: PosAlign.right, bold: true),
+          styles: PosStyles(align: PosAlign.right, bold: false),
         ),
       ]);
     }
+    bytes += generator.feed(1);
+    final formatter = NumberFormat('#,##0.00', 'en_US');
+    bytes += generator.row([
+      PosColumn(text: 'Grand Total:', width: 5, styles: PosStyles(bold: false)),
+      PosColumn(
+        text: 'P ${formatter.format(grandTotal)}',
+        width: 7,
+        styles: PosStyles(align: PosAlign.right, bold: true),
+      ),
+    ]);
     bytes += generator.feed(2);
     bytes += generator.text(
       '.',

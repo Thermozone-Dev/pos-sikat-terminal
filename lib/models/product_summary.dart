@@ -16,29 +16,23 @@ class ProductSummary {
   factory ProductSummary.fromJson(Map<String, dynamic> json) {
     return ProductSummary(
       name: json['name'],
-      price: double.parse(json['price'].toString()),
-      quantity: double.parse(json['qty'].toString()),
-      total: double.parse(json['total'].toString()),
+      price: (json['price'] as num).toDouble(),
+      quantity: (json['qty'] as num).toDouble(),
+      total: (json['total'] as num).toDouble(),
     );
   }
 
-  static Map<String, dynamic> toMap(ProductSummary product) {
-    return {
-      'name': product.name,
-      'price': product.price,
-      'quantity': product.quantity,
-      'total': product.total,
-    };
+  // Make this instance method
+  Map<String, dynamic> toMap() {
+    return {'name': name, 'price': price, 'qty': quantity, 'total': total};
   }
 
   static String encode(ProductSummary product) {
-    return json.encode(ProductSummary.toMap(product));
+    return json.encode(product.toMap());
   }
 
-  static String encodeList(List<ProductSummary> product) {
-    return json.encode(
-      product.map((product) => ProductSummary.toMap(product)).toList(),
-    );
+  static String encodeList(List<ProductSummary> products) {
+    return json.encode(products.map((product) => product.toMap()).toList());
   }
 
   static ProductSummary decode(String product) {
@@ -47,11 +41,9 @@ class ProductSummary {
     );
   }
 
-  static List<ProductSummary> decodeList(String product) {
-    return (json.decode(product) as List<dynamic>)
-        .map(
-          (product) => ProductSummary.fromJson(product as Map<String, dynamic>),
-        )
+  static List<ProductSummary> decodeList(String products) {
+    return (json.decode(products) as List<dynamic>)
+        .map((item) => ProductSummary.fromJson(item as Map<String, dynamic>))
         .toList();
   }
 }
