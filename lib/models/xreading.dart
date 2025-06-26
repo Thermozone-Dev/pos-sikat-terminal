@@ -35,21 +35,21 @@ class XReading {
 
   factory XReading.fromJson(Map<String, dynamic> json) {
     return XReading(
-      reportDate: json['report_date'],
-      reportTime: json['report_time'],
-      timeIn: json['time_in'],
-      timeOut: json['time_out'],
-      user: json['user'],
-      beginningOR: json['beginning_or'],
-      endingOR: json['ending_or'],
-      openingFund: (json['opening_fund'] as num).toDouble(),
-      totalCashPayment: (json['total_cash_payment'] as num).toDouble(),
-      totalDigitalPayment: (json['total_digital_payment'] as num).toDouble(),
-      totalCreditPayment: (json['total_credit_payment'] as num).toDouble(),
-      totalPayments: (json['total_payments'] as num).toDouble(),
-      voidValue: (json['void_value'] as num).toDouble(),
-      refundValue: (json['refund_value'] as num).toDouble(),
-      endingFund: (json['ending_fund'] as num).toDouble(),
+      reportDate: json['report_date'] ?? '',
+      reportTime: json['report_time'] ?? '',
+      timeIn: json['time_in'] ?? '',
+      timeOut: json['time_out'] ?? '',
+      user: json['user'] ?? '',
+      beginningOR: json['beginning_or'] ?? '',
+      endingOR: json['ending_or'] ?? '',
+      openingFund: (json['opening_fund'] ?? 0).toDouble(),
+      totalCashPayment: (json['total_cash_payment'] ?? 0).toDouble(),
+      totalDigitalPayment: (json['total_digital_payment'] ?? 0).toDouble(),
+      totalCreditPayment: (json['total_credit_payment'] ?? 0).toDouble(),
+      totalPayments: (json['total_payments'] ?? 0).toDouble(),
+      voidValue: (json['void_value'] ?? 0).toDouble(),
+      refundValue: (json['refund_value'] ?? 0).toDouble(),
+      endingFund: (json['ending_fund'] ?? 0).toDouble(),
     );
   }
 }

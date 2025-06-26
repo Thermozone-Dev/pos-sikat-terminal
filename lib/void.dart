@@ -1,12 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:bir_pos/terminal.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'dart:convert'; // For jsonEncode & jsonDecode
-import 'package:flutter_dotenv/flutter_dotenv.dart'; // For dev env variables
-import 'package:device_info_plus/device_info_plus.dart'; // For Device Info
-import 'package:flutter_secure_storage/flutter_secure_storage.dart'; // Secure Storage
-import 'package:bir_pos/widgets/drawer.dart'; // Import the MainDrawer widget
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:bir_pos/widgets/drawer.dart';
 
 class VoidTransactionForm extends StatefulWidget {
   const VoidTransactionForm({super.key});
