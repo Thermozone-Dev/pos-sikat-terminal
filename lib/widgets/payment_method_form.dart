@@ -76,7 +76,6 @@ void _paymentMethodDialogBuilder(
     context: context,
     builder: (context) {
       return AlertDialog(
-        key: _formKey,
         title: Text(isDigital ? 'Transaction Fee' : "Cash Tendered"),
         scrollable: true,
         content: Padding(
