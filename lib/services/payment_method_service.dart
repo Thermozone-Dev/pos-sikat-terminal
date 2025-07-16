@@ -28,7 +28,7 @@ class PaymentMethodService {
           jsonResponse is List ? jsonResponse : jsonResponse['data'];
       return data.map((json) => PaymentMethod.fromJson(json)).toList();
     } else {
-      throw Exception('Failed to load products');
+      throw Exception('Failed to load transaction methods');
     }
   }
 }

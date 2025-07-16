@@ -91,11 +91,12 @@ class MainDrawer extends StatelessWidget {
                     await printerService.printReceipt(products: products);
                   })
                   .catchError((error) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text('Error fetching summary report: $error'),
-                      ),
-                    );
+                    print('Error fetching summary report: $error');
+                    // ScaffoldMessenger.of(context).showSnackBar(
+                    //   SnackBar(
+                    //     content: Text('Error fetching summary report: $error'),
+                    //   ),
+                    // );
                   });
               Navigator.pop(context);
             },
