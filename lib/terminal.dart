@@ -118,7 +118,8 @@ class _TerminalState extends State<Terminal> {
     'vatable_sales': 0.0,
     'vat': 0.0,
     'vat_exempt_sales': 0.0,
-    'vat_adjust_sales': 0.0,
+    'vat_deduction': 0.0,
+    'vat_adjustment': 0.0,
     'zero_rated_sales': 0.0,
     'transaction_discounts': {},
     'gov_discount_details': {},
@@ -171,7 +172,8 @@ class _TerminalState extends State<Terminal> {
         'vatable_sales': 0.0,
         'vat': 0.0,
         'vat_exempt_sales': 0.0,
-        'vat_adjust_sales': 0.0,
+        'vat_adjustment': 0.0,
+        'vat_deduction': 0.0,
         'zero_rated_sales': 0.0,
         'gov_discount_details': {},
         'discount_value': 0.0,
@@ -359,9 +361,9 @@ class _TerminalState extends State<Terminal> {
         }
       }
     });
-    print('Gov discount details: ${transactionData['gov_discount_details']}');
-    print((error != null) ? error : 'Discount info added successfully');
-    print('Transaction Data: ${transactionData}');
+    // print('Gov discount details: ${transactionData['gov_discount_details']}');
+    // print((error != null) ? error : 'Discount info added successfully');
+    // print('Transaction Data: ${transactionData}');
   }
 
   void calculateValues() {
@@ -427,7 +429,8 @@ class _TerminalState extends State<Terminal> {
       'vatable_sales': transactionData['vatable_sales'].toString(),
       'vat': transactionData['vat'].toString(),
       'vat_exempt_sales': transactionData['vat_exempt_sales'].toString(),
-      'vat_adjust_sales': transactionData['vat_adjust_sales'].toString(),
+      'vat_deduction': transactionData['vat_deduction'].toString(),
+      'vat_adjustment': transactionData['vat_adjustment'].toString(),
       'zero_rated_sales': transactionData['zero_rated_sales'].toString(),
       'discount_value': transactionData['discount_value'].toString(),
     };

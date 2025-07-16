@@ -61,6 +61,8 @@ class TransactionService {
       'vatable_sales': data['vatable_sales'] ?? 0.00,
       'vat': data['vat'] ?? 0.00,
       'vat_exempt_sales': data['vat_exempt_sales'] ?? 0.00,
+      'vat_deduction': data['vat_deduction'] ?? 0.00,
+      'vat_adjustment': data['vat_adjustment'] ?? 0.00,
       'zero_rated_sales': data['zero_rated_sales'] ?? 0.00,
       'transaction_discounts':
           encodedDiscounts.isEmpty ? null : encodedDiscounts,
@@ -91,7 +93,7 @@ class TransactionService {
       );
       if (response.statusCode == 201) {
         final data = jsonDecode(response.body);
-        print('Transaction saved successfully: $data');
+        // print('Transaction saved successfully: $data');
         return data['transaction details']['id'];
       } else {
         final errorData = jsonDecode(response.body);
@@ -113,10 +115,12 @@ class TransactionService {
     double vatableSales = 0.0;
     double vat = 0.0;
     double vatExemptSales = 0.0;
-    double vatAdjustSales = 0.0;
+    double vatDeduction = 0.0;
+    double vatAdjustment = 0.0;
     double zeroRatedSales = 0.0;
     double totalDiscount = 0.0;
 
+    // Per Item Processing
     for (var item in transactionData['items']) {
       double initialValue = 0.0;
       double totalValue = 0.0;
@@ -126,9 +130,9 @@ class TransactionService {
 
       //Remove VAT from initial sales
       totalValue = initialValue / (1 + vatValue);
-      double initialVat = totalValue - (totalValue * vatValue);
+      double initialVat = (totalValue * vatValue);
 
-      //Add Checking for Vat Inclusive and Exclusive Sales
+      //!!!Add Checking for Vat Inclusive and Exclusive Sales
       grossSales += initialValue / (1 + vatValue);
 
       if (item['data']['item_discounts'] != null &&
@@ -148,42 +152,65 @@ class TransactionService {
 
       vatableSales += totalValue;
       totalDiscount += discountValue + (discountValue * vatValue);
+      double newVat = totalValue * vatValue;
 
-      double exemptCalc = vatableSales - initialValue;
-      double adjustCalc = initialVat - (discountValue * vatValue);
+      // print(
+      //   "Item: ${item['data']['name']}, "
+      //   "Initial Value: $initialValue, "
+      //   "Total Value: $totalValue, "
+      //   "Initial VAT: $initialVat, "
+      //   "VAT Value: $newVat, "
+      //   "Vatable Sales: $vatableSales, "
+      //   "Discount Value: $discountValue",
+      // );
 
-      vatAdjustSales += adjustCalc;
+      double newValue = discountValue > 0.00 ? discountValue : totalValue;
+      double exemptCalc = (initialValue / (1 + vatValue)) - newValue;
+      double adjustCalc = initialVat - newVat;
+      double deductCalc = discountValue;
+
+      vatAdjustment += adjustCalc;
+      vatExemptSales += exemptCalc;
+      vatDeduction += deductCalc;
+
+      // print(
+      //   "Exempt Calc: $exemptCalc, "
+      //   "Adjust Calc: $adjustCalc, "
+      //   "Deduct Calc: $deductCalc, "
+      //   "VAT Adjustment: $vatAdjustment, "
+      //   "VAT Deduction: $vatDeduction, "
+      //   "VAT Exempt Sales: $vatExemptSales",
+      // );
     }
 
-    if (transactionData['transaction_discounts'] != null &&
-        !(transactionData['transaction_discounts'].entries.isEmpty)) {
-      double totalValue = 0.0;
-      double initialValue = vatableSales;
-      double discountValue = 0.0;
+    // if (transactionData['transaction_discounts'] != null && !(transactionData['transaction_discounts'].entries.isEmpty)) {
+    //   double totalValue = 0.0;
+    //   double initialValue = vatableSales;
+    //   double discountValue = 0.0;
 
-      //Remove VAT from initial sales
-      totalValue = initialValue;
+    //   //Remove VAT from initial sales
+    //   totalValue = initialValue;
 
-      double initialVat = totalValue - (totalValue * vatValue);
+    //   double initialVat = totalValue - (totalValue * vatValue);
 
-      //Calculate Discount Values
-      final discount = transactionData['transaction_discounts'];
-      if (discount['is_percentage']) {
-        discountValue += totalValue * (discount['value'] / 100);
-      } else {
-        discountValue += discount['value'];
-      }
-      vatableSales = totalValue - discountValue;
+    //   //Calculate Discount Values
+    //   final discount = transactionData['transaction_discounts'];
+    //   if (discount['is_percentage']) {
+    //     discountValue += totalValue * (discount['value'] / 100);
+    //   } else {
+    //     discountValue += discount['value'];
+    //   }
+    //   vatableSales = totalValue - discountValue;
 
-      double exemptCalc = vatableSales - initialValue;
-      double adjustCalc = initialVat - (discountValue * vatValue);
+    //   double exemptCalc = vatableSales - initialValue;
+    //   double adjustCalc = initialVat - (discountValue * vatValue);
 
-      totalDiscount += discountValue + (discountValue * vatValue);
-      vatAdjustSales += adjustCalc;
-    }
+    //   totalDiscount += discountValue + (discountValue * vatValue);
+    //   vatAdjustment += adjustCalc;
+    // }
 
     vat = vatableSales * vatValue;
-    totalSales += vatableSales + vat + vatExemptSales + zeroRatedSales;
+    totalSales += vatableSales + vat;
 
     transactionData['cash_tendered'] =
         transactionData['transaction_is_digital']
@@ -203,7 +230,8 @@ class TransactionService {
     transactionData['vatable_sales'] = vatableSales;
     transactionData['vat'] = vat;
     transactionData['vat_exempt_sales'] = vatExemptSales;
-    transactionData['vat_adjust_sales'] = vatAdjustSales;
+    transactionData['vat_deduction'] = vatDeduction;
+    transactionData['vat_adjustment'] = vatAdjustment;
     transactionData['zero_rated_sales'] = zeroRatedSales;
     transactionData['discount_value'] = totalDiscount;
 
