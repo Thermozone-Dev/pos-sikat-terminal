@@ -85,6 +85,7 @@ flutter:
     - assets/img/banner-light.png
     - assets/img/clark-logo.png
     - assets/img/dino-logo.png
+    - assets/ca/lets-encrypt-r3.pem
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
