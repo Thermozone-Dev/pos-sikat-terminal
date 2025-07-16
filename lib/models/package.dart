@@ -4,6 +4,7 @@ class Package {
   final int id;
   final String name;
   final double price;
+  final double pax;
   final String image;
   final int packageID;
 
@@ -12,6 +13,7 @@ class Package {
     required this.packageID,
     required this.name,
     required this.price,
+    required this.pax,
     required this.image,
   });
 
@@ -21,6 +23,7 @@ class Package {
       packageID: json['package_id'],
       name: json['name'],
       price: double.parse(json['price'].toString()),
+      pax: double.parse(json['pax'].toString()),
       image: json['image_url'],
     );
   }
@@ -31,6 +34,7 @@ class Package {
       'package_id': package.packageID,
       'name': package.name,
       'price': package.price,
+      'pax': package.pax,
       'image_url': package.image,
     };
   }
