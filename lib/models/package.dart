@@ -5,6 +5,8 @@ class Package {
   final String name;
   final double price;
   final double pax;
+  final String product_tax_category;
+  final bool vat_exempt;
   final String image;
   final int packageID;
 
@@ -14,6 +16,8 @@ class Package {
     required this.name,
     required this.price,
     required this.pax,
+    required this.product_tax_category,
+    required this.vat_exempt,
     required this.image,
   });
 
@@ -24,6 +28,8 @@ class Package {
       name: json['name'],
       price: double.parse(json['price'].toString()),
       pax: double.parse(json['pax'].toString()),
+      product_tax_category: json['product_tax_category'],
+      vat_exempt: json['vat_exempt'],
       image: json['image_url'],
     );
   }
@@ -35,6 +41,8 @@ class Package {
       'name': package.name,
       'price': package.price,
       'pax': package.pax,
+      'product_tax_category': package.product_tax_category,
+      'vat_exempt': package.vat_exempt,
       'image_url': package.image,
     };
   }
