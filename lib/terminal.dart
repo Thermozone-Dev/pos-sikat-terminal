@@ -118,7 +118,8 @@ class _TerminalState extends State<Terminal> {
     'vatable_sales': 0.0,
     'vat': 0.0,
     'vat_exempt_sales': 0.0,
-    'vat_adjust_sales': 0.0,
+    'vat_deduction': 0.0,
+    'vat_adjustment': 0.0,
     'zero_rated_sales': 0.0,
     'transaction_discounts': {},
     'gov_discount_details': {},
@@ -171,7 +172,8 @@ class _TerminalState extends State<Terminal> {
         'vatable_sales': 0.0,
         'vat': 0.0,
         'vat_exempt_sales': 0.0,
-        'vat_adjust_sales': 0.0,
+        'vat_adjustment': 0.0,
+        'vat_deduction': 0.0,
         'zero_rated_sales': 0.0,
         'gov_discount_details': {},
         'discount_value': 0.0,
@@ -193,12 +195,8 @@ class _TerminalState extends State<Terminal> {
           if (item['data']['id'] != itemData['data']['id']) {
             continue;
           }
-          print('Product same id');
-
           if (itemData['data']['item_discounts'] != null) {
-            print('New Product Has Discount');
             if (item['data']['item_discounts'] != null) {
-              print('Product Has Discount');
               if (itemData['data']['item_discounts']['id'] !=
                   item['data']['item_discounts']['id']) {
                 continue;
@@ -207,11 +205,6 @@ class _TerminalState extends State<Terminal> {
               continue;
             }
           }
-          print('Product Discount Checked');
-
-          print('New Product ${itemData['data']}');
-          print('Existing Product ${item['data']}');
-
           item['quantity'] += 1;
           canAdd = false;
           break;
@@ -290,12 +283,16 @@ class _TerminalState extends State<Terminal> {
               'product_id': data['data']['product_id'],
               'name': data['data']['name'],
               'price': data['data']['price'],
+              'pax': data['data']['pax'],
+              'product_tax_category': data['data']['product_tax_category'],
+              'vat_exempt': data['data']['vat_exempt'],
               'image_url': data['data']['image_url'],
               'discount_value': item['discount_value'],
               'total_value': item['total_value'],
               'item_discounts': {
                 'id': item['discount_id'],
                 'value': item['discount_value'],
+                'is_government_discount': item['discount_is_gov'],
                 'is_percentage': item['discount_is_percentage'],
               },
             },
@@ -309,12 +306,16 @@ class _TerminalState extends State<Terminal> {
               'package_id': data['data']['package_id'],
               'name': data['data']['name'],
               'price': data['data']['price'],
+              'pax': data['data']['pax'],
+              'product_tax_category': data['data']['product_tax_category'],
+              'vat_exempt': data['data']['vat_exempt'],
               'image_url': data['data']['image_url'],
               'discount_value': item['discount_value'],
               'total_value': item['total_value'],
               'item_discounts': {
                 'id': item['discount_id'],
                 'value': item['discount_value'],
+                'is_government_discount': item['discount_is_gov'],
                 'is_percentage': item['discount_is_percentage'],
               },
             },
@@ -325,7 +326,6 @@ class _TerminalState extends State<Terminal> {
         }
 
         initialItem['quantity'] -= item['quantity'];
-        // print(initialItem['quantity']);
         if (initialItem['quantity'] < 1) {
           removeItem(item['index']);
         }
@@ -343,7 +343,6 @@ class _TerminalState extends State<Terminal> {
       };
       calculateValues();
       checkDiscount();
-      print(transactionData);
     });
   }
 
@@ -359,9 +358,9 @@ class _TerminalState extends State<Terminal> {
         }
       }
     });
-    print('Gov discount details: ${transactionData['gov_discount_details']}');
-    print((error != null) ? error : 'Discount info added successfully');
-    print('Transaction Data: ${transactionData}');
+    // print('Gov discount details: ${transactionData['gov_discount_details']}');
+    // print((error != null) ? error : 'Discount info added successfully');
+    // print('Transaction Data: ${transactionData}');
   }
 
   void calculateValues() {
@@ -427,7 +426,8 @@ class _TerminalState extends State<Terminal> {
       'vatable_sales': transactionData['vatable_sales'].toString(),
       'vat': transactionData['vat'].toString(),
       'vat_exempt_sales': transactionData['vat_exempt_sales'].toString(),
-      'vat_adjust_sales': transactionData['vat_adjust_sales'].toString(),
+      'vat_deduction': transactionData['vat_deduction'].toString(),
+      'vat_adjustment': transactionData['vat_adjustment'].toString(),
       'zero_rated_sales': transactionData['zero_rated_sales'].toString(),
       'discount_value': transactionData['discount_value'].toString(),
     };

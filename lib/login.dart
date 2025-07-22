@@ -76,7 +76,7 @@ class _LoginFormState extends State<Login> {
             context,
           ).showSnackBar(SnackBar(content: Text('Login successful!')));
 
-          print("Token: $token");
+          // print("Token: $token");
 
           await prefs.setString('token', token);
 

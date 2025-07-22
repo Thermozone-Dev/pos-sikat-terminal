@@ -61,6 +61,8 @@ class TransactionService {
       'vatable_sales': data['vatable_sales'] ?? 0.00,
       'vat': data['vat'] ?? 0.00,
       'vat_exempt_sales': data['vat_exempt_sales'] ?? 0.00,
+      'vat_deduction': data['vat_deduction'] ?? 0.00,
+      'vat_adjustment': data['vat_adjustment'] ?? 0.00,
       'zero_rated_sales': data['zero_rated_sales'] ?? 0.00,
       'transaction_discounts':
           encodedDiscounts.isEmpty ? null : encodedDiscounts,
@@ -91,7 +93,7 @@ class TransactionService {
       );
       if (response.statusCode == 201) {
         final data = jsonDecode(response.body);
-        print('Transaction saved successfully: $data');
+        // print('Transaction saved successfully: $data');
         return data['transaction details']['id'];
       } else {
         final errorData = jsonDecode(response.body);
@@ -113,77 +115,117 @@ class TransactionService {
     double vatableSales = 0.0;
     double vat = 0.0;
     double vatExemptSales = 0.0;
-    double vatAdjustSales = 0.0;
+    double vatDeduction = 0.0;
+    double vatAdjustment = 0.0;
     double zeroRatedSales = 0.0;
     double totalDiscount = 0.0;
 
+    // Per Item Processing
     for (var item in transactionData['items']) {
-      double initialValue = 0.0;
-      double totalValue = 0.0;
-      double discountValue = 0.0;
+      double initialPrice = 0.0;
+      double grossValue = 0.0;
+      double vatTotal = 0.0;
 
-      initialValue = item['data']['price'] * item['quantity'];
+      double itemTotal = 0.0;
+      double itemVat = 0.0;
+      double itemAdjust = 0.0;
+      double itemExempt = 0.0;
+      double itemDeduct = 0.0;
+      double itemVatableSales = 0.0;
+      double itemDiscountValue = 0.0;
 
-      //Remove VAT from initial sales
-      totalValue = initialValue / (1 + vatValue);
-      double initialVat = totalValue - (totalValue * vatValue);
+      double paxAmount = 0.0;
 
-      //Add Checking for Vat Inclusive and Exclusive Sales
-      grossSales += initialValue / (1 + vatValue);
+      print('Processing item: ${item['data']['name']}');
+      if (item['data']['pax'] <= 1.00) {
+        paxAmount = 1;
+      } else {
+        paxAmount = item['data']['pax'];
+      }
+
+      initialPrice = item['data']['price'] * item['quantity'];
+
+      //Remove VAT from initial sales and get vat value
+      grossValue = initialPrice / (1 + vatValue);
+      vatTotal = grossValue * vatValue;
+
+      //!!!Add Checking for Vat Inclusive and Exclusive Sales
+      grossSales += grossValue;
+
+      double initialVat = vatValue;
+
+      double paxVat = vatTotal / paxAmount;
+      double paxTotal = grossValue / paxAmount;
+      double salesTotal = grossValue - paxTotal;
+
+      double paxDiscount = 0.0;
+      double newVat = 0.0;
 
       if (item['data']['item_discounts'] != null &&
           !(item['data']['item_discounts'].entries.isEmpty)) {
+        itemTotal -= paxTotal;
         //Calculate Discount Values
         final discount = item['data']['item_discounts'];
+
         if (discount['is_percentage']) {
-          discountValue += totalValue * (discount['value'] / 100);
+          paxDiscount = paxTotal * (discount['value'] / 100);
+          itemDiscountValue += paxDiscount;
+          paxTotal -= paxDiscount;
         } else {
-          discountValue += discount['value'];
+          itemDiscountValue += discount['value'];
+          paxDiscount = itemDiscountValue / paxAmount;
+
+          paxTotal -= paxDiscount;
+          salesTotal -= itemDiscountValue - paxDiscount;
         }
-        totalValue -= discountValue;
+
+        if (discount['is_government_discount'] && item['data']['vat_exempt']) {
+          itemAdjust = paxVat;
+          itemExempt = paxTotal;
+        } else {
+          newVat = (salesTotal + paxTotal) * vatValue;
+          itemAdjust = initialVat - newVat;
+        }
       }
 
-      item['data']['discount_value'] = discountValue;
-      item['data']['total_value'] = totalValue;
+      itemVatableSales = (salesTotal + paxTotal) - itemExempt;
+      itemVat = vatTotal - itemAdjust;
+      itemDeduct = itemExempt + itemAdjust;
+      itemTotal = itemVatableSales + itemVat + itemExempt;
 
-      vatableSales += totalValue;
-      totalDiscount += discountValue + (discountValue * vatValue);
+      // print(
+      //   'Item: ${item['data']['name']}, '
+      //   'Initial Price: $initialPrice, '
+      //   'Gross Value: $grossValue, '
+      //   'VAT Total: $vatTotal, ',
+      // );
 
-      double exemptCalc = vatableSales - initialValue;
-      double adjustCalc = initialVat - (discountValue * vatValue);
+      // print(
+      //   'Pax Amount: $paxAmount, '
+      //   'Pax Total: $paxTotal, '
+      //   'Pax Discount: $paxDiscount, '
+      //   'Sales Total: $salesTotal, ',
+      // );
 
-      vatAdjustSales += adjustCalc;
+      // print(
+      //   'Item Total: $itemTotal, '
+      //   'Item VAT: $itemVat, '
+      //   'Item Adjust: $itemAdjust, '
+      //   'Item Exempt: $itemExempt, '
+      //   'Item Deduct: $itemDeduct',
+      // );
+
+      item['data']['discount_value'] = itemDiscountValue;
+      item['data']['total_value'] = itemTotal;
+
+      vatAdjustment += itemAdjust;
+      vatExemptSales += itemExempt;
+      vatDeduction += itemDeduct;
+
+      vat += itemVat;
+      vatableSales += itemVatableSales;
+      totalSales += itemTotal;
     }
-
-    if (transactionData['transaction_discounts'] != null &&
-        !(transactionData['transaction_discounts'].entries.isEmpty)) {
-      double totalValue = 0.0;
-      double initialValue = vatableSales;
-      double discountValue = 0.0;
-
-      //Remove VAT from initial sales
-      totalValue = initialValue;
-
-      double initialVat = totalValue - (totalValue * vatValue);
-
-      //Calculate Discount Values
-      final discount = transactionData['transaction_discounts'];
-      if (discount['is_percentage']) {
-        discountValue += totalValue * (discount['value'] / 100);
-      } else {
-        discountValue += discount['value'];
-      }
-      vatableSales = totalValue - discountValue;
-
-      double exemptCalc = vatableSales - initialValue;
-      double adjustCalc = initialVat - (discountValue * vatValue);
-
-      totalDiscount += discountValue + (discountValue * vatValue);
-      vatAdjustSales += adjustCalc;
-    }
-
-    vat = vatableSales * vatValue;
-    totalSales += vatableSales + vat + vatExemptSales + zeroRatedSales;
 
     transactionData['cash_tendered'] =
         transactionData['transaction_is_digital']
@@ -203,9 +245,12 @@ class TransactionService {
     transactionData['vatable_sales'] = vatableSales;
     transactionData['vat'] = vat;
     transactionData['vat_exempt_sales'] = vatExemptSales;
-    transactionData['vat_adjust_sales'] = vatAdjustSales;
+    transactionData['vat_deduction'] = vatDeduction;
+    transactionData['vat_adjustment'] = vatAdjustment;
     transactionData['zero_rated_sales'] = zeroRatedSales;
     transactionData['discount_value'] = totalDiscount;
+
+    print(transactionData);
 
     return transactionData;
   }
