@@ -169,29 +169,29 @@ class TransactionService {
 
         if (discount['is_percentage']) {
           paxDiscount = paxTotal * (discount['value'] / 100);
-          itemDiscountValue += paxDiscount;
-          paxTotal -= paxDiscount;
+          itemDiscountValue += paxDiscount.roundToDouble();
+          paxTotal -= paxDiscount.roundToDouble();
         } else {
           itemDiscountValue += discount['value'];
           paxDiscount = itemDiscountValue / paxAmount;
 
-          paxTotal -= paxDiscount;
-          salesTotal -= itemDiscountValue - paxDiscount;
+          paxTotal -= paxDiscount.roundToDouble();
+          salesTotal -= (itemDiscountValue - paxDiscount).roundToDouble();
         }
 
         if (discount['is_government_discount'] && item['data']['vat_exempt']) {
-          itemAdjust = paxVat;
-          itemExempt = paxTotal;
+          itemAdjust = paxVat.roundToDouble();
+          itemExempt = paxTotal.roundToDouble();
         } else {
-          newVat = (salesTotal + paxTotal) * vatValue;
-          itemAdjust = initialVat - newVat;
+          newVat = ((salesTotal + paxTotal) * vatValue).roundToDouble();
+          itemAdjust = (initialVat - newVat).roundToDouble();
         }
       }
 
       itemVatableSales = (salesTotal + paxTotal) - itemExempt;
-      itemVat = vatTotal - itemAdjust;
-      itemDeduct = itemExempt + itemAdjust;
-      itemTotal = itemVatableSales + itemVat + itemExempt;
+      itemVat = (vatTotal - itemAdjust).roundToDouble();
+      itemDeduct = (itemExempt + itemAdjust).roundToDouble();
+      itemTotal = (itemVatableSales + itemVat + itemExempt).roundToDouble();
 
       // print(
       //   'Item: ${item['data']['name']}, '
@@ -218,37 +218,38 @@ class TransactionService {
       item['data']['discount_value'] = itemDiscountValue;
       item['data']['total_value'] = itemTotal;
 
-      vatAdjustment += itemAdjust;
-      vatExemptSales += itemExempt;
-      vatDeduction += itemDeduct;
+      vatAdjustment += itemAdjust.roundToDouble();
+      vatExemptSales += itemExempt.roundToDouble();
+      vatDeduction += itemDeduct.roundToDouble();
 
-      vat += itemVat;
-      vatableSales += itemVatableSales;
-      totalSales += itemTotal;
+      vat += itemVat.roundToDouble();
+      vatableSales += itemVatableSales.roundToDouble();
+      totalSales += itemTotal.roundToDouble();
     }
 
     transactionData['cash_tendered'] =
         transactionData['transaction_is_digital']
-            ? totalSales
-            : transactionData['cash_tendered'];
+            ? totalSales.roundToDouble()
+            : transactionData['cash_tendered'].roundToDouble();
 
     if (!transactionData['transaction_is_digital']) {
-      final change = transactionData['cash_tendered'] - totalSales;
+      final change =
+          (transactionData['cash_tendered'] - totalSales).roundToDouble();
       transactionData['change'] =
           change < 0 ? 0.00 : change; // Ensure change is not negative
     } else {
       transactionData['change'] = 0.00;
     }
 
-    transactionData['total_sales'] = totalSales;
-    transactionData['gross_sales'] = grossSales;
-    transactionData['vatable_sales'] = vatableSales;
-    transactionData['vat'] = vat;
-    transactionData['vat_exempt_sales'] = vatExemptSales;
-    transactionData['vat_deduction'] = vatDeduction;
-    transactionData['vat_adjustment'] = vatAdjustment;
-    transactionData['zero_rated_sales'] = zeroRatedSales;
-    transactionData['discount_value'] = totalDiscount;
+    transactionData['total_sales'] = totalSales.roundToDouble();
+    transactionData['gross_sales'] = grossSales.roundToDouble();
+    transactionData['vatable_sales'] = vatableSales.roundToDouble();
+    transactionData['vat'] = vat.roundToDouble();
+    transactionData['vat_exempt_sales'] = vatExemptSales.roundToDouble();
+    transactionData['vat_deduction'] = vatDeduction.roundToDouble();
+    transactionData['vat_adjustment'] = vatAdjustment.roundToDouble();
+    transactionData['zero_rated_sales'] = zeroRatedSales.roundToDouble();
+    transactionData['discount_value'] = totalDiscount.roundToDouble();
 
     print(transactionData);
 
