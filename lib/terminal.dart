@@ -411,7 +411,7 @@ class _TerminalState extends State<Terminal> {
               (data) => {
                 'name': data['data']['name'],
                 'quantity': data['quantity'],
-                'price': data['data']['price'],
+                'price': data['data']['price'].roundToDouble(),
               },
             )
             .toList();
