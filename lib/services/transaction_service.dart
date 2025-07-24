@@ -225,6 +225,7 @@ class TransactionService {
       vat += itemVat;
       vatableSales += itemVatableSales;
       totalSales += itemTotal;
+      totalDiscount += itemDiscountValue;
     }
 
     transactionData['cash_tendered'] =
