@@ -189,8 +189,8 @@ class TransactionService {
       }
 
       itemVatableSales = (salesTotal + paxTotal) - itemExempt;
-      itemVat = (vatTotal - itemAdjust).ceilToDouble();
-      itemDeduct = (itemExempt + itemAdjust).ceilToDouble();
+      itemVat = (vatTotal - itemAdjust);
+      itemDeduct = (itemExempt + itemAdjust);
       itemTotal = (itemVatableSales + itemVat + itemExempt).roundToDouble();
 
       // print(
@@ -241,15 +241,15 @@ class TransactionService {
       transactionData['change'] = 0.00;
     }
 
-    transactionData['total_sales'] = totalSales.ceilToDouble();
-    transactionData['gross_sales'] = grossSales.ceilToDouble();
-    transactionData['vatable_sales'] = vatableSales.ceilToDouble();
-    transactionData['vat'] = vat.ceilToDouble();
-    transactionData['vat_exempt_sales'] = vatExemptSales.ceilToDouble();
-    transactionData['vat_deduction'] = vatDeduction.ceilToDouble();
-    transactionData['vat_adjustment'] = vatAdjustment.ceilToDouble();
-    transactionData['zero_rated_sales'] = zeroRatedSales.ceilToDouble();
-    transactionData['discount_value'] = totalDiscount.ceilToDouble();
+    transactionData['total_sales'] = totalSales.roundToDouble();
+    transactionData['gross_sales'] = grossSales.roundToDouble();
+    transactionData['vatable_sales'] = vatableSales.roundToDouble();
+    transactionData['vat'] = vat.roundToDouble();
+    transactionData['vat_exempt_sales'] = vatExemptSales.roundToDouble();
+    transactionData['vat_deduction'] = vatDeduction.roundToDouble();
+    transactionData['vat_adjustment'] = vatAdjustment.roundToDouble();
+    transactionData['zero_rated_sales'] = zeroRatedSales.roundToDouble();
+    transactionData['discount_value'] = totalDiscount.roundToDouble();
 
     print(transactionData);
 
