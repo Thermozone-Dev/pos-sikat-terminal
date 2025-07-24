@@ -7,6 +7,7 @@ import 'package:esc_pos_utils/esc_pos_utils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_pos_printer_platform_image_3/flutter_pos_printer_platform_image_3.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SummaryPrintService {
   final PrinterManager printerManager = PrinterManager.instance;
@@ -52,6 +53,9 @@ class SummaryPrintService {
   }
 
   Future<void> _printReceiptToDevice(BluetoothPrinter printer, products) async {
+    final prefs = await SharedPreferences.getInstance();
+    final userName = prefs.getString('user_name') ?? 'Missing User';
+
     final profile = await CapabilityProfile.load(name: 'XP-N160I');
     final generator = Generator(PaperSize.mm58, profile);
     double grandTotal = 0;
@@ -66,7 +70,7 @@ class SummaryPrintService {
     bytes += generator.row([
       PosColumn(text: 'Cashier:', width: 5, styles: PosStyles(bold: false)),
       PosColumn(
-        text: 'data',
+        text: userName,
         width: 7,
         styles: PosStyles(align: PosAlign.right, bold: true),
       ),

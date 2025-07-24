@@ -70,6 +70,7 @@ class _LoginFormState extends State<Login> {
         if (response.statusCode == 201) {
           final data = jsonDecode(response.body);
           final token = data['token']; // adjust based on actual API response
+          final userName = data['name']; // adjust based on actual API response
 
           if (context.mounted) {}
           ScaffoldMessenger.of(
@@ -79,6 +80,7 @@ class _LoginFormState extends State<Login> {
           // print("Token: $token");
 
           await prefs.setString('token', token);
+          await prefs.setString('user_name', userName);
 
           _clearSession();
 
