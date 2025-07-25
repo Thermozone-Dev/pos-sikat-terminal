@@ -662,7 +662,7 @@ class _TerminalState extends State<Terminal> {
                                   addToTransactionDiscounts,
                               setTransactionMethod: setTransactionMethod,
                               setCashTendered: setCashTendered,
-                              setTransactionFee: setCashTendered,
+                              setTransactionFee: setTransactionFee,
                               processTransactions: processTransactions,
                               resetTransactionData: resetTransactionData,
                               toggleIsFirstPrint: toggleIsFirstPrint,
