@@ -70,7 +70,10 @@ void _paymentMethodDialogBuilder(
 
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
-  int? savedValue;
+  final Map<String, dynamic> savedValue = {
+    'value': 0,
+    'reference_number': null,
+  };
 
   showDialog(
     context: context,
@@ -108,9 +111,20 @@ void _paymentMethodDialogBuilder(
                     return null;
                   },
                   onChanged: (value) {
-                    savedValue = int.parse(value);
+                    savedValue['value'] = int.parse(value);
                   },
                 ),
+                if (isDigital)
+                  TextFormField(
+                    keyboardType: TextInputType.number,
+                    decoration: InputDecoration(
+                      labelText: 'Enter Reference Number',
+                      border: OutlineInputBorder(),
+                    ),
+                    onChanged: (value) {
+                      savedValue['reference_number'] = int.parse(value);
+                    },
+                  ),
               ],
             ),
           ),
