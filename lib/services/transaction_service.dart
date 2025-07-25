@@ -55,6 +55,7 @@ class TransactionService {
       'transaction_method': data['transaction_method'],
       'transaction_fee': data['transaction_fee'] ?? 0.00,
       'cash_tendered': data['cash_tendered'] ?? 0.00,
+      'reference_number': data['reference_number'].toString(),
       'change': data['change'] ?? 0.00,
       'total_sales': data['total_sales'] ?? 0.00,
       'gross_sales': data['gross_sales'] ?? 0.00,
@@ -136,7 +137,7 @@ class TransactionService {
 
       double paxAmount = 0.0;
 
-      print('Processing item: ${item['data']['name']}');
+      // print('Processing item: ${item['data']['name']}');
       if (item['data']['pax'] < 2.00) {
         paxAmount = 1.00;
       } else {
@@ -251,7 +252,7 @@ class TransactionService {
     transactionData['zero_rated_sales'] = zeroRatedSales.roundToDouble();
     transactionData['discount_value'] = totalDiscount.roundToDouble();
 
-    print(transactionData);
+    // print(transactionData);
 
     return transactionData;
   }

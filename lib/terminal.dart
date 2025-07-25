@@ -111,6 +111,7 @@ class _TerminalState extends State<Terminal> {
     'transaction_method': null,
     'transaction_is_digital': false,
     'transaction_fee': 0.0,
+    'reference_number': 0.0,
     'cash_tendered': 0.0,
     'total_sales': 0.0,
     'change': 0.0,
@@ -165,6 +166,7 @@ class _TerminalState extends State<Terminal> {
         'transaction_method': null,
         'transaction_is_digital': false,
         'transaction_fee': 0.0,
+        'reference_number': 0.0,
         'cash_tendered': 0.0,
         'total_sales': 0.0,
         'change': 0.0,
@@ -250,12 +252,13 @@ class _TerminalState extends State<Terminal> {
   }
 
   void setCashTendered(cashTendered) {
-    transactionData['cash_tendered'] = cashTendered;
+    transactionData['cash_tendered'] = cashTendered['value'];
     calculateValues();
   }
 
   void setTransactionFee(transactionFee) {
-    transactionData['transaction_fee'] = transactionFee;
+    transactionData['transaction_fee'] = transactionFee['value'];
+    transactionData['reference_number'] = transactionFee['reference_number'];
     calculateValues();
   }
 
@@ -376,8 +379,8 @@ class _TerminalState extends State<Terminal> {
     final formattedData = TransactionService.formatTransactionData(
       transactionData,
     );
-    // print('Formatting transactions...');
-    // print('Formatted Transaction Data: $formattedData');
+    print('Formatting transactions...');
+    print('Formatted Transaction Data: $formattedData');
     TransactionService.saveTransactionData(formattedData).then((id) {
       setInvoice(id);
       printReceipt();
@@ -418,8 +421,9 @@ class _TerminalState extends State<Terminal> {
 
     final accountingData = {
       'transaction_method': transactionData['transaction_method'].toString(),
-      'transaction_fee': transactionData['transaction_fee'].toString(),
       'cash_tendered': transactionData['cash_tendered'].toString(),
+      'transaction_fee': transactionData['transaction_fee'].toString(),
+      'reference_number': transactionData['reference_number'].toString(),
       'total_sales': transactionData['total_sales'].toString(),
       'change': transactionData['change'].toString(),
       'gross_sales': transactionData['gross_sales'].toString(),
