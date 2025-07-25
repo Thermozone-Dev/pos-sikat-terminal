@@ -271,6 +271,9 @@ class PrinterService {
       height: 40,
       textPos: BarcodeText.below,
     );
+    bytes += generator.feed(2);
+    bytes += generator.text('.', styles: PosStyles(align: PosAlign.right));
+
     // bytes += generator.feed(3);
     // bytes += generator.text(
     //   '-------- GATER\'S COPY --------',
