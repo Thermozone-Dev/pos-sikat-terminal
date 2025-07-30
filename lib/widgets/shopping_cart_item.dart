@@ -45,8 +45,10 @@ class ShoppingCartItem extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  item['data']['name'],
-                  style: TextStyle(
+                  (item['data']['name'] as String).length > 10
+                      ? '${item['data']['name'].substring(0, 10)}...'
+                      : item['data']['name'],
+                  style: const TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w800,
                     color: Colors.black87,
