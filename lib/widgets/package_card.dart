@@ -53,6 +53,8 @@ class PackageCard extends StatelessWidget {
               fontWeight: FontWeight.w800,
               color: Colors.black87,
             ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
           Text(
             '₱${package.price.toStringAsFixed(2)}',

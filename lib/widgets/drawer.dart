@@ -1,11 +1,13 @@
 import 'dart:ffi';
 
 import 'package:bir_pos/models/xreading.dart';
+import 'package:bir_pos/models/zreading.dart';
 import 'package:bir_pos/services/report_service.dart';
 import 'package:bir_pos/services/shift_service.dart';
 import 'package:bir_pos/services/summary_print_service.dart';
 import 'package:bir_pos/services/x_print_service.dart';
 import 'package:bir_pos/services/z_print_service.dart';
+import 'package:bir_pos/services/zreading_service.dart';
 import 'package:bir_pos/terminal.dart';
 import 'package:bir_pos/void.dart';
 import 'package:flutter/material.dart';
@@ -54,7 +56,7 @@ class MainDrawer extends StatelessWidget {
     }
   }
 
-  Future<void> showCurrentCashModal(
+  Future<void> showCurrentXCashModal(
     BuildContext context,
     Future<void> Function(String) onSubmit,
   ) async {
@@ -66,6 +68,52 @@ class MainDrawer extends StatelessWidget {
       // print('Current Cash: $currentCash');
       final printerService = XReadingPrintService();
       await printerService.printReceipt(xReading: data);
+      // print(data);
+    }
+
+    await showDialog(
+      context: context,
+      builder:
+          (context) => AlertDialog(
+            title: Text('Enter Current Cash on Drawer'),
+            content: TextField(
+              controller: controller,
+              keyboardType: TextInputType.numberWithOptions(decimal: true),
+              decoration: InputDecoration(hintText: 'e.g., 1000.00'),
+              onChanged: (value) {
+                currentCash = double.tryParse(value) ?? 0.0;
+              },
+            ),
+
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text('Cancel'),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  onSubmit(currentCash);
+                  Navigator.pop(context);
+                },
+                child: Text('Submit'),
+              ),
+            ],
+          ),
+    );
+  }
+
+  Future<void> showCurrentZCashModal(
+    BuildContext context,
+    Future<void> Function(String) onSubmit,
+  ) async {
+    final TextEditingController controller = TextEditingController();
+    double currentCash = 0.0;
+
+    Future<void> onSubmit(double currentCash) async {
+      final ZReading? data = await ZReadingService().fetchZReading(currentCash);
+      // print('Current Cash: $currentCash');
+      final printerService = ZReadingPrintService();
+      await printerService.printReceipt(zReading: data);
       // print(data);
     }
 
@@ -159,7 +207,7 @@ class MainDrawer extends StatelessWidget {
               style: TextStyle(fontWeight: FontWeight.w600),
             ),
             onTap: () async {
-              await showCurrentCashModal(
+              await showCurrentXCashModal(
                 context,
                 (String currentCash) async {},
               );
@@ -169,18 +217,22 @@ class MainDrawer extends StatelessWidget {
             },
           ),
           // Z-Reading
-          // ListTile(
-          //   leading: const Icon(Icons.print, color: Colors.black),
-          //   title: const Text(
-          //     'Z-Reading',
-          //     style: TextStyle(fontWeight: FontWeight.w600),
-          //   ),
-          //   onTap: () async {
-          //     final printerService = ZReadingPrintService();
-          //     await printerService.printReceipt();
-          //     Navigator.pop(context);
-          //   },
-          // ),
+          ListTile(
+            leading: const Icon(Icons.print, color: Colors.black),
+            title: const Text(
+              'Z-Reading',
+              style: TextStyle(fontWeight: FontWeight.w600),
+            ),
+            onTap: () async {
+              await showCurrentZCashModal(
+                context,
+                (String currentCash) async {},
+              );
+              // final printerService = ZReadingPrintService();
+              // await printerService.printReceipt();
+              Navigator.pop(context);
+            },
+          ),
           // Voiding
           ListTile(
             leading: const Icon(Icons.cancel, color: Colors.black),

@@ -1,9 +1,7 @@
 import 'dart:async';
 import 'package:bir_pos/models/xreading.dart';
 import 'package:esc_pos_utils/esc_pos_utils.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_pos_printer_platform_image_3/flutter_pos_printer_platform_image_3.dart';
-import 'package:bir_pos/services/xreading_service.dart';
 
 class XReadingPrintService {
   final PrinterManager printerManager = PrinterManager.instance;

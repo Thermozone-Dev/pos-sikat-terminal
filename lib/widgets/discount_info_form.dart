@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class DiscountInfoForm extends StatefulWidget {
   final int selectedDiscount;
@@ -180,9 +181,12 @@ class _DiscountInfoFormState extends State<DiscountInfoForm> {
                           lastDate: DateTime.now(),
                         ).then((value) {
                           if (value != null) {
-                            _textEditingController.text = value.toString();
+                            final formattedDate = DateFormat(
+                              'yyyy-MM-dd',
+                            ).format(value);
+                            _textEditingController.text = formattedDate;
                             discountInfoData['sp']['child_birthday'] =
-                                value.toIso8601String();
+                                formattedDate;
                           }
                         }),
                   ),
