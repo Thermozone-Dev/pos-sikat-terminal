@@ -240,27 +240,89 @@ class MainDrawer extends StatelessWidget {
               'Voiding',
               style: TextStyle(fontWeight: FontWeight.w600),
             ),
-            onTap: () {
-              AuthService.isManager(context).then((isManager) {
-                if (isManager) {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => VoidTransactionForm(),
-                    ),
-                  );
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        'You are not authorized to void transactions',
+            onTap: () async {
+              Navigator.pop(context);
+              final TextEditingController codeController =
+                  TextEditingController();
+              const String correctCode = 'idolkim';
+
+              showDialog(
+                context: context,
+                barrierColor: Colors.black54,
+                builder: (context) {
+                  return AlertDialog(
+                    title: const Text('Enter Manager\'s Code'),
+                    content: TextField(
+                      controller: codeController,
+                      obscureText: true,
+                      decoration: const InputDecoration(
+                        labelText: 'Access Code',
+                        border: OutlineInputBorder(),
                       ),
                     ),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(context),
+                        child: const Text('Cancel'),
+                      ),
+                      ElevatedButton(
+                        onPressed: () {
+                          final code = codeController.text.trim();
+                          Navigator.pop(context);
+
+                          if (code == correctCode) {
+                            showDialog(
+                              context: context,
+                              barrierColor: Colors.black54,
+                              builder:
+                                  (_) => Dialog(
+                                    backgroundColor: Colors.transparent,
+                                    insetPadding: const EdgeInsets.all(20),
+                                    child: Center(
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          color: const Color(0xFF2B2B2B),
+                                          borderRadius: BorderRadius.circular(
+                                            16,
+                                          ),
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: Colors.black.withOpacity(
+                                                0.3,
+                                              ),
+                                              blurRadius: 10,
+                                            ),
+                                          ],
+                                        ),
+                                        child: Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 40,
+                                            vertical: 40,
+                                          ),
+                                          child:
+                                              VoidTransactionForm(), // your form widget
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                            );
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Incorrect access code'),
+                              ),
+                            );
+                          }
+                        },
+                        child: const Text('Submit'),
+                      ),
+                    ],
                   );
-                }
-              });
+                },
+              );
             },
           ),
+
           // End Shift
           ListTile(
             title: const Text(
