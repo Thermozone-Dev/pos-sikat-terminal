@@ -523,7 +523,7 @@ class ZReadingPrintService {
     bytes += generator.row([
       PosColumn(text: 'CREDIT CARD:', width: 6, styles: PosStyles(bold: false)),
       PosColumn(
-        text: '0.00',
+        text: zReading?.creditPayments.toString() ?? '0.00',
         width: 6,
         styles: PosStyles(bold: false, align: PosAlign.right),
       ),
