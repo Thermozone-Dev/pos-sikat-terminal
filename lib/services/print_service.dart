@@ -274,51 +274,6 @@ class PrinterService {
     bytes += generator.feed(2);
     bytes += generator.text('.', styles: PosStyles(align: PosAlign.right));
 
-    // bytes += generator.feed(3);
-    // bytes += generator.text(
-    //   '-------- GATER\'S COPY --------',
-    //   styles: PosStyles(
-    //     align: PosAlign.center,
-    //     bold: true,
-    //     height: PosTextSize.size1,
-    //     width: PosTextSize.size1,
-    //   ),
-    // );
-    // bytes += generator.feed(1);
-    // bytes += generator.text(
-    //   'Issued by: ${userData['name']}',
-    //   styles: PosStyles(align: PosAlign.left),
-    // );
-    // bytes += generator.text(
-    //   'INVOICE NO: ${invoiceId.padLeft(8 - invoiceId.length, '0')}',
-    //   styles: PosStyles(align: PosAlign.left),
-    // );
-    // bytes += generator.text(
-    //   'Date: $dateTime',
-    //   styles: PosStyles(align: PosAlign.left),
-    // );
-    // bytes += generator.feed(1);
-    // // // Item Breakdown
-    // bytes += generator.row([
-    //   PosColumn(
-    //     text: 'Qty',
-    //     width: 3,
-    //     styles: PosStyles(align: PosAlign.left, bold: true),
-    //   ),
-    //   PosColumn(text: 'Item', width: 6, styles: PosStyles(bold: true)),
-    //   PosColumn(
-    //     text: 'Price',
-    //     width: 3,
-    //     styles: PosStyles(align: PosAlign.left, bold: true),
-    //   ),
-    // ]);
-    // bytes += generator.feed(1);
-    // for (var item in items) {
-    //   bytes += generator.row([
-    //     PosColumn(
-    //       text: item['quantity']!.toString(),
-    //       width: 3,
-    //       styles: PosStyles(align: PosAlign.left),
     //     ),
     //     PosColumn(text: item['name']!, width: 6),
     //     PosColumn(
@@ -328,14 +283,66 @@ class PrinterService {
     //     ),
     //   ]);
     // }
-    // bytes += generator.feed(1);
-    // bytes += generator.barcode(
-    //   Barcode.upcA(barcodeData),
-    //   height: 40,
-    //   textPos: BarcodeText.below,
-    // );
-    // bytes += generator.feed(2);
-    // bytes += generator.text('.', styles: PosStyles(align: PosAlign.right));
+
+    // POS Dino Gaters Copy
+    bytes += generator.feed(3);
+    bytes += generator.text(
+      '-------- GATER\'S COPY --------',
+      styles: PosStyles(
+        align: PosAlign.center,
+        bold: true,
+        height: PosTextSize.size1,
+        width: PosTextSize.size1,
+      ),
+    );
+    bytes += generator.feed(1);
+    bytes += generator.text(
+      'Issued by: ${userData['name']}',
+      styles: PosStyles(align: PosAlign.left),
+    );
+    bytes += generator.text(
+      'Date: $dateTime',
+      styles: PosStyles(align: PosAlign.left),
+    );
+    bytes += generator.feed(1);
+    // // Item Breakdown
+    bytes += generator.row([
+      PosColumn(
+        text: 'Qty',
+        width: 3,
+        styles: PosStyles(align: PosAlign.left, bold: true),
+      ),
+      PosColumn(text: 'Item', width: 6, styles: PosStyles(bold: true)),
+      PosColumn(
+        text: 'Price',
+        width: 3,
+        styles: PosStyles(align: PosAlign.left, bold: true),
+      ),
+    ]);
+    bytes += generator.feed(1);
+    for (var item in items) {
+      bytes += generator.row([
+        PosColumn(
+          text: item['quantity']!.toString(),
+          width: 3,
+          styles: PosStyles(align: PosAlign.left),
+        ),
+        PosColumn(text: item['name']!, width: 6),
+        PosColumn(
+          text: item['price']!.toString(),
+          width: 3,
+          styles: PosStyles(align: PosAlign.right),
+        ),
+      ]);
+    }
+    bytes += generator.feed(1);
+    bytes += generator.barcode(
+      Barcode.upcA(barcodeData),
+      height: 40,
+      textPos: BarcodeText.below,
+    );
+    bytes += generator.feed(2);
+    bytes += generator.text('.', styles: PosStyles(align: PosAlign.right));
 
     // BIR FORMAT
 
