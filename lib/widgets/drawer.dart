@@ -182,21 +182,44 @@ class MainDrawer extends StatelessWidget {
               'Summary Report',
               style: TextStyle(fontWeight: FontWeight.w600),
             ),
-            onTap: () async {
-              ReportService.dailyProductSummary()
-                  .then((products) async {
-                    final printerService = SummaryPrintService();
-                    await printerService.printReceipt(products: products);
-                  })
-                  .catchError((error) {
-                    print('Error fetching summary report: $error');
-                    // ScaffoldMessenger.of(context).showSnackBar(
-                    //   SnackBar(
-                    //     content: Text('Error fetching summary report: $error'),
-                    //   ),
-                    // );
-                  });
+            onTap: () {
+              // Close the drawer first
               Navigator.pop(context);
+
+              // Delay the dialog slightly so it opens AFTER the drawer closes
+              Future.delayed(const Duration(milliseconds: 200), () {
+                showDialog(
+                  context: context,
+                  builder:
+                      (context) => AlertDialog(
+                        title: const Text('Summary Report'),
+                        content: const Text('This is the modal content.'),
+                        actions: [
+                          TextButton(
+                            onPressed: () async {
+                              try {
+                                final products =
+                                    await ReportService.dailyProductSummary();
+                                final printerService = SummaryPrintService();
+                                await printerService.printReceipt(
+                                  products: products,
+                                );
+                                if (context.mounted) Navigator.pop(context);
+                              } catch (error) {
+                                print('Error fetching summary report: $error');
+                                if (context.mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(content: Text('Error: $error')),
+                                  );
+                                }
+                              }
+                            },
+                            child: const Text('Print'),
+                          ),
+                        ],
+                      ),
+                );
+              });
             },
           ),
           // X Reading
