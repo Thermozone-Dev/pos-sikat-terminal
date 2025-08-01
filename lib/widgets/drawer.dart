@@ -11,6 +11,7 @@ import 'package:bir_pos/services/zreading_service.dart';
 import 'package:bir_pos/terminal.dart';
 import 'package:bir_pos/void.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../services/auth_service.dart';
 import 'package:bir_pos/services/xreading_service.dart';
@@ -183,22 +184,184 @@ class MainDrawer extends StatelessWidget {
               style: TextStyle(fontWeight: FontWeight.w600),
             ),
             onTap: () async {
-              ReportService.dailyProductSummary()
-                  .then((products) async {
-                    final printerService = SummaryPrintService();
-                    await printerService.printReceipt(products: products);
-                  })
-                  .catchError((error) {
-                    print('Error fetching summary report: $error');
-                    // ScaffoldMessenger.of(context).showSnackBar(
-                    //   SnackBar(
-                    //     content: Text('Error fetching summary report: $error'),
-                    //   ),
-                    // );
-                  });
-              Navigator.pop(context);
+              final products = await ReportService.dailyProductSummary();
+              final now = DateTime.now();
+              final formattedDate = DateFormat('MMMM d, y').format(now);
+              final formattedTime = DateFormat('hh:mm a').format(now);
+
+              Future.delayed(const Duration(milliseconds: 200), () {
+                showDialog(
+                  context: context,
+                  builder:
+                      (context) => AlertDialog(
+                        title: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Summary Report',
+                              style: TextStyle(
+                                fontWeight: FontWeight.w700,
+                                fontSize: 23,
+                              ),
+                            ),
+                            SizedBox(height: 4),
+                            Text(
+                              'Generated on $formattedDate at $formattedTime',
+                              style: TextStyle(
+                                fontWeight: FontWeight.w500,
+                                fontSize: 15,
+                                color: Colors.black54,
+                              ),
+                            ),
+                          ],
+                        ),
+                        titleTextStyle: const TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 24,
+                          color: Colors.black,
+                        ),
+                        content: SingleChildScrollView(
+                          child: Container(
+                            width: 600,
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.only(bottom: 8),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: const [
+                                      Expanded(
+                                        child: Text(
+                                          'Product',
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.w600,
+                                            color: Colors.black87,
+                                          ),
+                                        ),
+                                      ),
+                                      Expanded(
+                                        child: Text(
+                                          'Price',
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.w600,
+                                            color: Colors.black87,
+                                          ),
+                                        ),
+                                      ),
+                                      Expanded(
+                                        child: Text(
+                                          'Quantity',
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.w600,
+                                            color: Colors.black87,
+                                          ),
+                                        ),
+                                      ),
+                                      Expanded(
+                                        child: Text(
+                                          'Total',
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.w600,
+                                            color: Colors.black87,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                const Divider(),
+
+                                ...products.map((product) {
+                                  return Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 4,
+                                    ),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Expanded(child: Text(product.name)),
+                                        Expanded(
+                                          child: Text(
+                                            '₱${(product.price as double).toStringAsFixed(2)}',
+                                          ),
+                                        ),
+                                        Expanded(
+                                          child: Text(
+                                            '${(product.quantity).toStringAsFixed(0)}',
+                                          ),
+                                        ),
+                                        Expanded(
+                                          child: Text(
+                                            '₱${(product.total as double).toStringAsFixed(2)}',
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                }).toList(),
+                                Divider(),
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 8,
+                                  ),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        'Grand Total:',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.w600,
+                                          color: Colors.black87,
+                                        ),
+                                      ),
+                                      Text(
+                                        '₱${products.fold(0.0, (sum, item) => sum + (item.total as double)).toStringAsFixed(2)}',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.w600,
+                                          color: Colors.black87,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Divider(),
+                              ],
+                            ),
+                          ),
+                        ),
+                        actions: [
+                          TextButton(
+                            onPressed: () async {
+                              try {
+                                final products =
+                                    await ReportService.dailyProductSummary();
+                                final printerService = SummaryPrintService();
+                                await printerService.printReceipt(
+                                  products: products,
+                                );
+                                if (context.mounted) Navigator.pop(context);
+                              } catch (error) {
+                                print('Error fetching summary report: $error');
+                                if (context.mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(content: Text('Error: $error')),
+                                  );
+                                }
+                              }
+                            },
+                            child: const Text('Print'),
+                          ),
+                        ],
+                      ),
+                );
+              });
             },
           ),
+
           // X Reading
           ListTile(
             leading: const Icon(Icons.print, color: Colors.black),
