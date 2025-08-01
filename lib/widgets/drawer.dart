@@ -183,17 +183,34 @@ class MainDrawer extends StatelessWidget {
               style: TextStyle(fontWeight: FontWeight.w600),
             ),
             onTap: () {
-              // Close the drawer first
+              final products = ReportService.dailyProductSummary();
               Navigator.pop(context);
-
-              // Delay the dialog slightly so it opens AFTER the drawer closes
               Future.delayed(const Duration(milliseconds: 200), () {
                 showDialog(
                   context: context,
                   builder:
                       (context) => AlertDialog(
                         title: const Text('Summary Report'),
-                        content: const Text('This is the modal content.'),
+                        titleTextStyle: const TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 24,
+                          color: Colors.black,
+                        ),
+                        content: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: const [
+                            Text('Product: Sample Item'),
+                            SizedBox(height: 8),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text('Qty: 2'),
+                                Text('Total: ₱200.00'),
+                              ],
+                            ),
+                          ],
+                        ),
                         actions: [
                           TextButton(
                             onPressed: () async {
