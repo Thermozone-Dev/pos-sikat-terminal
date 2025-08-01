@@ -1,10 +1,6 @@
 import 'dart:async';
-import 'package:bir_pos/models/product.dart';
 import 'package:bir_pos/models/product_summary.dart';
-import 'package:bir_pos/models/user.dart';
-import 'package:bir_pos/services/auth_service.dart';
 import 'package:esc_pos_utils/esc_pos_utils.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter_pos_printer_platform_image_3/flutter_pos_printer_platform_image_3.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
