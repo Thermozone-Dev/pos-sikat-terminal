@@ -1,3 +1,4 @@
+import 'package:bir_pos/services/claim_stub_service.dart';
 import 'package:bir_pos/services/stub_print_service.dart';
 import 'package:flutter/material.dart';
 
@@ -101,14 +102,32 @@ class TerminalActionButtons extends StatelessWidget {
                       onPressed: () async {
                         stubNumber = controller.text.trim();
 
-                        // Optionally validate
-                        if (stubNumber == null) return;
+                        if (stubNumber == null || stubNumber!.isEmpty) return;
 
-                        // Trigger print
-                        await StubPrintService().printStub();
+                        // Call the API
+                        final result = await claimStub(stubNumber!);
 
-                        // Close the dialog after printing
-                        Navigator.of(context).pop();
+                        Navigator.of(context).pop(); // Close the dialog
+
+                        if (result != null) {
+                          // Optionally call print service with result
+                          await StubPrintService().printStub(result);
+
+                          // Show success message
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('Stub claimed successfully!'),
+                            ),
+                          );
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                'Stub not found or failed to claim.',
+                              ),
+                            ),
+                          );
+                        }
                       },
                       child: const Text('Submit'),
                     ),
@@ -116,12 +135,6 @@ class TerminalActionButtons extends StatelessWidget {
                 );
               },
             );
-
-            if (stubNumber != null && stubNumber!.isNotEmpty) {
-              // Do something with the stub number
-              print("Stub Number: $stubNumber");
-              // You can call a function or set state here
-            }
           },
           style: ElevatedButton.styleFrom(
             backgroundColor: Colors.grey[300],

@@ -6,7 +6,7 @@ import 'package:intl/intl.dart';
 class StubPrintService {
   final PrinterManager printerManager = PrinterManager.instance;
 
-  Future<void> printStub() async {
+  Future<void> printStub(Map<String, dynamic> stubData) async {
     BluetoothPrinter? selectedPrinter;
     bool isPrinted = false;
 
@@ -27,7 +27,7 @@ class StubPrintService {
       if (selectedPrinter != null && !isPrinted) {
         isPrinted = true;
         subscription?.cancel();
-        await _printStaticText(selectedPrinter!);
+        await _printDynamicStub(selectedPrinter!, stubData);
       }
     });
 
@@ -35,121 +35,121 @@ class StubPrintService {
     subscription.cancel();
   }
 
-  Future<void> _printStaticText(BluetoothPrinter printer) async {
+  Future<void> _printDynamicStub(
+    BluetoothPrinter printer,
+    Map<String, dynamic> data,
+  ) async {
     final profile = await CapabilityProfile.load(name: 'XP-N160I');
     final generator = Generator(PaperSize.mm58, profile);
-    final String formattedDate = DateFormat(
-      'MMMM dd, yyyy',
-    ).format(DateTime.now());
 
     List<int> bytes = [];
+
     bytes += generator.text(
       '----- CLAIM STUB -----',
       styles: PosStyles(align: PosAlign.center, bold: true),
     );
+
     bytes += generator.feed(1);
+
     bytes += generator.row([
-      PosColumn(text: 'Date:', width: 6, styles: PosStyles(bold: false)),
+      PosColumn(text: 'Date:', width: 6),
       PosColumn(
-        text: formattedDate,
+        text: data['date'] ?? '',
         width: 6,
-        styles: PosStyles(bold: false, align: PosAlign.right),
+        styles: PosStyles(align: PosAlign.right),
       ),
     ]);
+
     bytes += generator.row([
+      PosColumn(text: 'Time:', width: 6),
       PosColumn(
-        text: 'Processed by:',
+        text: data['time'] ?? '',
         width: 6,
-        styles: PosStyles(bold: false),
+        styles: PosStyles(align: PosAlign.right),
       ),
+    ]);
+
+    bytes += generator.row([
+      PosColumn(text: 'Processed by:', width: 6),
       PosColumn(
         text: 'Angelo Marquez',
         width: 6,
-        styles: PosStyles(bold: false, align: PosAlign.right),
+        styles: PosStyles(align: PosAlign.right),
       ),
     ]);
+
     bytes += generator.row([
+      PosColumn(text: 'Transaction No:', width: 6),
       PosColumn(
-        text: 'Transaction No:',
+        text: data['transaction_no'].toString(),
         width: 6,
-        styles: PosStyles(bold: false),
-      ),
-      PosColumn(
-        text: '000001',
-        width: 6,
-        styles: PosStyles(bold: false, align: PosAlign.right),
+        styles: PosStyles(align: PosAlign.right),
       ),
     ]);
+
     bytes += generator.row([
-      PosColumn(text: 'Stub No:', width: 6, styles: PosStyles(bold: false)),
+      PosColumn(text: 'Stub No:', width: 6),
       PosColumn(
-        text: '000001',
+        text: data['stub'].toString(),
         width: 6,
-        styles: PosStyles(bold: false, align: PosAlign.right),
+        styles: PosStyles(align: PosAlign.right),
       ),
     ]);
+
     bytes += generator.text(
       '-------------------------------',
-      styles: PosStyles(align: PosAlign.center, bold: false),
+      styles: PosStyles(align: PosAlign.center),
     );
+
     bytes += generator.text(
       '------- ITEMS -------',
       styles: PosStyles(align: PosAlign.center, bold: true),
     );
+
     bytes += generator.feed(1);
+
     bytes += generator.row([
-      PosColumn(
-        text: 'Qty',
-        width: 2,
-        styles: PosStyles(bold: false, align: PosAlign.left),
-      ),
-      PosColumn(
-        text: 'Name',
-        width: 6,
-        styles: PosStyles(bold: false, align: PosAlign.left),
-      ),
+      PosColumn(text: 'Qty', width: 2),
+      PosColumn(text: 'Name', width: 6),
       PosColumn(
         text: 'Price',
         width: 4,
-        styles: PosStyles(bold: false, align: PosAlign.left),
+        styles: PosStyles(align: PosAlign.left),
       ),
     ]);
+
     bytes += generator.feed(1);
+
     bytes += generator.row([
+      PosColumn(text: '1', width: 2, styles: PosStyles(bold: true)),
       PosColumn(
-        text: '1',
-        width: 2,
-        styles: PosStyles(bold: true, align: PosAlign.left),
-      ),
-      PosColumn(
-        text: 'Barkada',
+        text: data['pack_inclusive_name'],
         width: 6,
-        styles: PosStyles(bold: true, align: PosAlign.left),
+        styles: PosStyles(bold: true),
       ),
       PosColumn(
-        text: 'P 3500',
+        text: 'P ${NumberFormat('#,##0.00').format(data['price'])}',
         width: 4,
-        styles: PosStyles(bold: true, align: PosAlign.left),
+        styles: PosStyles(bold: true),
       ),
     ]);
-    bytes += generator.feed(1);
-    bytes += generator.text(
-      '     x 5 DM1',
-      styles: PosStyles(align: PosAlign.left, bold: false),
-    );
-    bytes += generator.text(
-      '     x 5 DM2',
-      styles: PosStyles(align: PosAlign.left, bold: false),
-    );
-    bytes += generator.text(
-      '     x 5 DM3',
-      styles: PosStyles(align: PosAlign.left, bold: false),
-    );
+
+    final List<dynamic> items = data['items'] ?? [];
+
+    for (final item in items) {
+      bytes += generator.text(
+        '     x ${item['quantity']} ${item['name']}',
+        styles: PosStyles(align: PosAlign.left),
+      );
+    }
+
     bytes += generator.feed(2);
+
     bytes += generator.text(
       'THIS STUB HAS BEEN CLAIMED',
       styles: PosStyles(align: PosAlign.center, bold: true),
     );
+
     bytes += generator.feed(1);
     bytes += generator.cut();
 
@@ -161,6 +161,7 @@ class StubPrintService {
         vendorId: printer.vendorId,
       ),
     );
+
     printerManager.send(type: PrinterType.usb, bytes: bytes);
   }
 }
