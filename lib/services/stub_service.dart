@@ -2,7 +2,7 @@ import 'package:bir_pos/models/stub.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:flutter_dotenv/flutter_dotenv.dart'; // For dev env variables
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class StubService {
   static Future<List<Stub>> genStub() async {
@@ -20,7 +20,7 @@ class StubService {
       throw Exception('Missing API configuration');
     }
 
-    final url = Uri.parse('$apiUri/api/v1/stubs'); // Adjust this as needed
+    final url = Uri.parse('$apiUri/api/v1/stubs');
 
     try {
       final response = await http
