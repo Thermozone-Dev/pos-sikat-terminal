@@ -25,7 +25,7 @@ class PrinterService {
     subscription = printerManager.discovery(type: PrinterType.usb).listen((
       device,
     ) async {
-      if (isPrinted) return; // Prevent multiple prints if already printed
+      if (isPrinted) return;
 
       final newPrinter = BluetoothPrinter(
         deviceName: device.name,
