@@ -54,7 +54,10 @@ class TerminalActionButtons extends StatelessWidget {
             }
 
             return AlertDialog(
-              title: const Text('Claim Stub'),
+              title: const Text(
+                'Claim Stub',
+                style: TextStyle(fontWeight: FontWeight.w500),
+              ),
               content: SingleChildScrollView(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -65,11 +68,6 @@ class TerminalActionButtons extends StatelessWidget {
                         labelText: 'Enter Stub No',
                         border: OutlineInputBorder(),
                       ),
-                    ),
-                    const SizedBox(height: 10),
-                    ElevatedButton(
-                      onPressed: handleClaim,
-                      child: const Text('Claim'),
                     ),
                     const SizedBox(height: 10),
                     if (error != null)
@@ -177,17 +175,13 @@ class TerminalActionButtons extends StatelessWidget {
                   child: const Text('Close'),
                 ),
                 TextButton(
-                  onPressed: () async {
-                    if (stubData != null) {
-                      await StubPrintService().printStub(stubData!);
-                    } else {
-                      setState(() {
-                        error = 'Stub number invalid.';
-                        stubData = null;
-                      });
-                    }
-                  },
-                  child: const Text('Print'),
+                  onPressed:
+                      stubData == null
+                          ? handleClaim
+                          : () async {
+                            await StubPrintService().printStub(stubData!);
+                          },
+                  child: Text(stubData == null ? 'Verify' : 'Print'),
                 ),
               ],
             );
