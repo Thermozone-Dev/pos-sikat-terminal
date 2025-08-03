@@ -285,172 +285,172 @@ class PrinterService {
     // }
 
     // POS Dino Gaters Copy
-    bytes += generator.feed(3);
-    bytes += generator.text(
-      '-------- GATER\'S COPY --------',
-      styles: PosStyles(
-        align: PosAlign.center,
-        bold: true,
-        height: PosTextSize.size1,
-        width: PosTextSize.size1,
-      ),
-    );
-    bytes += generator.feed(1);
-    bytes += generator.text(
-      'Issued by: ${userData['name']}',
-      styles: PosStyles(align: PosAlign.left),
-    );
-    bytes += generator.text(
-      'Date: $dateTime',
-      styles: PosStyles(align: PosAlign.left),
-    );
-    bytes += generator.feed(1);
-    // // Item Breakdown
-    bytes += generator.row([
-      PosColumn(
-        text: 'Qty',
-        width: 3,
-        styles: PosStyles(align: PosAlign.left, bold: true),
-      ),
-      PosColumn(text: 'Item', width: 6, styles: PosStyles(bold: true)),
-      PosColumn(
-        text: 'Price',
-        width: 3,
-        styles: PosStyles(align: PosAlign.left, bold: true),
-      ),
-    ]);
-    bytes += generator.feed(1);
-    for (var item in items) {
-      bytes += generator.row([
-        PosColumn(
-          text: item['quantity']!.toString(),
-          width: 3,
-          styles: PosStyles(align: PosAlign.left),
-        ),
-        PosColumn(text: item['name']!, width: 6),
-        PosColumn(
-          text: item['price']!.toString(),
-          width: 3,
-          styles: PosStyles(align: PosAlign.right),
-        ),
-      ]);
-    }
-    bytes += generator.feed(1);
-    bytes += generator.barcode(
-      Barcode.upcA(barcodeData),
-      height: 40,
-      textPos: BarcodeText.below,
-    );
     bytes += generator.feed(2);
-    bytes += generator.text('.', styles: PosStyles(align: PosAlign.right));
+    // bytes += generator.text(
+    //   '-------- GATER\'S COPY --------',
+    //   styles: PosStyles(
+    //     align: PosAlign.center,
+    //     bold: true,
+    //     height: PosTextSize.size1,
+    //     width: PosTextSize.size1,
+    //   ),
+    // );
+    // bytes += generator.feed(1);
+    // bytes += generator.text(
+    //   'Issued by: ${userData['name']}',
+    //   styles: PosStyles(align: PosAlign.left),
+    // );
+    // bytes += generator.text(
+    //   'Date: $dateTime',
+    //   styles: PosStyles(align: PosAlign.left),
+    // );
+    // bytes += generator.feed(1);
+    // // // Item Breakdown
+    // bytes += generator.row([
+    //   PosColumn(
+    //     text: 'Qty',
+    //     width: 3,
+    //     styles: PosStyles(align: PosAlign.left, bold: true),
+    //   ),
+    //   PosColumn(text: 'Item', width: 6, styles: PosStyles(bold: true)),
+    //   PosColumn(
+    //     text: 'Price',
+    //     width: 3,
+    //     styles: PosStyles(align: PosAlign.left, bold: true),
+    //   ),
+    // ]);
+    // bytes += generator.feed(1);
+    // for (var item in items) {
+    //   bytes += generator.row([
+    //     PosColumn(
+    //       text: item['quantity']!.toString(),
+    //       width: 3,
+    //       styles: PosStyles(align: PosAlign.left),
+    //     ),
+    //     PosColumn(text: item['name']!, width: 6),
+    //     PosColumn(
+    //       text: item['price']!.toString(),
+    //       width: 3,
+    //       styles: PosStyles(align: PosAlign.right),
+    //     ),
+    //   ]);
+    // }
+    // bytes += generator.feed(1);
+    // bytes += generator.barcode(
+    //   Barcode.upcA(barcodeData),
+    //   height: 40,
+    //   textPos: BarcodeText.below,
+    // );
+    // bytes += generator.feed(2);
+    // bytes += generator.text('.', styles: PosStyles(align: PosAlign.right));
 
-    dynamic test = 1;
-    if (test == 1) {
-      bytes += generator.text(
-        '----- CLAIM STUB -----',
-        styles: PosStyles(align: PosAlign.center, bold: true),
-      );
-      bytes += generator.feed(1);
-      bytes += generator.row([
-        PosColumn(text: 'Date:', width: 5, styles: PosStyles(bold: false)),
-        PosColumn(
-          text: 'January 29, 2002',
-          width: 7,
-          styles: PosStyles(bold: false, align: PosAlign.right),
-        ),
-      ]);
-      bytes += generator.row([
-        PosColumn(text: 'Time:', width: 6, styles: PosStyles(bold: false)),
-        PosColumn(
-          text: '11:09 PM',
-          width: 6,
-          styles: PosStyles(bold: false, align: PosAlign.right),
-        ),
-      ]);
-      bytes += generator.row([
-        PosColumn(
-          text: 'Transaction No:',
-          width: 6,
-          styles: PosStyles(bold: false),
-        ),
-        PosColumn(
-          text: '000001',
-          width: 6,
-          styles: PosStyles(bold: false, align: PosAlign.right),
-        ),
-      ]);
-      bytes += generator.row([
-        PosColumn(text: 'Stub No:', width: 6, styles: PosStyles(bold: false)),
-        PosColumn(
-          text: '000001',
-          width: 6,
-          styles: PosStyles(bold: false, align: PosAlign.right),
-        ),
-      ]);
-      bytes += generator.text(
-        '-------------------------------',
-        styles: PosStyles(align: PosAlign.center, bold: false),
-      );
-      bytes += generator.feed(1);
-      bytes += generator.row([
-        PosColumn(
-          text: 'Qty',
-          width: 2,
-          styles: PosStyles(bold: false, align: PosAlign.left),
-        ),
-        PosColumn(
-          text: 'Name',
-          width: 6,
-          styles: PosStyles(bold: false, align: PosAlign.left),
-        ),
-        PosColumn(
-          text: 'Price',
-          width: 4,
-          styles: PosStyles(bold: false, align: PosAlign.left),
-        ),
-      ]);
-      bytes += generator.feed(1);
-      bytes += generator.row([
-        PosColumn(
-          text: '1',
-          width: 2,
-          styles: PosStyles(bold: true, align: PosAlign.left),
-        ),
-        PosColumn(
-          text: 'Barkada',
-          width: 6,
-          styles: PosStyles(bold: true, align: PosAlign.left),
-        ),
-        PosColumn(
-          text: 'P 3500',
-          width: 4,
-          styles: PosStyles(bold: true, align: PosAlign.left),
-        ),
-      ]);
-      bytes += generator.feed(1);
-      bytes += generator.text(
-        '     x 5 DM1',
-        styles: PosStyles(align: PosAlign.left, bold: false),
-      );
-      bytes += generator.text(
-        '     x 5 DM2',
-        styles: PosStyles(align: PosAlign.left, bold: false),
-      );
-      bytes += generator.text(
-        '     x 5 DM3',
-        styles: PosStyles(align: PosAlign.left, bold: false),
-      );
-      bytes += generator.feed(2);
-      bytes += generator.text(
-        'PRESENT THIS STUB TO TEREKEN',
-        styles: PosStyles(align: PosAlign.center, bold: false),
-      );
-      bytes += generator.feed(2);
-      bytes += generator.text(
-        '.',
-        styles: PosStyles(align: PosAlign.right, bold: false),
-      );
-    }
+    // dynamic test = 1;
+    // if (test == 1) {
+    //   bytes += generator.text(
+    //     '----- CLAIM STUB -----',
+    //     styles: PosStyles(align: PosAlign.center, bold: true),
+    //   );
+    //   bytes += generator.feed(1);
+    //   bytes += generator.row([
+    //     PosColumn(text: 'Date:', width: 5, styles: PosStyles(bold: false)),
+    //     PosColumn(
+    //       text: 'January 29, 2002',
+    //       width: 7,
+    //       styles: PosStyles(bold: false, align: PosAlign.right),
+    //     ),
+    //   ]);
+    //   bytes += generator.row([
+    //     PosColumn(text: 'Time:', width: 6, styles: PosStyles(bold: false)),
+    //     PosColumn(
+    //       text: '11:09 PM',
+    //       width: 6,
+    //       styles: PosStyles(bold: false, align: PosAlign.right),
+    //     ),
+    //   ]);
+    //   bytes += generator.row([
+    //     PosColumn(
+    //       text: 'Transaction No:',
+    //       width: 6,
+    //       styles: PosStyles(bold: false),
+    //     ),
+    //     PosColumn(
+    //       text: '000001',
+    //       width: 6,
+    //       styles: PosStyles(bold: false, align: PosAlign.right),
+    //     ),
+    //   ]);
+    //   bytes += generator.row([
+    //     PosColumn(text: 'Stub No:', width: 6, styles: PosStyles(bold: false)),
+    //     PosColumn(
+    //       text: '000001',
+    //       width: 6,
+    //       styles: PosStyles(bold: false, align: PosAlign.right),
+    //     ),
+    //   ]);
+    //   bytes += generator.text(
+    //     '-------------------------------',
+    //     styles: PosStyles(align: PosAlign.center, bold: false),
+    //   );
+    //   bytes += generator.feed(1);
+    //   bytes += generator.row([
+    //     PosColumn(
+    //       text: 'Qty',
+    //       width: 2,
+    //       styles: PosStyles(bold: false, align: PosAlign.left),
+    //     ),
+    //     PosColumn(
+    //       text: 'Name',
+    //       width: 6,
+    //       styles: PosStyles(bold: false, align: PosAlign.left),
+    //     ),
+    //     PosColumn(
+    //       text: 'Price',
+    //       width: 4,
+    //       styles: PosStyles(bold: false, align: PosAlign.left),
+    //     ),
+    //   ]);
+    //   bytes += generator.feed(1);
+    //   bytes += generator.row([
+    //     PosColumn(
+    //       text: '1',
+    //       width: 2,
+    //       styles: PosStyles(bold: true, align: PosAlign.left),
+    //     ),
+    //     PosColumn(
+    //       text: 'Barkada',
+    //       width: 6,
+    //       styles: PosStyles(bold: true, align: PosAlign.left),
+    //     ),
+    //     PosColumn(
+    //       text: 'P 3500',
+    //       width: 4,
+    //       styles: PosStyles(bold: true, align: PosAlign.left),
+    //     ),
+    //   ]);
+    //   bytes += generator.feed(1);
+    //   bytes += generator.text(
+    //     '     x 5 DM1',
+    //     styles: PosStyles(align: PosAlign.left, bold: false),
+    //   );
+    //   bytes += generator.text(
+    //     '     x 5 DM2',
+    //     styles: PosStyles(align: PosAlign.left, bold: false),
+    //   );
+    //   bytes += generator.text(
+    //     '     x 5 DM3',
+    //     styles: PosStyles(align: PosAlign.left, bold: false),
+    //   );
+    //   bytes += generator.feed(2);
+    //   bytes += generator.text(
+    //     'PRESENT THIS STUB TO TEREKEN',
+    //     styles: PosStyles(align: PosAlign.center, bold: false),
+    //   );
+    //   bytes += generator.feed(2);
+    //   bytes += generator.text(
+    //     '.',
+    //     styles: PosStyles(align: PosAlign.right, bold: false),
+    //   );
+    // }
 
     // BIR FORMAT
 

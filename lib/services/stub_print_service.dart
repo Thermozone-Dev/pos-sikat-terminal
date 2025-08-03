@@ -11,6 +11,7 @@ class StubPrintService {
     bool isPrinted = false;
 
     StreamSubscription<PrinterDevice>? subscription;
+
     subscription = printerManager.discovery(type: PrinterType.usb).listen((
       device,
     ) async {
@@ -24,15 +25,17 @@ class StubPrintService {
         typePrinter: PrinterType.usb,
       );
 
-      if (selectedPrinter != null && !isPrinted) {
+      if (selectedPrinter != null) {
         isPrinted = true;
-        subscription?.cancel();
+        await subscription?.cancel();
         await _printDynamicStub(selectedPrinter!, stubData);
       }
     });
 
-    await Future.delayed(const Duration(seconds: 2));
-    subscription.cancel();
+    await Future.delayed(const Duration(seconds: 3));
+    if (!isPrinted) {
+      await subscription?.cancel();
+    }
   }
 
   Future<void> _printDynamicStub(
@@ -70,28 +73,19 @@ class StubPrintService {
     ]);
 
     bytes += generator.row([
-      PosColumn(text: 'Processed by:', width: 6),
+      PosColumn(text: 'Transaction #:', width: 6),
       PosColumn(
-        text: 'Angelo Marquez',
+        text: data['transaction_no']?.toString() ?? '',
         width: 6,
         styles: PosStyles(align: PosAlign.right),
       ),
     ]);
 
     bytes += generator.row([
-      PosColumn(text: 'Transaction No:', width: 6),
+      PosColumn(text: 'Stub #:', width: 5),
       PosColumn(
-        text: data['transaction_no'].toString(),
-        width: 6,
-        styles: PosStyles(align: PosAlign.right),
-      ),
-    ]);
-
-    bytes += generator.row([
-      PosColumn(text: 'Stub No:', width: 6),
-      PosColumn(
-        text: data['stub'].toString(),
-        width: 6,
+        text: data['stub']?.toString() ?? '',
+        width: 7,
         styles: PosStyles(align: PosAlign.right),
       ),
     ]);
@@ -123,12 +117,12 @@ class StubPrintService {
     bytes += generator.row([
       PosColumn(text: '1', width: 2, styles: PosStyles(bold: true)),
       PosColumn(
-        text: data['pack_inclusive_name'],
+        text: data['pack_inclusive_name'] ?? '',
         width: 6,
         styles: PosStyles(bold: true),
       ),
       PosColumn(
-        text: 'P ${NumberFormat('#,##0.00').format(data['price'])}',
+        text: 'P ${NumberFormat('#,##0.00').format(data['price'] ?? 0)}',
         width: 4,
         styles: PosStyles(bold: true),
       ),
@@ -137,8 +131,10 @@ class StubPrintService {
     final List<dynamic> items = data['items'] ?? [];
 
     for (final item in items) {
+      final qty = item['quantity'] ?? 0;
+      final name = item['name'] ?? '';
       bytes += generator.text(
-        '     x ${item['quantity']} ${item['name']}',
+        '     x $qty $name',
         styles: PosStyles(align: PosAlign.left),
       );
     }

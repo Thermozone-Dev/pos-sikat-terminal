@@ -1,24 +1,33 @@
+// lib/services/claim_stub_service.dart
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 Future<Map<String, dynamic>?> claimStub(String stubNo) async {
-  final url = Uri.parse('http://bir-pos.test/api/v1/claim_stub');
+  final url = Uri.parse('http://bir-pos.test/api/verify-claim-stub');
 
   try {
-    final response = await http.post(url, body: {'stub_no': stubNo});
+    final response = await http.post(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
+      body: jsonEncode({'stub_no': stubNo}),
+    );
 
     if (response.statusCode == 200) {
-      final data = json.decode(response.body);
-      return data;
-    } else if (response.statusCode == 404) {
-      final error = json.decode(response.body)['error'];
-      print('Stub not found: $error');
+      return json.decode(response.body);
     } else {
-      print('Unexpected error: ${response.body}');
+      try {
+        final body = json.decode(response.body);
+        final error = body['error'] ?? 'No error message provided.';
+        throw Exception('Server responded with error: $error');
+      } catch (e) {
+        throw Exception('Unexpected response: ${response.body}');
+      }
     }
   } catch (e) {
-    print('Error: $e');
+    print('claimStub error: $e');
+    return null;
   }
-
-  return null;
 }
