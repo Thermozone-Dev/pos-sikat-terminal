@@ -379,12 +379,13 @@ class _TerminalState extends State<Terminal> {
     final formattedData = TransactionService.formatTransactionData(
       transactionData,
     );
+
     print('Formatting transactions...');
     print('Formatted Transaction Data: $formattedData');
-    printReceipt();
     TransactionService.saveTransactionData(formattedData).then((id) {
       setInvoice(id);
     });
+    printReceipt();
   }
 
   void checkDiscount() {
