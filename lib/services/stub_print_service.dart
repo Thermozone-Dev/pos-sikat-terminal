@@ -12,29 +12,44 @@ class StubPrintService {
 
     StreamSubscription<PrinterDevice>? subscription;
 
-    subscription = printerManager.discovery(type: PrinterType.usb).listen((
-      device,
-    ) async {
-      if (isPrinted) return;
+    subscription = printerManager
+        .discovery(type: PrinterType.usb)
+        .listen(
+          (device) async {
+            final name = device.name.toLowerCase();
+            print("🖨️ Found device: ${device.name}");
 
-      selectedPrinter = BluetoothPrinter(
-        deviceName: device.name,
-        address: device.address,
-        vendorId: device.vendorId,
-        productId: device.productId,
-        typePrinter: PrinterType.usb,
-      );
+            // Only continue with XPrinter devices
+            if (!name.contains('xprinter') && !name.contains('xp-58')) {
+              print("⛔ Skipped non-Xprinter device: ${device.name}");
+              return;
+            }
 
-      if (selectedPrinter != null) {
-        isPrinted = true;
-        await subscription?.cancel();
-        await _printDynamicStub(selectedPrinter!, stubData);
-      }
-    });
+            if (isPrinted) return;
 
+            selectedPrinter = BluetoothPrinter(
+              deviceName: device.name,
+              address: device.address,
+              vendorId: device.vendorId,
+              productId: device.productId,
+              typePrinter: PrinterType.usb,
+            );
+
+            isPrinted = true;
+            await subscription?.cancel();
+            await _printDynamicStub(selectedPrinter!, stubData);
+          },
+          onError: (error) {
+            print("❌ Printer discovery error: $error");
+          },
+        );
+
+    // Allow discovery time
     await Future.delayed(const Duration(seconds: 3));
+
     if (!isPrinted) {
       await subscription?.cancel();
+      print("⚠️ No Xprinter device found.");
     }
   }
 

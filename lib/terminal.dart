@@ -457,7 +457,8 @@ class _TerminalState extends State<Terminal> {
 
       String formattedDate = DateFormat('MMMM d, y').format(DateTime.now());
 
-      printerService.printReceipt(
+      final response = printerService.printReceipt(
+        context: context,
         storeName: 'Thermozone Philippines Corp.',
         storeAddress: '2280 Marconi St., Brgy. San Isidro, Makati City',
         storePhone: 'TIN: 223 661 818 0000',
@@ -469,6 +470,8 @@ class _TerminalState extends State<Terminal> {
         dateTime: formattedDate,
         stubDetails: stubDetails,
       );
+
+      print(response);
     });
   }
 

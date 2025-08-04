@@ -11,41 +11,54 @@ class SummaryPrintService {
   Future<void> printReceipt({required List<ProductSummary> products}) async {
     var devices = <BluetoothPrinter>[];
     BluetoothPrinter? selectedPrinter;
-    bool isPrinted = false; // Flag to check if printed already
+    bool isPrinted = false;
 
     // Discover USB printers
     StreamSubscription<PrinterDevice>? subscription;
-    subscription = printerManager.discovery(type: PrinterType.usb).listen((
-      device,
-    ) async {
-      if (isPrinted) return; // Prevent multiple prints if already printed
+    subscription = printerManager
+        .discovery(type: PrinterType.usb)
+        .listen(
+          (device) async {
+            final name = device.name.toLowerCase();
+            print("🖨️ Found device: ${device.name}");
 
-      final newPrinter = BluetoothPrinter(
-        deviceName: device.name,
-        address: device.address,
-        vendorId: device.vendorId,
-        productId: device.productId,
-        typePrinter: PrinterType.usb,
-      );
+            // Only use Xprinter devices
+            if (!name.contains('xprinter') && !name.contains('xp-58')) {
+              print("⛔ Skipped non-Xprinter device: ${device.name}");
+              return;
+            }
 
-      devices.add(newPrinter);
+            if (isPrinted) return;
 
-      // Auto-select the first detected printer
-      selectedPrinter = selectedPrinter ?? newPrinter;
+            final newPrinter = BluetoothPrinter(
+              deviceName: device.name,
+              address: device.address,
+              vendorId: device.vendorId,
+              productId: device.productId,
+              typePrinter: PrinterType.usb,
+            );
 
-      // Once a printer is selected, proceed to print and stop the stream
-      if (selectedPrinter != null && !isPrinted) {
-        isPrinted = true;
-        await _printReceiptToDevice(selectedPrinter!, products);
-        subscription?.cancel(); // Cancel the discovery stream after printing
-      }
-    });
+            devices.add(newPrinter);
+            selectedPrinter = selectedPrinter ?? newPrinter;
 
-    // Wait for the printer to be detected
-    await Future.delayed(const Duration(seconds: 2));
+            if (selectedPrinter != null && !isPrinted) {
+              isPrinted = true;
+              await _printReceiptToDevice(selectedPrinter!, products);
+              await subscription?.cancel();
+            }
+          },
+          onError: (e) {
+            print("❌ Printer discovery error: $e");
+          },
+        );
 
-    // Cancel the subscription after it's no longer needed
-    subscription.cancel();
+    // Give time for printer discovery
+    await Future.delayed(const Duration(seconds: 3));
+
+    if (!isPrinted) {
+      await subscription?.cancel();
+      print("⚠️ No Xprinter device found.");
+    }
   }
 
   Future<void> _printReceiptToDevice(BluetoothPrinter printer, products) async {
