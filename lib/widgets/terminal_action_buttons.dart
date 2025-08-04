@@ -13,6 +13,7 @@ class TerminalActionButtons extends StatelessWidget {
   final VoidCallback printReceipt;
 
   final bool isFirstPrint;
+  final bool isTransactionMethodSet;
 
   TerminalActionButtons({
     Key? key,
@@ -22,6 +23,7 @@ class TerminalActionButtons extends StatelessWidget {
     required this.toggleIsFirstPrint,
     required this.printReceipt,
     required this.isFirstPrint,
+    required this.isTransactionMethodSet,
   }) : super(key: key);
 
   Future<void> showClaimStubDialog(BuildContext context) async {
@@ -231,6 +233,14 @@ class TerminalActionButtons extends StatelessWidget {
         ),
         ElevatedButton(
           onPressed: () async {
+            if (!isTransactionMethodSet) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Please set a transaction method first.'),
+                ),
+              );
+              return;
+            }
             if (isFirstPrint) {
               processTransactions();
               toggleIsFirstPrint();

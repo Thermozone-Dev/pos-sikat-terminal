@@ -134,6 +134,7 @@ class _TerminalState extends State<Terminal> {
   bool itemsHasDiscount = false;
   bool transactionHasDiscount = false;
   bool showContinueShiftButton = false;
+  bool isTransactionMethodSet = false;
 
   Map<String, dynamic> stubDetails = {};
 
@@ -272,6 +273,7 @@ class _TerminalState extends State<Terminal> {
     transactionData['transaction_method'] = transactionMethod.id;
     transactionData['transaction_is_digital'] = transactionMethod.isDigital;
     transactionMethodName = transactionMethod.name;
+    isTransactionMethodSet = true;
     calculateValues();
   }
 
@@ -682,6 +684,7 @@ class _TerminalState extends State<Terminal> {
                               toggleIsFirstPrint: toggleIsFirstPrint,
                               printReceipt: printReceipt,
                               isFirstPrint: isFirstPrint,
+                              isTransactionMethodSet: isTransactionMethodSet,
                               itemsHasDiscount: itemsHasDiscount,
                               total: transactionData['total_sales'],
                             ),
