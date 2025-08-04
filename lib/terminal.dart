@@ -184,6 +184,7 @@ class _TerminalState extends State<Terminal> {
         'discount_value': 0.0,
       };
       isFirstPrint = true;
+      isTransactionMethodSet = false;
     });
   }
 
