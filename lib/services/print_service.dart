@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:esc_pos_utils/esc_pos_utils.dart';
 import 'package:flutter_pos_printer_platform_image_3/flutter_pos_printer_platform_image_3.dart';
+import 'package:intl/intl.dart';
 
 class PrinterService {
   final PrinterManager printerManager = PrinterManager.instance;
@@ -15,6 +16,7 @@ class PrinterService {
     required List<dynamic> items,
     required Map<String, String> accountingData,
     required String dateTime,
+    required Map<String, dynamic> stubDetails,
   }) async {
     var devices = <BluetoothPrinter>[];
     BluetoothPrinter? selectedPrinter;
@@ -54,6 +56,7 @@ class PrinterService {
           items,
           accountingData,
           dateTime,
+          stubDetails,
         );
         subscription?.cancel(); // Cancel the discovery stream after printing
       }
@@ -77,6 +80,7 @@ class PrinterService {
     List<dynamic> items,
     Map<String, String> accountingData,
     String dateTime,
+    Map<String, dynamic> stubDetails,
   ) async {
     final profile = await CapabilityProfile.load(name: 'XP-N160I');
     final generator = Generator(PaperSize.mm58, profile);
@@ -285,64 +289,164 @@ class PrinterService {
     // }
 
     // POS Dino Gaters Copy
-    bytes += generator.feed(3);
-    bytes += generator.text(
-      '-------- GATER\'S COPY --------',
-      styles: PosStyles(
-        align: PosAlign.center,
-        bold: true,
-        height: PosTextSize.size1,
-        width: PosTextSize.size1,
-      ),
-    );
-    bytes += generator.feed(1);
-    bytes += generator.text(
-      'Issued by: ${userData['name']}',
-      styles: PosStyles(align: PosAlign.left),
-    );
-    bytes += generator.text(
-      'Date: $dateTime',
-      styles: PosStyles(align: PosAlign.left),
-    );
-    bytes += generator.feed(1);
-    // // Item Breakdown
-    bytes += generator.row([
-      PosColumn(
-        text: 'Qty',
-        width: 3,
-        styles: PosStyles(align: PosAlign.left, bold: true),
-      ),
-      PosColumn(text: 'Item', width: 6, styles: PosStyles(bold: true)),
-      PosColumn(
-        text: 'Price',
-        width: 3,
-        styles: PosStyles(align: PosAlign.left, bold: true),
-      ),
-    ]);
-    bytes += generator.feed(1);
-    for (var item in items) {
-      bytes += generator.row([
-        PosColumn(
-          text: item['quantity']!.toString(),
-          width: 3,
-          styles: PosStyles(align: PosAlign.left),
-        ),
-        PosColumn(text: item['name']!, width: 6),
-        PosColumn(
-          text: item['price']!.toString(),
-          width: 3,
-          styles: PosStyles(align: PosAlign.right),
-        ),
-      ]);
-    }
-    bytes += generator.feed(1);
-    bytes += generator.barcode(
-      Barcode.upcA(barcodeData),
-      height: 40,
-      textPos: BarcodeText.below,
-    );
     bytes += generator.feed(2);
-    bytes += generator.text('.', styles: PosStyles(align: PosAlign.right));
+    // bytes += generator.text(
+    //   '-------- GATER\'S COPY --------',
+    //   styles: PosStyles(
+    //     align: PosAlign.center,
+    //     bold: true,
+    //     height: PosTextSize.size1,
+    //     width: PosTextSize.size1,
+    //   ),
+    // );
+    // bytes += generator.feed(1);
+    // bytes += generator.text(
+    //   'Issued by: ${userData['name']}',
+    //   styles: PosStyles(align: PosAlign.left),
+    // );
+    // bytes += generator.text(
+    //   'Date: $dateTime',
+    //   styles: PosStyles(align: PosAlign.left),
+    // );
+    // bytes += generator.feed(1);
+    // // // Item Breakdown
+    // bytes += generator.row([
+    //   PosColumn(
+    //     text: 'Qty',
+    //     width: 3,
+    //     styles: PosStyles(align: PosAlign.left, bold: true),
+    //   ),
+    //   PosColumn(text: 'Item', width: 6, styles: PosStyles(bold: true)),
+    //   PosColumn(
+    //     text: 'Price',
+    //     width: 3,
+    //     styles: PosStyles(align: PosAlign.left, bold: true),
+    //   ),
+    // ]);
+    // bytes += generator.feed(1);
+    // for (var item in items) {
+    //   bytes += generator.row([
+    //     PosColumn(
+    //       text: item['quantity']!.toString(),
+    //       width: 3,
+    //       styles: PosStyles(align: PosAlign.left),
+    //     ),
+    //     PosColumn(text: item['name']!, width: 6),
+    //     PosColumn(
+    //       text: item['price']!.toString(),
+    //       width: 3,
+    //       styles: PosStyles(align: PosAlign.right),
+    //     ),
+    //   ]);
+    // }
+    // bytes += generator.feed(1);
+    // bytes += generator.barcode(
+    //   Barcode.upcA(barcodeData),
+    //   height: 40,
+    //   textPos: BarcodeText.below,
+    // );
+    // bytes += generator.feed(2);
+    // bytes += generator.text('.', styles: PosStyles(align: PosAlign.right));
+    print(stubDetails);
+
+    if (stubDetails['has_inclusive'] == true) {
+      for (var stub in stubDetails['stubs']) {
+        bytes += generator.text(
+          '----- CLAIM STUB -----',
+          styles: PosStyles(align: PosAlign.center, bold: true),
+        );
+        bytes += generator.feed(1);
+        final date = DateTime.now();
+        final formattedDate = DateFormat('MMMM d, y').format(date);
+
+        final now = DateTime.now();
+        final formattedTime = DateFormat('h:mm a').format(now);
+        bytes += generator.row([
+          PosColumn(text: 'Date:', width: 5, styles: PosStyles(bold: false)),
+          PosColumn(
+            text: formattedDate,
+            width: 7,
+            styles: PosStyles(bold: false, align: PosAlign.right),
+          ),
+        ]);
+        bytes += generator.row([
+          PosColumn(text: 'Time:', width: 6, styles: PosStyles(bold: false)),
+          PosColumn(
+            text: formattedTime,
+            width: 6,
+            styles: PosStyles(bold: false, align: PosAlign.right),
+          ),
+        ]);
+        bytes += generator.row([
+          PosColumn(text: 'Stub No:', width: 4, styles: PosStyles(bold: false)),
+          PosColumn(
+            text: stub['stub_no'],
+            width: 8,
+            styles: PosStyles(bold: false, align: PosAlign.right),
+          ),
+        ]);
+        bytes += generator.text(
+          '-------------------------------',
+          styles: PosStyles(align: PosAlign.center, bold: false),
+        );
+        bytes += generator.feed(1);
+        bytes += generator.row([
+          PosColumn(
+            text: 'Qty',
+            width: 2,
+            styles: PosStyles(bold: false, align: PosAlign.left),
+          ),
+          PosColumn(
+            text: 'Name',
+            width: 6,
+            styles: PosStyles(bold: false, align: PosAlign.left),
+          ),
+          PosColumn(
+            text: 'Price',
+            width: 4,
+            styles: PosStyles(bold: false, align: PosAlign.left),
+          ),
+        ]);
+        bytes += generator.feed(1);
+        bytes += generator.row([
+          PosColumn(
+            text: stub['quantity'].toString(),
+            width: 2,
+            styles: PosStyles(bold: false, align: PosAlign.left),
+          ),
+          PosColumn(
+            text: stub['name'],
+            width: 6,
+            styles: PosStyles(bold: false, align: PosAlign.left),
+          ),
+          PosColumn(
+            text: stub['price'].toString(),
+            width: 4,
+            styles: PosStyles(bold: false, align: PosAlign.left),
+          ),
+        ]);
+        bytes += generator.feed(1);
+
+        for (var item in stub['items']) {
+          final qty = item['qty'] ?? 0;
+          final name = item['name'] ?? '';
+          bytes += generator.text(
+            '     x $qty $name',
+            styles: PosStyles(align: PosAlign.left),
+          );
+        }
+      }
+      bytes += generator.feed(2);
+      bytes += generator.text(
+        'PRESENT THIS STUB TO TEREKEN',
+        styles: PosStyles(align: PosAlign.center, bold: false),
+      );
+      bytes += generator.feed(2);
+      bytes += generator.text(
+        '.',
+        styles: PosStyles(align: PosAlign.right, bold: false),
+      );
+    }
 
     // BIR FORMAT
 
