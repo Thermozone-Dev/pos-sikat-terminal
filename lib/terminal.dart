@@ -135,6 +135,8 @@ class _TerminalState extends State<Terminal> {
   bool transactionHasDiscount = false;
   bool showContinueShiftButton = false;
 
+  Map<String, dynamic> stubDetails = {};
+
   late Future<List<Product>> _productsFuture;
   late Future<List<Package>> _packagesFuture;
   late Future<User> _userFuture;
@@ -186,6 +188,10 @@ class _TerminalState extends State<Terminal> {
 
   void setInvoice(id) {
     invoiceId = id.toString();
+  }
+
+  void setStubDetails(details) {
+    stubDetails = details;
   }
 
   void addItem(itemData) {
@@ -382,10 +388,12 @@ class _TerminalState extends State<Terminal> {
 
     print('Formatting transactions...');
     print('Formatted Transaction Data: $formattedData');
-    TransactionService.saveTransactionData(formattedData).then((id) {
-      setInvoice(id);
+    TransactionService.saveTransactionData(formattedData).then((data) {
+      setInvoice(data!['transaction details']['id']);
+      setStubDetails(data['stub_details']);
+      // print(data['stub_details']);
+      printReceipt();
     });
-    printReceipt();
   }
 
   void checkDiscount() {
@@ -456,6 +464,7 @@ class _TerminalState extends State<Terminal> {
         methodName: transactionMethodName,
         items: items,
         dateTime: formattedDate,
+        stubDetails: stubDetails,
       );
     });
   }

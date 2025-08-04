@@ -148,6 +148,20 @@ class TerminalActionButtons extends StatelessWidget {
                         text: TextSpan(
                           style: DefaultTextStyle.of(context).style,
                           children: [
+                            const TextSpan(text: 'Quantity: '),
+                            TextSpan(
+                              text: stubData!['quantity'].toString(),
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      RichText(
+                        text: TextSpan(
+                          style: DefaultTextStyle.of(context).style,
+                          children: [
                             const TextSpan(text: 'Price: ₱'),
                             TextSpan(
                               text: '${stubData!['price']}',

@@ -115,7 +115,11 @@ class StubPrintService {
     bytes += generator.feed(1);
 
     bytes += generator.row([
-      PosColumn(text: '1', width: 2, styles: PosStyles(bold: true)),
+      PosColumn(
+        text: data['quantity'].toString(),
+        width: 2,
+        styles: PosStyles(bold: true),
+      ),
       PosColumn(
         text: data['pack_inclusive_name'] ?? '',
         width: 6,

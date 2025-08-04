@@ -9,8 +9,8 @@ class GenerateStubService {
       final prefs = await SharedPreferences.getInstance();
       final token = prefs.getString('token');
 
-      final String apiSecret = dotenv.env['POS_API_SECRET'] ?? "";
-      final String apiUri = dotenv.env['POS_API_URL'] ?? "";
+      final String apiSecret = dotenv.env['STUB_API_SECRET'] ?? "";
+      final String apiUri = dotenv.env['STUB_API_URL'] ?? "";
       final url = Uri.parse('$apiUri/api/v1/generate_stub/$transactionId');
 
       final response = await http.get(
