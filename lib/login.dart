@@ -149,6 +149,8 @@ class _LoginFormState extends State<Login> {
                 TextFormField(
                   controller: _passwordController,
                   obscureText: true,
+                  textInputAction: TextInputAction.done,
+                  onFieldSubmitted: (value) => _login(),
                   decoration: InputDecoration(
                     labelText: 'Password',
                     border: OutlineInputBorder(),
@@ -157,7 +159,7 @@ class _LoginFormState extends State<Login> {
                     if (value == null || value.isEmpty)
                       return 'Please enter password';
                     if (value.length < 6)
-                      return 'Password must be at least 6 characters';
+                      return 'Password must be at least 8 characters';
                     return null;
                   },
                 ),
