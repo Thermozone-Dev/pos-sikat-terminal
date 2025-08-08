@@ -31,6 +31,7 @@ class ShoppingCartItem extends StatefulWidget {
 class _ShoppingCartItemState extends State<ShoppingCartItem> {
   bool _isEditing = false;
   late TextEditingController _controller;
+  late FocusNode _focusNode;
 
   @override
   void initState() {
@@ -38,19 +39,34 @@ class _ShoppingCartItemState extends State<ShoppingCartItem> {
     _controller = TextEditingController(
       text: widget.item['quantity'].toString(),
     );
+    _focusNode = FocusNode();
+
+    _focusNode.addListener(() {
+      if (!_focusNode.hasFocus && _isEditing) {
+        _submitQuantity();
+      }
+    });
   }
 
   @override
   void dispose() {
     _controller.dispose();
+    _focusNode.dispose();
     super.dispose();
   }
 
   void _submitQuantity() {
-    final int? newQty = int.tryParse(_controller.text);
-    if (newQty != null && newQty >= 0) {
-      widget.updateQuantity(widget.index, newQty);
+    final newValue = int.tryParse(_controller.text);
+
+    if (newValue != null && newValue > 0) {
+      if (newValue != widget.item['quantity']) {
+        widget.updateQuantity(widget.index, newValue);
+      }
+    } else {
+      // Restore original if invalid input
+      _controller.text = widget.item['quantity'].toString();
     }
+
     setState(() {
       _isEditing = false;
     });
@@ -113,6 +129,7 @@ class _ShoppingCartItemState extends State<ShoppingCartItem> {
               onTap: () {
                 setState(() {
                   _isEditing = true;
+                  _focusNode.requestFocus();
                 });
               },
               child:
@@ -121,11 +138,11 @@ class _ShoppingCartItemState extends State<ShoppingCartItem> {
                         width: 40,
                         child: TextField(
                           controller: _controller,
+                          focusNode: _focusNode,
                           autofocus: true,
                           keyboardType: TextInputType.number,
                           textAlign: TextAlign.center,
                           onSubmitted: (_) => _submitQuantity(),
-                          onEditingComplete: _submitQuantity,
                           decoration: const InputDecoration(
                             isDense: true,
                             contentPadding: EdgeInsets.symmetric(vertical: 6),

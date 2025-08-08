@@ -1,8 +1,7 @@
-import 'package:bir_pos/services/cart_service.dart';
 import 'package:bir_pos/widgets/shopping_cart_item.dart';
 import 'package:flutter/material.dart';
 
-class ShoppingCart extends StatefulWidget {
+class ShoppingCart extends StatelessWidget {
   final Map<String, dynamic> transactionData;
 
   final ValueChanged increaseQuantity;
@@ -10,6 +9,7 @@ class ShoppingCart extends StatefulWidget {
   final ValueChanged addGovDiscountDetails;
   final ValueChanged addItemDiscount;
   final ValueChanged removeItem;
+  final void Function(int index, int newQuantity) updateQuantity;
 
   const ShoppingCart({
     Key? key,
@@ -19,51 +19,13 @@ class ShoppingCart extends StatefulWidget {
     required this.addGovDiscountDetails,
     required this.addItemDiscount,
     required this.removeItem,
+    required this.updateQuantity,
   }) : super(key: key);
 
   @override
-  State<ShoppingCart> createState() => _ShoppingCartState();
-}
-
-class _ShoppingCartState extends State<ShoppingCart> {
-  List<dynamic> _items = [];
-  bool _isLoading = true;
-  String? _error;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadCartItems();
-  }
-
-  Future<void> _loadCartItems() async {
-    setState(() {
-      _isLoading = true;
-      _error = null;
-    });
-
-    try {
-      final items = await CartService.getCartItems(widget.transactionData);
-      setState(() {
-        _items = items;
-        _isLoading = false;
-      });
-    } catch (e) {
-      setState(() {
-        _error = e.toString();
-        _isLoading = false;
-      });
-    }
-  }
-
-  void updateCartQuantity(int index, int newQty) {
-    setState(() {
-      _items[index]['quantity'] = newQty;
-    });
-  }
-
-  @override
   Widget build(BuildContext context) {
+    final List<dynamic> items = transactionData['items'] ?? [];
+
     return Container(
       margin: const EdgeInsets.fromLTRB(20, 20, 20, 10),
       decoration: BoxDecoration(
@@ -96,26 +58,21 @@ class _ShoppingCartState extends State<ShoppingCart> {
               child: Container(
                 margin: const EdgeInsets.fromLTRB(20, 0, 0, 20),
                 child:
-                    _isLoading
-                        ? const Center(child: CircularProgressIndicator())
-                        : _error != null
-                        ? Center(child: Text('Error: $_error'))
-                        : _items.isEmpty
+                    items.isEmpty
                         ? const Center(child: Text('No products found'))
                         : ListView.separated(
-                          itemCount: _items.length,
+                          itemCount: items.length,
                           itemBuilder: (context, index) {
-                            final item = _items[index];
+                            final item = items[index];
                             return ShoppingCartItem(
                               index: index,
                               item: item,
-                              increaseQuantity: widget.increaseQuantity,
-                              decreaseQuantity: widget.decreaseQuantity,
-                              addGovDiscountDetails:
-                                  widget.addGovDiscountDetails,
-                              addItemDiscount: widget.addItemDiscount,
-                              removeItem: widget.removeItem,
-                              updateQuantity: updateCartQuantity,
+                              increaseQuantity: increaseQuantity,
+                              decreaseQuantity: decreaseQuantity,
+                              addGovDiscountDetails: addGovDiscountDetails,
+                              addItemDiscount: addItemDiscount,
+                              removeItem: removeItem,
+                              updateQuantity: updateQuantity,
                             );
                           },
                           separatorBuilder:

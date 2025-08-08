@@ -259,6 +259,15 @@ class _TerminalState extends State<Terminal> {
     });
   }
 
+  void updateCartQuantity(int index, int newQty) {
+    final item = transactionData['items'][index];
+    setState(() {
+      item['quantity'] = newQty;
+      calculateValues();
+      checkDiscount();
+    });
+  }
+
   void setCashTendered(cashTendered) {
     transactionData['cash_tendered'] = cashTendered['value'];
     calculateValues();
@@ -659,6 +668,7 @@ class _TerminalState extends State<Terminal> {
                               addGovDiscountDetails: addGovDiscountDetails,
                               addItemDiscount: addItemDiscount,
                               removeItem: removeItem,
+                              updateQuantity: updateCartQuantity,
                             ),
                           ),
                           SizedBox(
