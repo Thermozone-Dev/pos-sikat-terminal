@@ -2,6 +2,8 @@ import 'dart:ffi';
 
 import 'package:bir_pos/models/xreading.dart';
 import 'package:bir_pos/models/zreading.dart';
+import 'package:bir_pos/services/general_report_service.dart';
+import 'package:bir_pos/services/general_summary_print_service.dart';
 import 'package:bir_pos/services/report_service.dart';
 import 'package:bir_pos/services/shift_service.dart';
 import 'package:bir_pos/services/summary_print_service.dart';
@@ -176,11 +178,11 @@ class MainDrawer extends StatelessWidget {
               );
             },
           ),
-          // Summary Report
+          // Summary Report / Cashier
           ListTile(
             leading: const Icon(Icons.print, color: Colors.black),
             title: const Text(
-              'Summary Report',
+              'Summary Report / Cashier',
               style: TextStyle(fontWeight: FontWeight.w600),
             ),
             onTap: () async {
@@ -340,6 +342,194 @@ class MainDrawer extends StatelessWidget {
                                 final products =
                                     await ReportService.dailyProductSummary();
                                 final printerService = SummaryPrintService();
+                                await printerService.printReceipt(
+                                  products: products,
+                                );
+                                if (context.mounted) Navigator.pop(context);
+                              } catch (error) {
+                                print('Error fetching summary report: $error');
+                                if (context.mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(content: Text('Error: $error')),
+                                  );
+                                }
+                              }
+                            },
+                            child: const Text('Print'),
+                          ),
+                        ],
+                      ),
+                );
+              });
+            },
+          ),
+
+          // General Summary Report
+          ListTile(
+            leading: const Icon(Icons.print, color: Colors.black),
+            title: const Text(
+              'General Summary Report',
+              style: TextStyle(fontWeight: FontWeight.w600),
+            ),
+            onTap: () async {
+              final products =
+                  await GeneralReportService.generalProductSummary();
+              final now = DateTime.now();
+              final formattedDate = DateFormat('MMMM d, y').format(now);
+              final formattedTime = DateFormat('hh:mm a').format(now);
+
+              Future.delayed(const Duration(milliseconds: 200), () {
+                showDialog(
+                  context: context,
+                  builder:
+                      (context) => AlertDialog(
+                        title: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Summary Report',
+                              style: TextStyle(
+                                fontWeight: FontWeight.w700,
+                                fontSize: 23,
+                              ),
+                            ),
+                            SizedBox(height: 4),
+                            Text(
+                              'Generated on $formattedDate at $formattedTime',
+                              style: TextStyle(
+                                fontWeight: FontWeight.w500,
+                                fontSize: 15,
+                                color: Colors.black54,
+                              ),
+                            ),
+                          ],
+                        ),
+                        titleTextStyle: const TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 24,
+                          color: Colors.black,
+                        ),
+                        content: SingleChildScrollView(
+                          child: Container(
+                            width: 600,
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.only(bottom: 8),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: const [
+                                      Expanded(
+                                        child: Text(
+                                          'Product',
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.w600,
+                                            color: Colors.black87,
+                                          ),
+                                        ),
+                                      ),
+                                      Expanded(
+                                        child: Text(
+                                          'Price',
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.w600,
+                                            color: Colors.black87,
+                                          ),
+                                        ),
+                                      ),
+                                      Expanded(
+                                        child: Text(
+                                          'Quantity',
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.w600,
+                                            color: Colors.black87,
+                                          ),
+                                        ),
+                                      ),
+                                      Expanded(
+                                        child: Text(
+                                          'Total',
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.w600,
+                                            color: Colors.black87,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                const Divider(),
+
+                                ...products.map((product) {
+                                  return Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 4,
+                                    ),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Expanded(child: Text(product.name)),
+                                        Expanded(
+                                          child: Text(
+                                            '₱${(product.price as double).toStringAsFixed(2)}',
+                                          ),
+                                        ),
+                                        Expanded(
+                                          child: Text(
+                                            '${(product.quantity).toStringAsFixed(0)}',
+                                          ),
+                                        ),
+                                        Expanded(
+                                          child: Text(
+                                            '₱${(product.total as double).toStringAsFixed(2)}',
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                }).toList(),
+                                Divider(),
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 8,
+                                  ),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        'Grand Total:',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.w600,
+                                          color: Colors.black87,
+                                        ),
+                                      ),
+                                      Text(
+                                        '₱${products.fold(0.0, (sum, item) => sum + (item.total as double)).toStringAsFixed(2)}',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.w600,
+                                          color: Colors.black87,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Divider(),
+                              ],
+                            ),
+                          ),
+                        ),
+                        actions: [
+                          TextButton(
+                            onPressed: () async {
+                              try {
+                                final products =
+                                    await GeneralReportService.generalProductSummary();
+                                final printerService =
+                                    GeneralSummaryPrintService();
                                 await printerService.printReceipt(
                                   products: products,
                                 );
