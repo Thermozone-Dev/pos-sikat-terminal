@@ -70,15 +70,17 @@ class _LoginFormState extends State<Login> {
         if (response.statusCode == 201) {
           final data = jsonDecode(response.body);
           final token = data['token']; // adjust based on actual API response
+          final userName = data['name']; // adjust based on actual API response
 
           if (context.mounted) {}
           ScaffoldMessenger.of(
             context,
           ).showSnackBar(SnackBar(content: Text('Login successful!')));
 
-          print("Token: $token");
+          // print("Token: $token");
 
           await prefs.setString('token', token);
+          await prefs.setString('user_name', userName);
 
           _clearSession();
 
@@ -147,6 +149,8 @@ class _LoginFormState extends State<Login> {
                 TextFormField(
                   controller: _passwordController,
                   obscureText: true,
+                  textInputAction: TextInputAction.done,
+                  onFieldSubmitted: (value) => _login(),
                   decoration: InputDecoration(
                     labelText: 'Password',
                     border: OutlineInputBorder(),
@@ -155,7 +159,7 @@ class _LoginFormState extends State<Login> {
                     if (value == null || value.isEmpty)
                       return 'Please enter password';
                     if (value.length < 6)
-                      return 'Password must be at least 6 characters';
+                      return 'Password must be at least 8 characters';
                     return null;
                   },
                 ),

@@ -54,6 +54,8 @@ class ProductCard extends StatelessWidget {
               fontWeight: FontWeight.w800,
               color: Colors.black87,
             ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
           Text(
             '₱${product.price.toStringAsFixed(2)}',

@@ -14,6 +14,10 @@ class XReading {
   final double voidValue;
   final double refundValue;
   final double endingFund;
+  final double cashInDrawer;
+  final double withdrawal;
+  final double lessWithdrawal;
+  final double shortOrOver;
 
   XReading({
     required this.reportDate,
@@ -31,6 +35,10 @@ class XReading {
     required this.voidValue,
     required this.refundValue,
     required this.endingFund,
+    required this.cashInDrawer,
+    required this.withdrawal,
+    required this.lessWithdrawal,
+    required this.shortOrOver,
   });
 
   factory XReading.fromJson(Map<String, dynamic> json) {
@@ -50,6 +58,10 @@ class XReading {
       voidValue: (json['void_value'] ?? 0).toDouble(),
       refundValue: (json['refund_value'] ?? 0).toDouble(),
       endingFund: (json['ending_fund'] ?? 0).toDouble(),
+      cashInDrawer: (json['cash_in_drawer'] ?? 0).toDouble(),
+      withdrawal: (json['withdrawal'] ?? 0).toDouble(),
+      lessWithdrawal: (json['less_withdrawal'] ?? 0).toDouble(),
+      shortOrOver: (json['short_or_over'] ?? 0).toDouble(),
     );
   }
 }

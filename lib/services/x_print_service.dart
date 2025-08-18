@@ -1,15 +1,12 @@
 import 'dart:async';
-import 'package:esc_pos_utils/esc_pos_utils.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:flutter_pos_printer_platform_image_3/flutter_pos_printer_platform_image_3.dart';
-import 'package:intl/intl.dart';
 import 'package:bir_pos/models/xreading.dart';
-import 'package:bir_pos/services/xreading_service.dart';
+import 'package:esc_pos_utils/esc_pos_utils.dart';
+import 'package:flutter_pos_printer_platform_image_3/flutter_pos_printer_platform_image_3.dart';
 
 class XReadingPrintService {
   final PrinterManager printerManager = PrinterManager.instance;
 
-  Future<void> printReceipt() async {
+  Future<void> printReceipt({required XReading? xReading}) async {
     var devices = <BluetoothPrinter>[];
     BluetoothPrinter? selectedPrinter;
     List<int> bytes = [];
@@ -38,7 +35,7 @@ class XReadingPrintService {
       // Once a printer is selected, proceed to print and stop the stream
       if (selectedPrinter != null && !isPrinted) {
         isPrinted = true;
-        await _printReceiptToDevice(selectedPrinter!);
+        await _printReceiptToDevice(selectedPrinter!, xReading);
         subscription?.cancel(); // Cancel the discovery stream after printing
       }
     });
@@ -50,14 +47,10 @@ class XReadingPrintService {
     subscription.cancel();
   }
 
-  Future<void> _printReceiptToDevice(BluetoothPrinter printer) async {
-    final service = XReadingService(
-      baseUrl: dotenv.env['POS_API_URL'] ?? '',
-      token: dotenv.env['POS_API_TOKEN'] ?? '',
-    );
-    final xReading = await service.fetchXReading();
-    if (xReading == null) return;
-
+  Future<void> _printReceiptToDevice(
+    BluetoothPrinter printer,
+    XReading? xReading,
+  ) async {
     final profile = await CapabilityProfile.load(name: 'XP-N160I');
     final generator = Generator(PaperSize.mm58, profile);
 
@@ -92,7 +85,7 @@ class XReadingPrintService {
     bytes += generator.row([
       PosColumn(text: 'Report Date:', width: 6, styles: PosStyles(bold: false)),
       PosColumn(
-        text: xReading.reportDate,
+        text: xReading!.reportDate,
         width: 6,
         styles: PosStyles(bold: false, align: PosAlign.right),
       ),
@@ -224,7 +217,7 @@ class XReadingPrintService {
     bytes += generator.row([
       PosColumn(text: 'WITHDRAWAL:', width: 6, styles: PosStyles(bold: false)),
       PosColumn(
-        text: '0.00',
+        text: xReading.withdrawal.toStringAsFixed(2),
         width: 6,
         styles: PosStyles(bold: false, align: PosAlign.right),
       ),
@@ -241,7 +234,7 @@ class XReadingPrintService {
         styles: PosStyles(bold: false),
       ),
       PosColumn(
-        text: xReading.endingFund.toStringAsFixed(2),
+        text: xReading.cashInDrawer.toStringAsFixed(2),
         width: 6,
         styles: PosStyles(bold: false, align: PosAlign.right),
       ),
@@ -281,7 +274,7 @@ class XReadingPrintService {
         styles: PosStyles(bold: false),
       ),
       PosColumn(
-        text: '0.00',
+        text: xReading.lessWithdrawal.toStringAsFixed(2),
         width: 6,
         styles: PosStyles(bold: false, align: PosAlign.right),
       ),
@@ -302,7 +295,7 @@ class XReadingPrintService {
     bytes += generator.row([
       PosColumn(text: 'SHORT/OVER:', width: 6, styles: PosStyles(bold: false)),
       PosColumn(
-        text: '0.00',
+        text: xReading.shortOrOver.toStringAsFixed(2),
         width: 6,
         styles: PosStyles(bold: false, align: PosAlign.right),
       ),

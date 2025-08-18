@@ -4,6 +4,9 @@ class Product {
   final int id;
   final String name;
   final double price;
+  final double pax;
+  final String product_tax_category;
+  final bool vat_exempt;
   final String image;
   final int productID;
 
@@ -12,6 +15,9 @@ class Product {
     required this.productID,
     required this.name,
     required this.price,
+    required this.pax,
+    required this.product_tax_category,
+    required this.vat_exempt,
     required this.image,
   });
 
@@ -21,6 +27,9 @@ class Product {
       productID: json['product_id'],
       name: json['name'],
       price: double.parse(json['price'].toString()),
+      pax: double.parse(json['pax'].toString()),
+      product_tax_category: json['product_tax_category'],
+      vat_exempt: json['vat_exempt'],
       image: json['image_url'],
     );
   }
@@ -31,6 +40,9 @@ class Product {
       'product_id': product.productID,
       'name': product.name,
       'price': product.price,
+      'pax': product.pax,
+      'product_tax_category': product.product_tax_category,
+      'vat_exempt': product.vat_exempt,
       'image_url': product.image,
     };
   }

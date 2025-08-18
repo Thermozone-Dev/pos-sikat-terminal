@@ -28,6 +28,7 @@ class _ShoppingCartItemDiscountState extends State<ShoppingCartItemDiscount> {
   int selectedDiscount = 0;
   double selectedDisountValue = 0;
   bool selectedDiscountIsPercentage = false;
+  bool selectedDiscountIsGovDiscount = false;
 
   int quantitySelected = 0;
   dynamic discounts;
@@ -36,6 +37,7 @@ class _ShoppingCartItemDiscountState extends State<ShoppingCartItemDiscount> {
     setState(() {
       selectedDiscount = value.id;
       selectedDisountValue = value.value;
+      selectedDiscountIsGovDiscount = value.isGov;
       selectedDiscountIsPercentage = value.isPercentage;
     });
   }
@@ -110,6 +112,7 @@ class _ShoppingCartItemDiscountState extends State<ShoppingCartItemDiscount> {
                   'quantity': quantitySelected,
                   'discount_id': selectedDiscount,
                   'discount_value': selectedDisountValue,
+                  'discount_is_gov': selectedDiscountIsGovDiscount,
                   'discount_is_percentage': selectedDiscountIsPercentage,
                   'context': context,
                 });

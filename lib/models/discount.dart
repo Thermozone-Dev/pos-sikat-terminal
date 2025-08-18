@@ -20,7 +20,7 @@ class Discount {
       id: json['id'],
       name: json['name'],
       value: (json['value'] as num).toDouble(),
-      isPercentage: json['is_percentage'] == true,
+      isPercentage: json['is_percentage'],
       isGov: json['is_government_discount'],
     );
   }

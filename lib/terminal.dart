@@ -111,6 +111,7 @@ class _TerminalState extends State<Terminal> {
     'transaction_method': null,
     'transaction_is_digital': false,
     'transaction_fee': 0.0,
+    'reference_number': 0.0,
     'cash_tendered': 0.0,
     'total_sales': 0.0,
     'change': 0.0,
@@ -118,7 +119,8 @@ class _TerminalState extends State<Terminal> {
     'vatable_sales': 0.0,
     'vat': 0.0,
     'vat_exempt_sales': 0.0,
-    'vat_adjust_sales': 0.0,
+    'vat_deduction': 0.0,
+    'vat_adjustment': 0.0,
     'zero_rated_sales': 0.0,
     'transaction_discounts': {},
     'gov_discount_details': {},
@@ -132,6 +134,9 @@ class _TerminalState extends State<Terminal> {
   bool itemsHasDiscount = false;
   bool transactionHasDiscount = false;
   bool showContinueShiftButton = false;
+  bool isTransactionMethodSet = false;
+
+  Map<String, dynamic> stubDetails = {};
 
   late Future<List<Product>> _productsFuture;
   late Future<List<Package>> _packagesFuture;
@@ -164,6 +169,7 @@ class _TerminalState extends State<Terminal> {
         'transaction_method': null,
         'transaction_is_digital': false,
         'transaction_fee': 0.0,
+        'reference_number': 0.0,
         'cash_tendered': 0.0,
         'total_sales': 0.0,
         'change': 0.0,
@@ -171,17 +177,23 @@ class _TerminalState extends State<Terminal> {
         'vatable_sales': 0.0,
         'vat': 0.0,
         'vat_exempt_sales': 0.0,
-        'vat_adjust_sales': 0.0,
+        'vat_adjustment': 0.0,
+        'vat_deduction': 0.0,
         'zero_rated_sales': 0.0,
         'gov_discount_details': {},
         'discount_value': 0.0,
       };
       isFirstPrint = true;
+      isTransactionMethodSet = false;
     });
   }
 
   void setInvoice(id) {
     invoiceId = id.toString();
+  }
+
+  void setStubDetails(details) {
+    stubDetails = details;
   }
 
   void addItem(itemData) {
@@ -193,12 +205,8 @@ class _TerminalState extends State<Terminal> {
           if (item['data']['id'] != itemData['data']['id']) {
             continue;
           }
-          print('Product same id');
-
           if (itemData['data']['item_discounts'] != null) {
-            print('New Product Has Discount');
             if (item['data']['item_discounts'] != null) {
-              print('Product Has Discount');
               if (itemData['data']['item_discounts']['id'] !=
                   item['data']['item_discounts']['id']) {
                 continue;
@@ -207,11 +215,6 @@ class _TerminalState extends State<Terminal> {
               continue;
             }
           }
-          print('Product Discount Checked');
-
-          print('New Product ${itemData['data']}');
-          print('Existing Product ${item['data']}');
-
           item['quantity'] += 1;
           canAdd = false;
           break;
@@ -256,13 +259,23 @@ class _TerminalState extends State<Terminal> {
     });
   }
 
+  void updateCartQuantity(int index, int newQty) {
+    final item = transactionData['items'][index];
+    setState(() {
+      item['quantity'] = newQty;
+      calculateValues();
+      checkDiscount();
+    });
+  }
+
   void setCashTendered(cashTendered) {
-    transactionData['cash_tendered'] = cashTendered;
+    transactionData['cash_tendered'] = cashTendered['value'];
     calculateValues();
   }
 
   void setTransactionFee(transactionFee) {
-    transactionData['transaction_fee'] = transactionFee;
+    transactionData['transaction_fee'] = transactionFee['value'];
+    transactionData['reference_number'] = transactionFee['reference_number'];
     calculateValues();
   }
 
@@ -270,6 +283,7 @@ class _TerminalState extends State<Terminal> {
     transactionData['transaction_method'] = transactionMethod.id;
     transactionData['transaction_is_digital'] = transactionMethod.isDigital;
     transactionMethodName = transactionMethod.name;
+    isTransactionMethodSet = true;
     calculateValues();
   }
 
@@ -290,12 +304,16 @@ class _TerminalState extends State<Terminal> {
               'product_id': data['data']['product_id'],
               'name': data['data']['name'],
               'price': data['data']['price'],
+              'pax': data['data']['pax'],
+              'product_tax_category': data['data']['product_tax_category'],
+              'vat_exempt': data['data']['vat_exempt'],
               'image_url': data['data']['image_url'],
               'discount_value': item['discount_value'],
               'total_value': item['total_value'],
               'item_discounts': {
                 'id': item['discount_id'],
                 'value': item['discount_value'],
+                'is_government_discount': item['discount_is_gov'],
                 'is_percentage': item['discount_is_percentage'],
               },
             },
@@ -309,12 +327,16 @@ class _TerminalState extends State<Terminal> {
               'package_id': data['data']['package_id'],
               'name': data['data']['name'],
               'price': data['data']['price'],
+              'pax': data['data']['pax'],
+              'product_tax_category': data['data']['product_tax_category'],
+              'vat_exempt': data['data']['vat_exempt'],
               'image_url': data['data']['image_url'],
               'discount_value': item['discount_value'],
               'total_value': item['total_value'],
               'item_discounts': {
                 'id': item['discount_id'],
                 'value': item['discount_value'],
+                'is_government_discount': item['discount_is_gov'],
                 'is_percentage': item['discount_is_percentage'],
               },
             },
@@ -325,7 +347,6 @@ class _TerminalState extends State<Terminal> {
         }
 
         initialItem['quantity'] -= item['quantity'];
-        // print(initialItem['quantity']);
         if (initialItem['quantity'] < 1) {
           removeItem(item['index']);
         }
@@ -343,7 +364,6 @@ class _TerminalState extends State<Terminal> {
       };
       calculateValues();
       checkDiscount();
-      print(transactionData);
     });
   }
 
@@ -359,9 +379,9 @@ class _TerminalState extends State<Terminal> {
         }
       }
     });
-    print('Gov discount details: ${transactionData['gov_discount_details']}');
-    print((error != null) ? error : 'Discount info added successfully');
-    print('Transaction Data: ${transactionData}');
+    // print('Gov discount details: ${transactionData['gov_discount_details']}');
+    // print((error != null) ? error : 'Discount info added successfully');
+    // print('Transaction Data: ${transactionData}');
   }
 
   void calculateValues() {
@@ -377,10 +397,13 @@ class _TerminalState extends State<Terminal> {
     final formattedData = TransactionService.formatTransactionData(
       transactionData,
     );
-    // print('Formatting transactions...');
-    // print('Formatted Transaction Data: $formattedData');
-    TransactionService.saveTransactionData(formattedData).then((id) {
-      setInvoice(id);
+
+    print('Formatting transactions...');
+    print('Formatted Transaction Data: $formattedData');
+    TransactionService.saveTransactionData(formattedData).then((data) {
+      setInvoice(data!['transaction details']['id']);
+      setStubDetails(data['stub_details']);
+      // print(data['stub_details']);
       printReceipt();
     });
   }
@@ -412,22 +435,24 @@ class _TerminalState extends State<Terminal> {
               (data) => {
                 'name': data['data']['name'],
                 'quantity': data['quantity'],
-                'price': data['data']['price'],
+                'price': data['data']['price'].roundToDouble(),
               },
             )
             .toList();
 
     final accountingData = {
       'transaction_method': transactionData['transaction_method'].toString(),
-      'transaction_fee': transactionData['transaction_fee'].toString(),
       'cash_tendered': transactionData['cash_tendered'].toString(),
+      'transaction_fee': transactionData['transaction_fee'].toString(),
+      'reference_number': transactionData['reference_number'].toString(),
       'total_sales': transactionData['total_sales'].toString(),
       'change': transactionData['change'].toString(),
       'gross_sales': transactionData['gross_sales'].toString(),
       'vatable_sales': transactionData['vatable_sales'].toString(),
       'vat': transactionData['vat'].toString(),
       'vat_exempt_sales': transactionData['vat_exempt_sales'].toString(),
-      'vat_adjust_sales': transactionData['vat_adjust_sales'].toString(),
+      'vat_deduction': transactionData['vat_deduction'].toString(),
+      'vat_adjustment': transactionData['vat_adjustment'].toString(),
       'zero_rated_sales': transactionData['zero_rated_sales'].toString(),
       'discount_value': transactionData['discount_value'].toString(),
     };
@@ -441,7 +466,8 @@ class _TerminalState extends State<Terminal> {
 
       String formattedDate = DateFormat('MMMM d, y').format(DateTime.now());
 
-      printerService.printReceipt(
+      final response = printerService.printReceipt(
+        context: context,
         storeName: 'Thermozone Philippines Corp.',
         storeAddress: '2280 Marconi St., Brgy. San Isidro, Makati City',
         storePhone: 'TIN: 223 661 818 0000',
@@ -451,7 +477,10 @@ class _TerminalState extends State<Terminal> {
         methodName: transactionMethodName,
         items: items,
         dateTime: formattedDate,
+        stubDetails: stubDetails,
       );
+
+      print(response);
     });
   }
 
@@ -639,6 +668,7 @@ class _TerminalState extends State<Terminal> {
                               addGovDiscountDetails: addGovDiscountDetails,
                               addItemDiscount: addItemDiscount,
                               removeItem: removeItem,
+                              updateQuantity: updateCartQuantity,
                             ),
                           ),
                           SizedBox(
@@ -662,12 +692,13 @@ class _TerminalState extends State<Terminal> {
                                   addToTransactionDiscounts,
                               setTransactionMethod: setTransactionMethod,
                               setCashTendered: setCashTendered,
-                              setTransactionFee: setCashTendered,
+                              setTransactionFee: setTransactionFee,
                               processTransactions: processTransactions,
                               resetTransactionData: resetTransactionData,
                               toggleIsFirstPrint: toggleIsFirstPrint,
                               printReceipt: printReceipt,
                               isFirstPrint: isFirstPrint,
+                              isTransactionMethodSet: isTransactionMethodSet,
                               itemsHasDiscount: itemsHasDiscount,
                               total: transactionData['total_sales'],
                             ),
