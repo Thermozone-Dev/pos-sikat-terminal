@@ -2,7 +2,8 @@ import 'package:bir_pos/models/payment_method.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:flutter_dotenv/flutter_dotenv.dart'; // For dev env variables
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'dart:io'; // <-- for exit(0)
 
 class PaymentMethodService {
   static Future<List<PaymentMethod>> getMethods() async {
@@ -13,22 +14,40 @@ class PaymentMethodService {
     final String apiUri = dotenv.env['POS_API_URL'] ?? "";
     final url = Uri.parse('$apiUri/api/v1/paymentMethods');
 
-    final response = await http.get(
-      url,
-      headers: {
-        'Authorization': 'Bearer $token',
-        'Accept': 'application/json',
-        'Pos-Secret-key': apiSecret,
-      },
-    );
+    try {
+      final response = await http.get(
+        url,
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Accept': 'application/json',
+          'Pos-Secret-key': apiSecret,
+        },
+      );
 
-    if (response.statusCode == 200) {
-      final jsonResponse = jsonDecode(response.body);
-      final List<dynamic> data =
-          jsonResponse is List ? jsonResponse : jsonResponse['data'];
-      return data.map((json) => PaymentMethod.fromJson(json)).toList();
-    } else {
-      throw Exception('Failed to load transaction methods');
+      if (response.statusCode == 200) {
+        final jsonResponse = jsonDecode(response.body);
+        final List<dynamic> data =
+            jsonResponse is List ? jsonResponse : jsonResponse['data'];
+
+        if (data.isEmpty) {
+          _forceClose("No payment methods available");
+        }
+
+        return data.map((json) => PaymentMethod.fromJson(json)).toList();
+      } else {
+        _forceClose(
+          "Failed to load payment methods (code: ${response.statusCode})",
+        );
+      }
+    } catch (e) {
+      _forceClose("Unable to connect to server: $e");
     }
+
+    return []; // fallback (won’t be reached)
+  }
+
+  static void _forceClose(String message) {
+    print("⚠️ $message — closing app");
+    exit(0); // Immediately kills the app process
   }
 }

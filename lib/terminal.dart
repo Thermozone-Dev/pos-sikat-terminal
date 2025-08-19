@@ -493,13 +493,22 @@ class _TerminalState extends State<Terminal> {
         backgroundColor: Colors.brown[500],
         title: Row(
           children: [
-            Image.asset('assets/img/dino-logo.png', height: 40),
+            Image.asset('assets/img/logo.png', height: 40),
             const SizedBox(width: 10),
             const Text(
-              'PoS Terminal',
+              'PoS Terminal v1.0',
               style: TextStyle(
                 fontWeight: FontWeight.w600,
                 color: Colors.white,
+              ),
+            ),
+            Spacer(),
+            Container(
+              width: 10,
+              height: 10,
+              decoration: const BoxDecoration(
+                color: Colors.green, // Online = Green
+                shape: BoxShape.circle,
               ),
             ),
           ],

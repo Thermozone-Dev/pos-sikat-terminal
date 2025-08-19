@@ -130,7 +130,16 @@ class _LoginFormState extends State<Login> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Image(image: AssetImage('assets/img/clark-logo.png')),
+                Image(image: AssetImage('assets/img/logo.png'), height: 150),
+                SizedBox(height: 20),
+                Text(
+                  'POS-Sikat v1.0',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                  ),
+                ),
                 SizedBox(height: 20),
                 TextFormField(
                   controller: _emailController,
