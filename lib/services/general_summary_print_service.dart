@@ -1,14 +1,15 @@
 import 'dart:async';
+import 'package:bir_pos/models/general_summary.dart';
 import 'package:bir_pos/models/product_summary.dart';
 import 'package:esc_pos_utils/esc_pos_utils.dart';
 import 'package:flutter_pos_printer_platform_image_3/flutter_pos_printer_platform_image_3.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class SummaryPrintService {
+class GeneralSummaryPrintService {
   final PrinterManager printerManager = PrinterManager.instance;
 
-  Future<void> printReceipt({required List<ProductSummary> products}) async {
+  Future<void> printReceipt({required List<GeneralSummary> products}) async {
     var devices = <BluetoothPrinter>[];
     BluetoothPrinter? selectedPrinter;
     bool isPrinted = false;
@@ -72,18 +73,10 @@ class SummaryPrintService {
     List<int> bytes = [];
     bytes += generator.feed(1);
     bytes += generator.text(
-      '-- SUMMARY REPORT / CASHIER --',
+      '-- GENERAL SUMMARY REPORT --',
       styles: PosStyles(align: PosAlign.center, bold: true),
     );
     bytes += generator.feed(1);
-    bytes += generator.row([
-      PosColumn(text: 'Cashier:', width: 5, styles: PosStyles(bold: false)),
-      PosColumn(
-        text: userName,
-        width: 7,
-        styles: PosStyles(align: PosAlign.right, bold: true),
-      ),
-    ]);
 
     final String formattedData = DateFormat(
       'MMMM dd, yyyy',

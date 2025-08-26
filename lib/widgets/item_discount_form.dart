@@ -58,7 +58,7 @@ class _ItemDiscountFormState extends State<ItemDiscountForm> {
             keyboardType: TextInputType.number,
             inputFormatters: [FilteringTextInputFormatter.digitsOnly],
             decoration: InputDecoration(
-              labelText: 'Item Amount',
+              labelText: 'Item Quantity',
               border: OutlineInputBorder(),
             ),
             onChanged: (value) {

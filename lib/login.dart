@@ -70,6 +70,7 @@ class _LoginFormState extends State<Login> {
         if (response.statusCode == 201) {
           final data = jsonDecode(response.body);
           final token = data['token']; // adjust based on actual API response
+          final userName = data['name']; // adjust based on actual API response
 
           if (context.mounted) {}
           ScaffoldMessenger.of(
@@ -79,6 +80,7 @@ class _LoginFormState extends State<Login> {
           // print("Token: $token");
 
           await prefs.setString('token', token);
+          await prefs.setString('user_name', userName);
 
           _clearSession();
 
@@ -128,7 +130,16 @@ class _LoginFormState extends State<Login> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Image(image: AssetImage('assets/img/clark-logo.png')),
+                Image(image: AssetImage('assets/img/logo.png'), height: 150),
+                SizedBox(height: 20),
+                Text(
+                  'POS-Sikat v1.0',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                  ),
+                ),
                 SizedBox(height: 20),
                 TextFormField(
                   controller: _emailController,
@@ -147,6 +158,8 @@ class _LoginFormState extends State<Login> {
                 TextFormField(
                   controller: _passwordController,
                   obscureText: true,
+                  textInputAction: TextInputAction.done,
+                  onFieldSubmitted: (value) => _login(),
                   decoration: InputDecoration(
                     labelText: 'Password',
                     border: OutlineInputBorder(),
@@ -155,7 +168,7 @@ class _LoginFormState extends State<Login> {
                     if (value == null || value.isEmpty)
                       return 'Please enter password';
                     if (value.length < 6)
-                      return 'Password must be at least 6 characters';
+                      return 'Password must be at least 8 characters';
                     return null;
                   },
                 ),

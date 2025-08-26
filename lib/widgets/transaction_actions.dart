@@ -25,6 +25,7 @@ class TransactionActions extends StatelessWidget {
 
   final double total;
   final isFirstPrint;
+  final bool isTransactionMethodSet;
 
   TransactionActions({
     Key? key,
@@ -41,6 +42,7 @@ class TransactionActions extends StatelessWidget {
     required this.toggleIsFirstPrint,
     required this.printReceipt,
     required this.isFirstPrint,
+    required this.isTransactionMethodSet,
     required this.itemsHasDiscount,
     required this.total,
   }) : super(key: key);
@@ -78,6 +80,7 @@ class TransactionActions extends StatelessWidget {
                     resetTransactionData: resetTransactionData,
                     toggleIsFirstPrint: toggleIsFirstPrint,
                     printReceipt: printReceipt,
+                    isTransactionMethodSet: isTransactionMethodSet,
                     isFirstPrint: isFirstPrint,
                   ),
                 ],

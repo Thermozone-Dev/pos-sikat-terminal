@@ -111,6 +111,7 @@ class _TerminalState extends State<Terminal> {
     'transaction_method': null,
     'transaction_is_digital': false,
     'transaction_fee': 0.0,
+    'reference_number': 0.0,
     'cash_tendered': 0.0,
     'total_sales': 0.0,
     'change': 0.0,
@@ -133,6 +134,9 @@ class _TerminalState extends State<Terminal> {
   bool itemsHasDiscount = false;
   bool transactionHasDiscount = false;
   bool showContinueShiftButton = false;
+  bool isTransactionMethodSet = false;
+
+  Map<String, dynamic> stubDetails = {};
 
   late Future<List<Product>> _productsFuture;
   late Future<List<Package>> _packagesFuture;
@@ -165,6 +169,7 @@ class _TerminalState extends State<Terminal> {
         'transaction_method': null,
         'transaction_is_digital': false,
         'transaction_fee': 0.0,
+        'reference_number': 0.0,
         'cash_tendered': 0.0,
         'total_sales': 0.0,
         'change': 0.0,
@@ -179,11 +184,16 @@ class _TerminalState extends State<Terminal> {
         'discount_value': 0.0,
       };
       isFirstPrint = true;
+      isTransactionMethodSet = false;
     });
   }
 
   void setInvoice(id) {
     invoiceId = id.toString();
+  }
+
+  void setStubDetails(details) {
+    stubDetails = details;
   }
 
   void addItem(itemData) {
@@ -249,13 +259,23 @@ class _TerminalState extends State<Terminal> {
     });
   }
 
+  void updateCartQuantity(int index, int newQty) {
+    final item = transactionData['items'][index];
+    setState(() {
+      item['quantity'] = newQty;
+      calculateValues();
+      checkDiscount();
+    });
+  }
+
   void setCashTendered(cashTendered) {
-    transactionData['cash_tendered'] = cashTendered;
+    transactionData['cash_tendered'] = cashTendered['value'];
     calculateValues();
   }
 
   void setTransactionFee(transactionFee) {
-    transactionData['transaction_fee'] = transactionFee;
+    transactionData['transaction_fee'] = transactionFee['value'];
+    transactionData['reference_number'] = transactionFee['reference_number'];
     calculateValues();
   }
 
@@ -263,6 +283,7 @@ class _TerminalState extends State<Terminal> {
     transactionData['transaction_method'] = transactionMethod.id;
     transactionData['transaction_is_digital'] = transactionMethod.isDigital;
     transactionMethodName = transactionMethod.name;
+    isTransactionMethodSet = true;
     calculateValues();
   }
 
@@ -376,10 +397,13 @@ class _TerminalState extends State<Terminal> {
     final formattedData = TransactionService.formatTransactionData(
       transactionData,
     );
-    // print('Formatting transactions...');
-    // print('Formatted Transaction Data: $formattedData');
-    TransactionService.saveTransactionData(formattedData).then((id) {
-      setInvoice(id);
+
+    print('Formatting transactions...');
+    print('Formatted Transaction Data: $formattedData');
+    TransactionService.saveTransactionData(formattedData).then((data) {
+      setInvoice(data!['transaction details']['id']);
+      setStubDetails(data['stub_details']);
+      // print(data['stub_details']);
       printReceipt();
     });
   }
@@ -411,15 +435,16 @@ class _TerminalState extends State<Terminal> {
               (data) => {
                 'name': data['data']['name'],
                 'quantity': data['quantity'],
-                'price': data['data']['price'],
+                'price': data['data']['price'].roundToDouble(),
               },
             )
             .toList();
 
     final accountingData = {
       'transaction_method': transactionData['transaction_method'].toString(),
-      'transaction_fee': transactionData['transaction_fee'].toString(),
       'cash_tendered': transactionData['cash_tendered'].toString(),
+      'transaction_fee': transactionData['transaction_fee'].toString(),
+      'reference_number': transactionData['reference_number'].toString(),
       'total_sales': transactionData['total_sales'].toString(),
       'change': transactionData['change'].toString(),
       'gross_sales': transactionData['gross_sales'].toString(),
@@ -441,7 +466,8 @@ class _TerminalState extends State<Terminal> {
 
       String formattedDate = DateFormat('MMMM d, y').format(DateTime.now());
 
-      printerService.printReceipt(
+      final response = printerService.printReceipt(
+        context: context,
         storeName: 'Thermozone Philippines Corp.',
         storeAddress: '2280 Marconi St., Brgy. San Isidro, Makati City',
         storePhone: 'TIN: 223 661 818 0000',
@@ -451,7 +477,10 @@ class _TerminalState extends State<Terminal> {
         methodName: transactionMethodName,
         items: items,
         dateTime: formattedDate,
+        stubDetails: stubDetails,
       );
+
+      print(response);
     });
   }
 
@@ -464,13 +493,22 @@ class _TerminalState extends State<Terminal> {
         backgroundColor: Colors.brown[500],
         title: Row(
           children: [
-            Image.asset('assets/img/dino-logo.png', height: 40),
+            Image.asset('assets/img/logo.png', height: 40),
             const SizedBox(width: 10),
             const Text(
-              'PoS Terminal',
+              'PoS Terminal v1.0',
               style: TextStyle(
                 fontWeight: FontWeight.w600,
                 color: Colors.white,
+              ),
+            ),
+            Spacer(),
+            Container(
+              width: 10,
+              height: 10,
+              decoration: const BoxDecoration(
+                color: Colors.green, // Online = Green
+                shape: BoxShape.circle,
               ),
             ),
           ],
@@ -639,6 +677,7 @@ class _TerminalState extends State<Terminal> {
                               addGovDiscountDetails: addGovDiscountDetails,
                               addItemDiscount: addItemDiscount,
                               removeItem: removeItem,
+                              updateQuantity: updateCartQuantity,
                             ),
                           ),
                           SizedBox(
@@ -662,12 +701,13 @@ class _TerminalState extends State<Terminal> {
                                   addToTransactionDiscounts,
                               setTransactionMethod: setTransactionMethod,
                               setCashTendered: setCashTendered,
-                              setTransactionFee: setCashTendered,
+                              setTransactionFee: setTransactionFee,
                               processTransactions: processTransactions,
                               resetTransactionData: resetTransactionData,
                               toggleIsFirstPrint: toggleIsFirstPrint,
                               printReceipt: printReceipt,
                               isFirstPrint: isFirstPrint,
+                              isTransactionMethodSet: isTransactionMethodSet,
                               itemsHasDiscount: itemsHasDiscount,
                               total: transactionData['total_sales'],
                             ),

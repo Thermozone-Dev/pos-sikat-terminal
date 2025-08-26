@@ -55,6 +55,7 @@ class TransactionService {
       'transaction_method': data['transaction_method'],
       'transaction_fee': data['transaction_fee'] ?? 0.00,
       'cash_tendered': data['cash_tendered'] ?? 0.00,
+      'reference_number': data['reference_number'].toString(),
       'change': data['change'] ?? 0.00,
       'total_sales': data['total_sales'] ?? 0.00,
       'gross_sales': data['gross_sales'] ?? 0.00,
@@ -72,7 +73,7 @@ class TransactionService {
     return encodedData;
   }
 
-  static Future<int?> saveTransactionData(dynamic data) async {
+  static Future<Map<String, dynamic>?> saveTransactionData(dynamic data) async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
 
@@ -94,7 +95,7 @@ class TransactionService {
       if (response.statusCode == 201) {
         final data = jsonDecode(response.body);
         // print('Transaction saved successfully: $data');
-        return data['transaction details']['id'];
+        return data;
       } else {
         final errorData = jsonDecode(response.body);
         final message = errorData ?? 'Transaction failed';
@@ -136,9 +137,9 @@ class TransactionService {
 
       double paxAmount = 0.0;
 
-      print('Processing item: ${item['data']['name']}');
-      if (item['data']['pax'] <= 1.00) {
-        paxAmount = 1;
+      // print('Processing item: ${item['data']['name']}');
+      if (item['data']['pax'] < 2.00) {
+        paxAmount = 1.00;
       } else {
         paxAmount = item['data']['pax'];
       }
@@ -152,7 +153,7 @@ class TransactionService {
       //!!!Add Checking for Vat Inclusive and Exclusive Sales
       grossSales += grossValue;
 
-      double initialVat = vatValue;
+      double initialVat = vatTotal;
 
       double paxVat = vatTotal / paxAmount;
       double paxTotal = grossValue / paxAmount;
@@ -169,29 +170,29 @@ class TransactionService {
 
         if (discount['is_percentage']) {
           paxDiscount = paxTotal * (discount['value'] / 100);
-          itemDiscountValue += paxDiscount;
+          itemDiscountValue = paxDiscount;
           paxTotal -= paxDiscount;
         } else {
-          itemDiscountValue += discount['value'];
-          paxDiscount = itemDiscountValue / paxAmount;
+          itemDiscountValue = discount['value'];
+          paxDiscount = (itemDiscountValue / (1 + vatValue)) / paxAmount;
 
-          paxTotal -= paxDiscount;
-          salesTotal -= itemDiscountValue - paxDiscount;
+          paxTotal -= (paxDiscount);
+          salesTotal -= ((itemDiscountValue / (1 + vatValue)) - paxDiscount);
         }
 
         if (discount['is_government_discount'] && item['data']['vat_exempt']) {
           itemAdjust = paxVat;
           itemExempt = paxTotal;
         } else {
-          newVat = (salesTotal + paxTotal) * vatValue;
-          itemAdjust = initialVat - newVat;
+          newVat = ((salesTotal + paxTotal) * vatValue);
+          itemAdjust = (initialVat - newVat);
         }
       }
 
       itemVatableSales = (salesTotal + paxTotal) - itemExempt;
-      itemVat = vatTotal - itemAdjust;
-      itemDeduct = itemExempt + itemAdjust;
-      itemTotal = itemVatableSales + itemVat + itemExempt;
+      itemVat = (vatTotal - itemAdjust);
+      itemDeduct = (itemExempt + itemAdjust);
+      itemTotal = (itemVatableSales + itemVat + itemExempt).roundToDouble();
 
       // print(
       //   'Item: ${item['data']['name']}, '
@@ -225,6 +226,7 @@ class TransactionService {
       vat += itemVat;
       vatableSales += itemVatableSales;
       totalSales += itemTotal;
+      totalDiscount += itemDiscountValue;
     }
 
     transactionData['cash_tendered'] =
@@ -233,24 +235,24 @@ class TransactionService {
             : transactionData['cash_tendered'];
 
     if (!transactionData['transaction_is_digital']) {
-      final change = transactionData['cash_tendered'] - totalSales;
+      final change = (transactionData['cash_tendered'] - totalSales);
       transactionData['change'] =
           change < 0 ? 0.00 : change; // Ensure change is not negative
     } else {
       transactionData['change'] = 0.00;
     }
 
-    transactionData['total_sales'] = totalSales;
-    transactionData['gross_sales'] = grossSales;
-    transactionData['vatable_sales'] = vatableSales;
-    transactionData['vat'] = vat;
-    transactionData['vat_exempt_sales'] = vatExemptSales;
-    transactionData['vat_deduction'] = vatDeduction;
-    transactionData['vat_adjustment'] = vatAdjustment;
-    transactionData['zero_rated_sales'] = zeroRatedSales;
-    transactionData['discount_value'] = totalDiscount;
+    transactionData['total_sales'] = totalSales.roundToDouble();
+    transactionData['gross_sales'] = grossSales.roundToDouble();
+    transactionData['vatable_sales'] = vatableSales.roundToDouble();
+    transactionData['vat'] = vat.roundToDouble();
+    transactionData['vat_exempt_sales'] = vatExemptSales.roundToDouble();
+    transactionData['vat_deduction'] = vatDeduction.roundToDouble();
+    transactionData['vat_adjustment'] = vatAdjustment.roundToDouble();
+    transactionData['zero_rated_sales'] = zeroRatedSales.roundToDouble();
+    transactionData['discount_value'] = totalDiscount.roundToDouble();
 
-    print(transactionData);
+    // print(transactionData);
 
     return transactionData;
   }
