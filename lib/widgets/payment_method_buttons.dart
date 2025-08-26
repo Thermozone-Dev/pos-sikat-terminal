@@ -2,6 +2,7 @@ import 'package:bir_pos/models/payment_method.dart';
 import 'package:bir_pos/services/payment_method_service.dart';
 import 'package:bir_pos/widgets/payment_method_form.dart';
 import 'package:flutter/material.dart';
+import 'dart:io';
 
 class PaymentMethodButtons extends StatelessWidget {
   final ValueChanged setTransactionMethod;
@@ -31,7 +32,40 @@ class PaymentMethodButtons extends StatelessWidget {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
+            Future.microtask(() async {
+              if (context.mounted) {
+                await showDialog(
+                  context: context,
+                  builder:
+                      (context) => AlertDialog(
+                        title: const Text("Connection Lost"),
+                        content: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Divider(),
+                            Text(
+                              "The application lost connection to the server. The app will now close.",
+                            ),
+                          ],
+                        ),
+                        actions: [
+                          TextButton(
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                            child: const Text("OK"),
+                          ),
+                        ],
+                      ),
+                );
+
+                Future.delayed(const Duration(milliseconds: 500), () {
+                  exit(0);
+                });
+              }
+            });
+
+            return const SizedBox.shrink();
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
             return const Center(child: Text('No payment methods found'));
           }

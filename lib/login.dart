@@ -19,29 +19,22 @@ class _LoginFormState extends State<Login> {
   final deviceInfo = DeviceInfoPlugin();
   final secStorage = FlutterSecureStorage();
 
-  // Add this for loading state (optional)
   bool _isLoading = false;
 
-  // Clearing session data
   Future<void> _clearSession() async {
     final keysToClear = ['transaction_data'];
-
     await Future.wait(keysToClear.map((key) => secStorage.delete(key: key)));
   }
 
-  // 🧠 LOGIN FUNCTION: Handles API call
   Future<void> _login() async {
     final prefs = await SharedPreferences.getInstance();
     final windowsDeviceInfo = await deviceInfo.windowsInfo;
-    if (_formKey.currentState!.validate()) {
-      setState(() {
-        _isLoading = true;
-      });
 
-      // Prepare the GET request with query parameters
+    if (_formKey.currentState!.validate()) {
+      setState(() => _isLoading = true);
+
       final email = _emailController.text.trim();
       final password = _passwordController.text.trim();
-
       final deviceName = windowsDeviceInfo.computerName;
       final String apiSecret = dotenv.env['POS_API_SECRET'] ?? "";
       final String apiUri = dotenv.env['POS_API_URL'] ?? "";
@@ -54,7 +47,6 @@ class _LoginFormState extends State<Login> {
             'Content-Type': 'application/json',
             'Accept': 'application/json',
             'Pos-Secret-key': apiSecret,
-            // 'Authorization': 'Bearer $token',
           },
           body: jsonEncode({
             'email': email,
@@ -63,21 +55,18 @@ class _LoginFormState extends State<Login> {
           }),
         );
 
-        setState(() {
-          _isLoading = false;
-        });
+        setState(() => _isLoading = false);
 
         if (response.statusCode == 201) {
           final data = jsonDecode(response.body);
-          final token = data['token']; // adjust based on actual API response
-          final userName = data['name']; // adjust based on actual API response
+          final token = data['token'];
+          final userName = data['name'];
 
-          if (context.mounted) {}
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text('Login successful!')));
-
-          // print("Token: $token");
+          if (context.mounted) {
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(SnackBar(content: Text('Login successful!')));
+          }
 
           await prefs.setString('token', token);
           await prefs.setString('user_name', userName);
@@ -96,9 +85,7 @@ class _LoginFormState extends State<Login> {
           ).showSnackBar(SnackBar(content: Text(message)));
         }
       } catch (e) {
-        setState(() {
-          _isLoading = false;
-        });
+        setState(() => _isLoading = false);
 
         ScaffoldMessenger.of(
           context,
@@ -110,92 +97,101 @@ class _LoginFormState extends State<Login> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-        child: Container(
-          width: 450,
-          padding: EdgeInsets.all(50),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(12),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black12,
-                blurRadius: 10,
-                offset: Offset(0, 4),
+      body: Stack(
+        children: [
+          Center(
+            child: Container(
+              width: 450,
+              padding: EdgeInsets.all(50),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black12,
+                    blurRadius: 10,
+                    offset: Offset(0, 4),
+                  ),
+                ],
               ),
-            ],
-          ),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Image(image: AssetImage('assets/img/logo.png'), height: 150),
-                SizedBox(height: 20),
-                Text(
-                  'POS-Sikat v1.0',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black,
-                  ),
-                ),
-                SizedBox(height: 20),
-                TextFormField(
-                  controller: _emailController,
-                  decoration: InputDecoration(
-                    labelText: 'Email',
-                    border: OutlineInputBorder(),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty)
-                      return 'Please enter email';
-                    if (!value.contains('@')) return 'Enter a valid email';
-                    return null;
-                  },
-                ),
-                SizedBox(height: 20),
-                TextFormField(
-                  controller: _passwordController,
-                  obscureText: true,
-                  textInputAction: TextInputAction.done,
-                  onFieldSubmitted: (value) => _login(),
-                  decoration: InputDecoration(
-                    labelText: 'Password',
-                    border: OutlineInputBorder(),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty)
-                      return 'Please enter password';
-                    if (value.length < 6)
-                      return 'Password must be at least 8 characters';
-                    return null;
-                  },
-                ),
-                SizedBox(height: 30),
-                _isLoading
-                    ? CircularProgressIndicator()
-                    : ElevatedButton(
-                      onPressed: _login,
-                      child: Text(
-                        "Login",
-                        style: TextStyle(color: Colors.white),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Image.asset('assets/img/logo.png', height: 150),
+                    SizedBox(height: 20),
+                    TextFormField(
+                      controller: _emailController,
+                      decoration: InputDecoration(
+                        labelText: 'Email',
+                        border: OutlineInputBorder(),
                       ),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.brown[500],
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 60.0,
-                          vertical: 16.0,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter email';
+                        }
+                        if (!value.contains('@')) {
+                          return 'Enter a valid email';
+                        }
+                        return null;
+                      },
                     ),
-              ],
+                    SizedBox(height: 20),
+                    TextFormField(
+                      controller: _passwordController,
+                      obscureText: true,
+                      textInputAction: TextInputAction.done,
+                      onFieldSubmitted: (value) => _login(),
+                      decoration: InputDecoration(
+                        labelText: 'Password',
+                        border: OutlineInputBorder(),
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter password';
+                        }
+                        if (value.length < 8) {
+                          return 'Password must be at least 8 characters';
+                        }
+                        return null;
+                      },
+                    ),
+                    SizedBox(height: 30),
+                    _isLoading
+                        ? CircularProgressIndicator()
+                        : ElevatedButton(
+                          onPressed: _login,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.brown[500],
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 60.0,
+                              vertical: 16.0,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          ),
+                          child: Text(
+                            "Login",
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ),
+                  ],
+                ),
+              ),
             ),
           ),
-        ),
+
+          Positioned(
+            bottom: 16,
+            right: 16,
+            child: Text(
+              "POS-Sikat v1.0",
+              style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+            ),
+          ),
+        ],
       ),
     );
   }

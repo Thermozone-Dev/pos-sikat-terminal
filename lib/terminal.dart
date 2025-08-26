@@ -496,7 +496,7 @@ class _TerminalState extends State<Terminal> {
             Image.asset('assets/img/logo.png', height: 40),
             const SizedBox(width: 10),
             const Text(
-              'PoS Terminal v1.0',
+              'POS-Sikat v1.0',
               style: TextStyle(
                 fontWeight: FontWeight.w600,
                 color: Colors.white,
