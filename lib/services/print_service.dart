@@ -16,6 +16,7 @@ class PrinterService {
     required String invoiceId,
     required String methodName,
     required List<dynamic> items,
+    required List<dynamic> discountedItems,
     required Map<String, String> accountingData,
     required String dateTime,
     required Map<String, dynamic> stubDetails,
@@ -66,6 +67,7 @@ class PrinterService {
                 invoiceId,
                 methodName,
                 items,
+                discountedItems,
                 accountingData,
                 dateTime,
                 stubDetails,
@@ -101,6 +103,7 @@ class PrinterService {
     String invoiceId,
     String methodName,
     List<dynamic> items,
+    List<dynamic> discountedItems,
     Map<String, String> accountingData,
     String dateTime,
     Map<String, dynamic> stubDetails,
@@ -501,7 +504,7 @@ class PrinterService {
       styles: PosStyles(align: PosAlign.center),
     );
     bytes += generator.text(
-      'VAT REG TIN: 223 661 818 0000',
+      'VAT REG TIN: 223-661-818-00000',
       styles: PosStyles(align: PosAlign.center),
     );
     bytes += generator.feed(1);
@@ -511,11 +514,11 @@ class PrinterService {
     // Transaction Details
 
     bytes += generator.text(
-      'Machine No: XXXXXXXXXX',
+      'MIN: XXXXXXXXXX',
       styles: PosStyles(align: PosAlign.left),
     );
     bytes += generator.text(
-      'Hardware Serial: XXXXXXXXXX',
+      'Serial No: XXXXXXXXXX',
       styles: PosStyles(align: PosAlign.left),
     );
     bytes += generator.feed(1);
@@ -524,11 +527,17 @@ class PrinterService {
       styles: PosStyles(align: PosAlign.left),
     );
     bytes += generator.text(
-      'INVOICE NO: ${invoiceId.padLeft(8 - invoiceId.length, '0')}',
+      'SI NO: ${invoiceId.padLeft(12, '0')}',
       styles: PosStyles(align: PosAlign.left),
     );
     bytes += generator.text(
       'Date: $dateTime',
+      styles: PosStyles(align: PosAlign.left),
+    );
+    final now = DateTime.now();
+    final formattedTime = DateFormat('h:mm a').format(now);
+    bytes += generator.text(
+      'Time: $formattedTime',
       styles: PosStyles(align: PosAlign.left),
     );
     bytes += generator.text(
@@ -564,29 +573,43 @@ class PrinterService {
     bytes += generator.row([
       PosColumn(text: 'TIN:', width: 2),
       PosColumn(
-        text: 'XXX XXX XXX XXXX',
+        text: '................',
         width: 10,
         styles: PosStyles(bold: true),
       ),
     ]);
     bytes += generator.row([
-      PosColumn(text: 'Business Style:', width: 2),
-      PosColumn(text: '...........', width: 10, styles: PosStyles(bold: true)),
+      PosColumn(text: 'Signature:', width: 2),
+      PosColumn(
+        text: '................',
+        width: 10,
+        styles: PosStyles(bold: true),
+      ),
     ]);
     bytes += generator.feed(1);
     bytes += generator.hr();
     bytes += generator.feed(1);
 
     // Item Breakdown
+    bytes += generator.text(
+      '----- ITEM BREAKDOWN -----',
+      styles: PosStyles(align: PosAlign.center, bold: true),
+    );
+    bytes += generator.feed(1);
     bytes += generator.row([
       PosColumn(
         text: 'Qty',
         width: 3,
         styles: PosStyles(align: PosAlign.left, bold: true),
       ),
-      PosColumn(text: 'Item', width: 6, styles: PosStyles(bold: true)),
+      PosColumn(text: 'Item', width: 3, styles: PosStyles(bold: true)),
       PosColumn(
         text: 'Price',
+        width: 3,
+        styles: PosStyles(align: PosAlign.left, bold: true),
+      ),
+      PosColumn(
+        text: 'Total',
         width: 3,
         styles: PosStyles(align: PosAlign.left, bold: true),
       ),
@@ -599,16 +622,89 @@ class PrinterService {
           width: 3,
           styles: PosStyles(align: PosAlign.left),
         ),
-        PosColumn(text: item['name']!, width: 6),
+        PosColumn(
+          text: item['name']!,
+          width: 3,
+          styles: PosStyles(align: PosAlign.left),
+        ),
         PosColumn(
           text: item['price']!.toString(),
           width: 3,
-          styles: PosStyles(align: PosAlign.right),
+          styles: PosStyles(align: PosAlign.left),
+        ),
+        PosColumn(
+          text: (item['quantity']! * item['price']!).toString(),
+          width: 3,
+          styles: PosStyles(align: PosAlign.left),
         ),
       ]);
     }
     bytes += generator.feed(1);
     bytes += generator.hr();
+    if (accountingData['discount_value'] != "0.0") {
+      bytes += generator.feed(1);
+      bytes += generator.text(
+        '----- DISCOUNTED ITEMS -----',
+        styles: PosStyles(align: PosAlign.center, bold: true),
+      );
+      bytes += generator.feed(1);
+      for (var item in discountedItems) {
+        switch (item['discount']) {
+          case 1:
+            bytes += generator.text(
+              'Senior Citizen [ 20% ]',
+              styles: PosStyles(align: PosAlign.left, bold: true),
+            );
+            break;
+          case 2:
+            bytes += generator.text(
+              'PWD [ 20% ]',
+              styles: PosStyles(align: PosAlign.left, bold: true),
+            );
+            break;
+          case 3:
+            bytes += generator.text(
+              'NAAC [ 20% ]',
+              styles: PosStyles(align: PosAlign.left, bold: true),
+            );
+            break;
+          case 4:
+            bytes += generator.text(
+              'Solo Parent [ 10% ]',
+              styles: PosStyles(align: PosAlign.left, bold: true),
+            );
+            break;
+          default:
+            bytes += generator.row([PosColumn(text: 'General Discounts')]);
+        }
+        bytes += generator.feed(1);
+        bytes += generator.row([
+          PosColumn(
+            text: item['quantity']!.toString(),
+            width: 3,
+            styles: PosStyles(align: PosAlign.left),
+          ),
+          PosColumn(
+            text: item['name']!,
+            width: 3,
+            styles: PosStyles(align: PosAlign.left),
+          ),
+          PosColumn(
+            text: item['price']!.toString(),
+            width: 3,
+            styles: PosStyles(align: PosAlign.left),
+          ),
+          PosColumn(
+            text: (item['quantity']! * item['price']!).toString(),
+            width: 3,
+            styles: PosStyles(align: PosAlign.left),
+          ),
+        ]);
+      }
+      bytes += generator.feed(1);
+      bytes += generator.hr();
+    }
+
     bytes += generator.feed(1);
     bytes += generator.row([
       PosColumn(
@@ -621,21 +717,6 @@ class PrinterService {
             accountingData['discount_value'] == null
                 ? 'P 0.00'
                 : 'P ${accountingData['discount_value']}',
-        width: 3,
-        styles: PosStyles(align: PosAlign.right),
-      ),
-    ]);
-    bytes += generator.row([
-      PosColumn(
-        text: 'Transaction Fee:',
-        width: 9,
-        styles: PosStyles(align: PosAlign.left),
-      ),
-      PosColumn(
-        text:
-            accountingData['transaction_fee'] == null
-                ? 'P 0.00'
-                : 'P ${accountingData['transaction_fee']}',
         width: 3,
         styles: PosStyles(align: PosAlign.right),
       ),
@@ -725,17 +806,7 @@ class PrinterService {
       ),
     ]);
     bytes += generator.feed(2);
-    bytes += generator.text(
-      'THIS DOCUMENT IS NOT VALID FOR CLAIM OF INPUT TAX',
-      styles: PosStyles(
-        align: PosAlign.center,
-        bold: true,
-        height: PosTextSize.size1,
-        width: PosTextSize.size1,
-      ),
-    );
-    bytes += generator.feed(2);
-    String formattedInvoiceId = invoiceId.padLeft(6, '0');
+    String formattedInvoiceId = invoiceId.padLeft(12, '0');
     String fullUpc = formattedInvoiceId.padLeft(12, '0');
     List<int> barcodeData = fullUpc.split('').map(int.parse).toList();
     bytes += generator.barcode(
@@ -749,7 +820,7 @@ class PrinterService {
       styles: PosStyles(align: PosAlign.center),
     );
     bytes += generator.text(
-      '2280 Marconi St. Makati City',
+      '2286 Marconi St. Makati City',
       styles: PosStyles(align: PosAlign.center),
     );
     bytes += generator.text(

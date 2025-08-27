@@ -3,7 +3,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'dart:io'; // <-- for exit(0)
 
 class PaymentMethodService {
   static Future<List<PaymentMethod>> getMethods() async {
@@ -30,24 +29,17 @@ class PaymentMethodService {
             jsonResponse is List ? jsonResponse : jsonResponse['data'];
 
         if (data.isEmpty) {
-          _forceClose("No payment methods available");
+          throw Exception("No payment methods available");
         }
 
         return data.map((json) => PaymentMethod.fromJson(json)).toList();
       } else {
-        _forceClose(
+        throw Exception(
           "Failed to load payment methods (code: ${response.statusCode})",
         );
       }
     } catch (e) {
-      _forceClose("Unable to connect to server: $e");
+      throw Exception("Unable to connect to server: $e");
     }
-
-    return []; // fallback (won’t be reached)
-  }
-
-  static void _forceClose(String message) {
-    print("⚠️ $message — closing app");
-    exit(0); // Immediately kills the app process
   }
 }
