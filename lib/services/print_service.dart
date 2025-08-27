@@ -16,6 +16,7 @@ class PrinterService {
     required String invoiceId,
     required String methodName,
     required List<dynamic> items,
+    required List<dynamic> discountedItems,
     required Map<String, String> accountingData,
     required String dateTime,
     required Map<String, dynamic> stubDetails,
@@ -66,6 +67,7 @@ class PrinterService {
                 invoiceId,
                 methodName,
                 items,
+                discountedItems,
                 accountingData,
                 dateTime,
                 stubDetails,
@@ -101,6 +103,7 @@ class PrinterService {
     String invoiceId,
     String methodName,
     List<dynamic> items,
+    List<dynamic> discountedItems,
     Map<String, String> accountingData,
     String dateTime,
     Map<String, dynamic> stubDetails,
@@ -588,6 +591,11 @@ class PrinterService {
     bytes += generator.feed(1);
 
     // Item Breakdown
+    bytes += generator.text(
+      '----- ITEM BREAKDOWN -----',
+      styles: PosStyles(align: PosAlign.center, bold: true),
+    );
+    bytes += generator.feed(1);
     bytes += generator.row([
       PosColumn(
         text: 'Qty',
@@ -633,6 +641,70 @@ class PrinterService {
     }
     bytes += generator.feed(1);
     bytes += generator.hr();
+    if (accountingData['discount_value'] != "0.0") {
+      bytes += generator.feed(1);
+      bytes += generator.text(
+        '----- DISCOUNTED ITEMS -----',
+        styles: PosStyles(align: PosAlign.center, bold: true),
+      );
+      bytes += generator.feed(1);
+      for (var item in discountedItems) {
+        switch (item['discount']) {
+          case 1:
+            bytes += generator.text(
+              'Senior Citizen [ 20% ]',
+              styles: PosStyles(align: PosAlign.left, bold: true),
+            );
+            break;
+          case 2:
+            bytes += generator.text(
+              'PWD [ 20% ]',
+              styles: PosStyles(align: PosAlign.left, bold: true),
+            );
+            break;
+          case 3:
+            bytes += generator.text(
+              'NAAC [ 20% ]',
+              styles: PosStyles(align: PosAlign.left, bold: true),
+            );
+            break;
+          case 4:
+            bytes += generator.text(
+              'Solo Parent [ 10% ]',
+              styles: PosStyles(align: PosAlign.left, bold: true),
+            );
+            break;
+          default:
+            bytes += generator.row([PosColumn(text: 'General Discounts')]);
+        }
+        bytes += generator.feed(1);
+        bytes += generator.row([
+          PosColumn(
+            text: item['quantity']!.toString(),
+            width: 3,
+            styles: PosStyles(align: PosAlign.left),
+          ),
+          PosColumn(
+            text: item['name']!,
+            width: 3,
+            styles: PosStyles(align: PosAlign.left),
+          ),
+          PosColumn(
+            text: item['price']!.toString(),
+            width: 3,
+            styles: PosStyles(align: PosAlign.left),
+          ),
+          PosColumn(
+            text: (item['quantity']! * item['price']!).toString(),
+            width: 3,
+            styles: PosStyles(align: PosAlign.left),
+          ),
+        ]);
+      }
+      bytes += generator.feed(1);
+      bytes += generator.hr();
+    }
+
     bytes += generator.feed(1);
     bytes += generator.row([
       PosColumn(
@@ -645,21 +717,6 @@ class PrinterService {
             accountingData['discount_value'] == null
                 ? 'P 0.00'
                 : 'P ${accountingData['discount_value']}',
-        width: 3,
-        styles: PosStyles(align: PosAlign.right),
-      ),
-    ]);
-    bytes += generator.row([
-      PosColumn(
-        text: 'Transaction Fee:',
-        width: 9,
-        styles: PosStyles(align: PosAlign.left),
-      ),
-      PosColumn(
-        text:
-            accountingData['transaction_fee'] == null
-                ? 'P 0.00'
-                : 'P ${accountingData['transaction_fee']}',
         width: 3,
         styles: PosStyles(align: PosAlign.right),
       ),

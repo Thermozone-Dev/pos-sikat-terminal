@@ -431,13 +431,33 @@ class _TerminalState extends State<Terminal> {
 
     final items =
         transactionData['items']
-            .map(
-              (data) => {
-                'name': data['data']['name'],
-                'quantity': data['quantity'],
-                'price': data['data']['price'].roundToDouble(),
-              },
-            )
+            .map((data) {
+              if (data['data']['item_discounts'] == null) {
+                return {
+                  'name': data['data']['name'],
+                  'quantity': data['quantity'],
+                  'price': data['data']['price'].roundToDouble(),
+                };
+              }
+            })
+            .where((item) => item != null)
+            .toList();
+
+    final discountedItems =
+        transactionData['items']
+            .map((data) {
+              if (data['data']['item_discounts'] != null) {
+                return {
+                  'name': data['data']['name'],
+                  'quantity': data['quantity'],
+                  'price':
+                      (data['data']['total_value'] / data['quantity'])
+                          .roundToDouble(),
+                  'discount': data['data']['item_discounts']['id'],
+                };
+              }
+            })
+            .where((item) => item != null)
             .toList();
 
     final accountingData = {
@@ -476,6 +496,7 @@ class _TerminalState extends State<Terminal> {
         accountingData: accountingData,
         methodName: transactionMethodName,
         items: items,
+        discountedItems: discountedItems,
         dateTime: formattedDate,
         stubDetails: stubDetails,
       );
