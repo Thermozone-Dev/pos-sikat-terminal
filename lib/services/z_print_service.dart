@@ -60,11 +60,11 @@ class ZReadingPrintService {
       styles: PosStyles(align: PosAlign.center, bold: true),
     );
     bytes += generator.text(
-      '2280 Marconi St., Brgy. San Isidro, Makati City',
+      '2286 Marconi St., Brgy. San Isidro, Makati City',
       styles: PosStyles(align: PosAlign.center, bold: true),
     );
     bytes += generator.text(
-      'VAT REG TIN: 223-661-818-0000',
+      'VAT REG. TIN: 223-661-818-00000',
       styles: PosStyles(align: PosAlign.center, bold: true),
     );
     bytes += generator.text(

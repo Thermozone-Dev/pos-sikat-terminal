@@ -61,11 +61,11 @@ class XReadingPrintService {
       styles: PosStyles(align: PosAlign.center, bold: true),
     );
     bytes += generator.text(
-      '2280 Marconi St., Brgy. San Isidro, Makati City',
+      '2286 Marconi St., Brgy. San Isidro, Makati City',
       styles: PosStyles(align: PosAlign.center, bold: true),
     );
     bytes += generator.text(
-      'VAT REG TIN: 223-661-818-0000',
+      'VAT REG. TIN: 223-661-818-00000',
       styles: PosStyles(align: PosAlign.center, bold: true),
     );
     bytes += generator.text(
@@ -126,7 +126,7 @@ class XReadingPrintService {
     ]);
     bytes += generator.feed(1);
     bytes += generator.row([
-      PosColumn(text: 'Beg. OR #:', width: 6, styles: PosStyles(bold: false)),
+      PosColumn(text: 'Beg. SI #:', width: 6, styles: PosStyles(bold: false)),
       PosColumn(
         text: xReading.beginningOR,
         width: 6,
@@ -134,7 +134,7 @@ class XReadingPrintService {
       ),
     ]);
     bytes += generator.row([
-      PosColumn(text: 'End. OR #:', width: 6, styles: PosStyles(bold: false)),
+      PosColumn(text: 'End. SI #:', width: 6, styles: PosStyles(bold: false)),
       PosColumn(
         text: xReading.endingOR,
         width: 6,
