@@ -462,19 +462,27 @@ class _TerminalState extends State<Terminal> {
 
     final accountingData = {
       'transaction_method': transactionData['transaction_method'].toString(),
-      'cash_tendered': transactionData['cash_tendered'].toString(),
-      'transaction_fee': transactionData['transaction_fee'].toString(),
+      'cash_tendered': (transactionData['cash_tendered'] as num)
+          .toStringAsFixed(2),
+      'transaction_fee': (transactionData['transaction_fee'] as num)
+          .toStringAsFixed(2),
       'reference_number': transactionData['reference_number'].toString(),
-      'total_sales': transactionData['total_sales'].toString(),
-      'change': transactionData['change'].toString(),
-      'gross_sales': transactionData['gross_sales'].toString(),
-      'vatable_sales': transactionData['vatable_sales'].toString(),
-      'vat': transactionData['vat'].toString(),
-      'vat_exempt_sales': transactionData['vat_exempt_sales'].toString(),
-      'vat_deduction': transactionData['vat_deduction'].toString(),
-      'vat_adjustment': transactionData['vat_adjustment'].toString(),
-      'zero_rated_sales': transactionData['zero_rated_sales'].toString(),
-      'discount_value': transactionData['discount_value'].toString(),
+      'total_sales': (transactionData['total_sales'] as num).toStringAsFixed(2),
+      'change': (transactionData['change'] as num).toStringAsFixed(2),
+      'gross_sales': (transactionData['gross_sales'] as num).toStringAsFixed(2),
+      'vatable_sales': (transactionData['vatable_sales'] as num)
+          .toStringAsFixed(2),
+      'vat': (transactionData['vat'] as num).toStringAsFixed(2),
+      'vat_exempt_sales': (transactionData['vat_exempt_sales'] as num)
+          .toStringAsFixed(2),
+      'vat_deduction': (transactionData['vat_deduction'] as num)
+          .toStringAsFixed(2),
+      'vat_adjustment': (transactionData['vat_adjustment'] as num)
+          .toStringAsFixed(2),
+      'zero_rated_sales': (transactionData['zero_rated_sales'] as num)
+          .toStringAsFixed(2),
+      'discount_value': (transactionData['discount_value'] as num)
+          .toStringAsFixed(2),
     };
 
     user.then((data) {
@@ -489,8 +497,8 @@ class _TerminalState extends State<Terminal> {
       final response = printerService.printReceipt(
         context: context,
         storeName: 'Thermozone Philippines Corp.',
-        storeAddress: '2280 Marconi St., Brgy. San Isidro, Makati City',
-        storePhone: 'TIN: 223 661 818 0000',
+        storeAddress: '2286 Marconi St., Brgy. San Isidro, Makati City',
+        storePhone: 'VAT REG. TIN: 223-661-818-00000',
         userData: userData,
         invoiceId: invoiceId,
         accountingData: accountingData,

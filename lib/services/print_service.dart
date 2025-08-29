@@ -628,12 +628,12 @@ class PrinterService {
           styles: PosStyles(align: PosAlign.left),
         ),
         PosColumn(
-          text: item['price']!.toString(),
+          text: item['price']!.toStringAsFixed(2),
           width: 3,
           styles: PosStyles(align: PosAlign.left),
         ),
         PosColumn(
-          text: (item['quantity']! * item['price']!).toString(),
+          text: (item['quantity']! * item['price']!).toStringAsFixed(2),
           width: 3,
           styles: PosStyles(align: PosAlign.left),
         ),
@@ -690,12 +690,12 @@ class PrinterService {
             styles: PosStyles(align: PosAlign.left),
           ),
           PosColumn(
-            text: item['price']!.toString(),
+            text: item['price']!.toStringAsFixed(2),
             width: 3,
             styles: PosStyles(align: PosAlign.left),
           ),
           PosColumn(
-            text: (item['quantity']! * item['price']!).toString(),
+            text: (item['quantity']! * item['price']!).toStringAsFixed(2),
             width: 3,
             styles: PosStyles(align: PosAlign.left),
           ),
@@ -709,7 +709,7 @@ class PrinterService {
     bytes += generator.row([
       PosColumn(
         text: 'Discount:',
-        width: 9,
+        width: 7,
         styles: PosStyles(align: PosAlign.left),
       ),
       PosColumn(
@@ -717,91 +717,91 @@ class PrinterService {
             accountingData['discount_value'] == null
                 ? 'P 0.00'
                 : 'P ${accountingData['discount_value']}',
-        width: 3,
+        width: 5,
         styles: PosStyles(align: PosAlign.right),
       ),
     ]);
     bytes += generator.row([
       PosColumn(
         text: 'Cash Tendered:',
-        width: 9,
+        width: 7,
         styles: PosStyles(align: PosAlign.left),
       ),
       PosColumn(
         text: 'P ${accountingData['cash_tendered']}',
-        width: 3,
+        width: 5,
         styles: PosStyles(align: PosAlign.right),
       ),
     ]);
     bytes += generator.row([
       PosColumn(
         text: 'VATable Sales:',
-        width: 9,
+        width: 7,
         styles: PosStyles(align: PosAlign.left),
       ),
       PosColumn(
         text: 'P ${accountingData['vatable_sales']}',
-        width: 3,
+        width: 5,
         styles: PosStyles(align: PosAlign.right),
       ),
     ]);
     bytes += generator.row([
       PosColumn(
         text: 'Change:',
-        width: 9,
+        width: 7,
         styles: PosStyles(align: PosAlign.left),
       ),
       PosColumn(
         text: 'P ${accountingData['change']}',
-        width: 3,
+        width: 5,
         styles: PosStyles(align: PosAlign.right),
       ),
     ]);
     bytes += generator.row([
       PosColumn(
         text: 'VAT:',
-        width: 9,
+        width: 7,
         styles: PosStyles(align: PosAlign.left),
       ),
       PosColumn(
         text: 'P ${accountingData['vat']}',
-        width: 3,
+        width: 5,
         styles: PosStyles(align: PosAlign.right),
       ),
     ]);
     bytes += generator.row([
       PosColumn(
         text: 'VAT Exempt Sales:',
-        width: 9,
+        width: 7,
         styles: PosStyles(align: PosAlign.left),
       ),
       PosColumn(
         text: 'P ${accountingData['vat_exempt_sales']}',
-        width: 3,
+        width: 5,
         styles: PosStyles(align: PosAlign.right),
       ),
     ]);
     bytes += generator.row([
       PosColumn(
         text: 'Zero-Rated Sales:',
-        width: 9,
+        width: 7,
         styles: PosStyles(align: PosAlign.left),
       ),
       PosColumn(
         text: 'P ${accountingData['zero_rated_sales']}',
-        width: 3,
+        width: 5,
         styles: PosStyles(align: PosAlign.right),
       ),
     ]);
     bytes += generator.row([
       PosColumn(
         text: 'Total Sales:',
-        width: 9,
+        width: 7,
         styles: PosStyles(align: PosAlign.left),
       ),
       PosColumn(
         text: 'P ${accountingData['total_sales']}',
-        width: 3,
+        width: 5,
         styles: PosStyles(align: PosAlign.right),
       ),
     ]);
