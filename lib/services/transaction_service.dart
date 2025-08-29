@@ -151,7 +151,7 @@ class TransactionService {
       vatTotal = grossValue * vatValue;
 
       //!!!Add Checking for Vat Inclusive and Exclusive Sales
-      grossSales += grossValue;
+      grossSales += initialPrice;
 
       double initialVat = vatTotal;
 
@@ -192,7 +192,7 @@ class TransactionService {
       itemVatableSales = (salesTotal + paxTotal) - itemExempt;
       itemVat = (vatTotal - itemAdjust);
       itemDeduct = (itemExempt + itemAdjust);
-      itemTotal = (itemVatableSales + itemVat + itemExempt).roundToDouble();
+      itemTotal = (itemVatableSales + itemVat + itemExempt);
 
       // print(
       //   'Item: ${item['data']['name']}, '
@@ -242,15 +242,15 @@ class TransactionService {
       transactionData['change'] = 0.00;
     }
 
-    transactionData['total_sales'] = totalSales.roundToDouble();
-    transactionData['gross_sales'] = grossSales.roundToDouble();
-    transactionData['vatable_sales'] = vatableSales.roundToDouble();
-    transactionData['vat'] = vat.roundToDouble();
-    transactionData['vat_exempt_sales'] = vatExemptSales.roundToDouble();
-    transactionData['vat_deduction'] = vatDeduction.roundToDouble();
-    transactionData['vat_adjustment'] = vatAdjustment.roundToDouble();
-    transactionData['zero_rated_sales'] = zeroRatedSales.roundToDouble();
-    transactionData['discount_value'] = totalDiscount.roundToDouble();
+    transactionData['total_sales'] = totalSales;
+    transactionData['gross_sales'] = grossSales;
+    transactionData['vatable_sales'] = vatableSales;
+    transactionData['vat'] = vat;
+    transactionData['vat_exempt_sales'] = vatExemptSales;
+    transactionData['vat_deduction'] = vatDeduction;
+    transactionData['vat_adjustment'] = vatAdjustment;
+    transactionData['zero_rated_sales'] = zeroRatedSales;
+    transactionData['discount_value'] = totalDiscount;
 
     // print(transactionData);
 
