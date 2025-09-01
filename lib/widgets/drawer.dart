@@ -5,6 +5,7 @@ import 'package:bir_pos/models/xreading.dart';
 import 'package:bir_pos/models/zreading.dart';
 import 'package:bir_pos/services/general_report_service.dart';
 import 'package:bir_pos/services/general_summary_print_service.dart';
+import 'package:bir_pos/services/lock_service.dart';
 import 'package:bir_pos/services/report_service.dart';
 import 'package:bir_pos/services/shift_service.dart';
 import 'package:bir_pos/services/summary_print_service.dart';
@@ -14,6 +15,7 @@ import 'package:bir_pos/services/zreading_service.dart';
 import 'package:bir_pos/terminal.dart';
 import 'package:bir_pos/void.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../services/auth_service.dart';
@@ -176,6 +178,35 @@ class MainDrawer extends StatelessWidget {
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(builder: (context) => Terminal(token: token)),
+              );
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.lock, color: Colors.black),
+            title: const Text("Lock App Until Tomorrow"),
+            onTap: () async {
+              await LockService.lockUntilNextDay();
+
+              showDialog(
+                context: context,
+                barrierDismissible: false, // Prevent closing by tapping outside
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    title: const Text("App Locked"),
+                    content: const Text(
+                      "This app is locked until tomorrow.\nIt will automatically unlock the next day.",
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                          exit(0);
+                        },
+                        child: const Text("OK"),
+                      ),
+                    ],
+                  );
+                },
               );
             },
           ),
@@ -672,6 +703,36 @@ class MainDrawer extends StatelessWidget {
               // final printerService = ZReadingPrintService();
               // await printerService.printReceipt();
               Navigator.pop(context);
+
+              // Lock the app until the next day
+              await LockService.lockUntilNextDay();
+              showDialog(
+                context: context,
+                barrierDismissible: false, // Prevent closing by tapping outside
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    title: const Text("App Locked"),
+                    content: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Divider(),
+                        const Text(
+                          "Z-Reading is being generated. The app is now locked until tomorrow.",
+                        ),
+                      ],
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                          exit(0);
+                        },
+                        child: const Text("OK"),
+                      ),
+                    ],
+                  );
+                },
+              );
             },
           ),
           // Voiding
