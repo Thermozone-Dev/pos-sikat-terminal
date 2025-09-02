@@ -8,8 +8,11 @@ class XReading {
   final String endingOR;
   final double openingFund;
   final double totalCashPayment;
-  final double totalDigitalPayment;
+  final double totalGcashPayment;
+  final double totalMayaPayment;
+  final double totalDebitPayment;
   final double totalCreditPayment;
+  final double totalDigitalPayment;
   final double totalPayments;
   final double voidValue;
   final double refundValue;
@@ -29,8 +32,11 @@ class XReading {
     required this.endingOR,
     required this.openingFund,
     required this.totalCashPayment,
-    required this.totalDigitalPayment,
+    required this.totalGcashPayment,
+    required this.totalMayaPayment,
+    required this.totalDebitPayment,
     required this.totalCreditPayment,
+    required this.totalDigitalPayment,
     required this.totalPayments,
     required this.voidValue,
     required this.refundValue,
@@ -52,8 +58,11 @@ class XReading {
       endingOR: json['ending_or'] ?? '',
       openingFund: (json['opening_fund'] ?? 0).toDouble(),
       totalCashPayment: (json['total_cash_payment'] ?? 0).toDouble(),
-      totalDigitalPayment: (json['total_digital_payment'] ?? 0).toDouble(),
+      totalGcashPayment: (json['total_gcash_payment'] ?? 0).toDouble(),
+      totalMayaPayment: (json['total_maya_payment'] ?? 0).toDouble(),
+      totalDebitPayment: (json['total_debit_payment'] ?? 0).toDouble(),
       totalCreditPayment: (json['total_credit_payment'] ?? 0).toDouble(),
+      totalDigitalPayment: (json['total_digital_payment'] ?? 0).toDouble(),
       totalPayments: (json['total_payments'] ?? 0).toDouble(),
       voidValue: (json['void_value'] ?? 0).toDouble(),
       refundValue: (json['refund_value'] ?? 0).toDouble(),

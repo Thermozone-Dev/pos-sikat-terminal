@@ -498,7 +498,7 @@ class ZReadingPrintService {
     bytes += generator.feed(1);
     bytes += generator.row([
       PosColumn(
-        text: 'Cash In Drawer:',
+        text: 'CASH IN DRAWER:',
         width: 6,
         styles: PosStyles(bold: false),
       ),
@@ -510,12 +510,32 @@ class ZReadingPrintService {
     ]);
     bytes += generator.row([
       PosColumn(
-        text: 'DIGITAL PAYMENTS:',
+        text: 'GCASH PAYMENTS:',
         width: 6,
         styles: PosStyles(bold: false),
       ),
       PosColumn(
-        text: zReading?.digitalPayments.toString() ?? '0.00',
+        text: zReading?.totalGcashPayments.toString() ?? '0.00',
+        width: 6,
+        styles: PosStyles(bold: false, align: PosAlign.right),
+      ),
+    ]);
+    bytes += generator.row([
+      PosColumn(
+        text: 'MAYA PAYMENTS:',
+        width: 6,
+        styles: PosStyles(bold: false),
+      ),
+      PosColumn(
+        text: zReading?.totalMayaPayments.toString() ?? '0.00',
+        width: 6,
+        styles: PosStyles(bold: false, align: PosAlign.right),
+      ),
+    ]);
+    bytes += generator.row([
+      PosColumn(text: 'DEBIT CARD:', width: 6, styles: PosStyles(bold: false)),
+      PosColumn(
+        text: zReading?.totalDebitPayments.toString() ?? '0.00',
         width: 6,
         styles: PosStyles(bold: false, align: PosAlign.right),
       ),

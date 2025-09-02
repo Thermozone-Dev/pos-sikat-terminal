@@ -168,9 +168,25 @@ class XReadingPrintService {
       ),
     ]);
     bytes += generator.row([
-      PosColumn(text: 'DIGITAL:', width: 6, styles: PosStyles(bold: false)),
+      PosColumn(text: 'GCASH:', width: 6, styles: PosStyles(bold: false)),
       PosColumn(
-        text: xReading.totalDigitalPayment.toStringAsFixed(2),
+        text: xReading.totalGcashPayment.toStringAsFixed(2),
+        width: 6,
+        styles: PosStyles(bold: false, align: PosAlign.right),
+      ),
+    ]);
+    bytes += generator.row([
+      PosColumn(text: 'MAYA:', width: 6, styles: PosStyles(bold: false)),
+      PosColumn(
+        text: xReading.totalMayaPayment.toStringAsFixed(2),
+        width: 6,
+        styles: PosStyles(bold: false, align: PosAlign.right),
+      ),
+    ]);
+    bytes += generator.row([
+      PosColumn(text: 'DEBIT CARD:', width: 6, styles: PosStyles(bold: false)),
+      PosColumn(
+        text: xReading.totalDebitPayment.toStringAsFixed(2),
         width: 6,
         styles: PosStyles(bold: false, align: PosAlign.right),
       ),
@@ -229,7 +245,7 @@ class XReadingPrintService {
     );
     bytes += generator.row([
       PosColumn(
-        text: 'Cash In Drawer:',
+        text: 'CASH IN DRAWER:',
         width: 6,
         styles: PosStyles(bold: false),
       ),
@@ -240,9 +256,25 @@ class XReadingPrintService {
       ),
     ]);
     bytes += generator.row([
-      PosColumn(text: 'DIGITAL:', width: 6, styles: PosStyles(bold: false)),
+      PosColumn(text: 'GCASH:', width: 6, styles: PosStyles(bold: false)),
       PosColumn(
-        text: xReading.totalDigitalPayment.toStringAsFixed(2),
+        text: xReading.totalGcashPayment.toStringAsFixed(2),
+        width: 6,
+        styles: PosStyles(bold: false, align: PosAlign.right),
+      ),
+    ]);
+    bytes += generator.row([
+      PosColumn(text: 'MAYA:', width: 6, styles: PosStyles(bold: false)),
+      PosColumn(
+        text: xReading.totalMayaPayment.toStringAsFixed(2),
+        width: 6,
+        styles: PosStyles(bold: false, align: PosAlign.right),
+      ),
+    ]);
+    bytes += generator.row([
+      PosColumn(text: 'DEBIT CARD:', width: 6, styles: PosStyles(bold: false)),
+      PosColumn(
+        text: xReading.totalDebitPayment.toStringAsFixed(2),
         width: 6,
         styles: PosStyles(bold: false, align: PosAlign.right),
       ),
