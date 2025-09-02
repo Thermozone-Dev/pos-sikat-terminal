@@ -553,7 +553,7 @@ class PrinterService {
       styles: PosStyles(align: PosAlign.left),
     );
     bytes += generator.feed(1);
-    if (accountingData['discount_value'] != "0.0") {
+    if (customer != null) {
       bytes += generator.hr();
       bytes += generator.feed(1);
 
@@ -564,32 +564,32 @@ class PrinterService {
       );
       bytes += generator.feed(1);
       bytes += generator.row([
-        PosColumn(text: 'Name:', width: 2),
+        PosColumn(text: 'Name:', width: 5),
         PosColumn(
           text:
               customer != null
                   ? customer.name
                   : '...............................',
-          width: 10,
+          width: 7,
           styles: PosStyles(bold: true),
         ),
       ]);
       bytes += generator.row([
-        PosColumn(text: 'ID:', width: 2),
+        PosColumn(text: 'ID Number:', width: 5),
         PosColumn(
           text:
               customer != null
                   ? customer.id.toString()
                   : '...............................',
-          width: 10,
+          width: 7,
           styles: PosStyles(bold: true),
         ),
       ]);
       bytes += generator.row([
-        PosColumn(text: 'Signature:', width: 2),
+        PosColumn(text: 'Signature:', width: 5),
         PosColumn(
-          text: '...............................',
-          width: 10,
+          text: '___________________________________',
+          width: 7,
           styles: PosStyles(bold: true),
         ),
       ]);
@@ -650,7 +650,7 @@ class PrinterService {
     }
     bytes += generator.feed(1);
     bytes += generator.hr();
-    if (accountingData['discount_value'] != "0.0") {
+    if (customer != null) {
       bytes += generator.feed(1);
       bytes += generator.text(
         '----- DISCOUNTED ITEMS -----',
@@ -715,21 +715,6 @@ class PrinterService {
     }
 
     bytes += generator.feed(1);
-    bytes += generator.row([
-      PosColumn(
-        text: 'Discount:',
-        width: 7,
-        styles: PosStyles(align: PosAlign.left),
-      ),
-      PosColumn(
-        text:
-            accountingData['discount_value'] == null
-                ? 'P 0.00'
-                : 'P ${accountingData['discount_value']}',
-        width: 5,
-        styles: PosStyles(align: PosAlign.right),
-      ),
-    ]);
     bytes += generator.row([
       PosColumn(
         text: 'Cash Tendered:',
