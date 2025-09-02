@@ -45,6 +45,11 @@ class ZReading {
   final String lessWithdrawal;
   final String totalPayments;
   final String shortOrOver;
+  final String totalCashPayments;
+  final String totalGcashPayments;
+  final String totalMayaPayments;
+  final String totalDebitPayments;
+  final String totalCreditPayments;
 
   ZReading({
     required this.reportDate,
@@ -93,6 +98,11 @@ class ZReading {
     required this.lessWithdrawal,
     required this.totalPayments,
     required this.shortOrOver,
+    required this.totalCashPayments,
+    required this.totalGcashPayments,
+    required this.totalMayaPayments,
+    required this.totalDebitPayments,
+    required this.totalCreditPayments,
   });
 
   factory ZReading.fromJson(Map<String, dynamic> json) {
@@ -143,6 +153,11 @@ class ZReading {
       lessWithdrawal: json['lessWithdrawal'],
       totalPayments: json['totalPayments'],
       shortOrOver: json['shortOrOver'],
+      totalCashPayments: json['cashPayments'],
+      totalGcashPayments: json['gcashPayments'],
+      totalMayaPayments: json['mayaPayments'],
+      totalDebitPayments: json['debitPayments'],
+      totalCreditPayments: json['creditPayments'],
     );
   }
 
@@ -194,6 +209,11 @@ class ZReading {
       'lessWithdrawal': lessWithdrawal,
       'totalPayments': totalPayments,
       'shortOrOver': shortOrOver,
+      'totalCashPayments': totalCashPayments,
+      'totalGcashPayments': totalGcashPayments,
+      'totalMayaPayments': totalMayaPayments,
+      'totalDebitPayments': totalDebitPayments,
+      'totalCreditPayments': totalCreditPayments,
     };
   }
 }
