@@ -648,73 +648,95 @@ class PrinterService {
         ),
       ]);
     }
+    for (var item in discountedItems) {
+      bytes += generator.row([
+        PosColumn(
+          text: item['quantity']!.toString(),
+          width: 3,
+          styles: PosStyles(align: PosAlign.left),
+        ),
+        PosColumn(
+          text: item['name']!,
+          width: 3,
+          styles: PosStyles(align: PosAlign.left),
+        ),
+        PosColumn(
+          text: item['price']!.toStringAsFixed(2),
+          width: 3,
+          styles: PosStyles(align: PosAlign.left),
+        ),
+        PosColumn(
+          text: (item['quantity']! * item['price']!).toStringAsFixed(2),
+          width: 3,
+          styles: PosStyles(align: PosAlign.left),
+        ),
+      ]);
+    }
     bytes += generator.feed(1);
     bytes += generator.hr();
-    if (customer != null) {
-      bytes += generator.feed(1);
-      bytes += generator.text(
-        '----- DISCOUNTED ITEMS -----',
-        styles: PosStyles(align: PosAlign.center, bold: true),
-      );
-      bytes += generator.feed(1);
-      for (var item in discountedItems) {
-        switch (item['discount']) {
-          case 1:
-            bytes += generator.text(
-              'Senior Citizen [ 20% ]',
-              styles: PosStyles(align: PosAlign.left, bold: true),
-            );
-            break;
-          case 2:
-            bytes += generator.text(
-              'PWD [ 20% ]',
-              styles: PosStyles(align: PosAlign.left, bold: true),
-            );
-            break;
-          case 3:
-            bytes += generator.text(
-              'NAAC [ 20% ]',
-              styles: PosStyles(align: PosAlign.left, bold: true),
-            );
-            break;
-          case 4:
-            bytes += generator.text(
-              'Solo Parent [ 10% ]',
-              styles: PosStyles(align: PosAlign.left, bold: true),
-            );
-            break;
-          default:
-            bytes += generator.row([PosColumn(text: 'General Discounts')]);
-        }
-        bytes += generator.feed(1);
-        bytes += generator.row([
-          PosColumn(
-            text: item['quantity']!.toString(),
-            width: 3,
-            styles: PosStyles(align: PosAlign.left),
-          ),
-          PosColumn(
-            text: item['name']!,
-            width: 3,
-            styles: PosStyles(align: PosAlign.left),
-          ),
-          PosColumn(
-            text: item['price']!.toStringAsFixed(2),
-            width: 3,
-            styles: PosStyles(align: PosAlign.left),
-          ),
-          PosColumn(
-            text: (item['quantity']! * item['price']!).toStringAsFixed(2),
-            width: 3,
-            styles: PosStyles(align: PosAlign.left),
-          ),
-        ]);
-      }
-      bytes += generator.feed(1);
-      bytes += generator.hr();
-    }
-
     bytes += generator.feed(1);
+    for (var item in discountedItems) {
+      switch (item['discount']) {
+        case 1:
+          bytes += generator.row([
+            PosColumn(
+              text: 'SC Discount @ 20%:',
+              width: 7,
+              styles: PosStyles(align: PosAlign.left),
+            ),
+            PosColumn(
+              text: 'P ${item['discount_value'].toString()}',
+              width: 5,
+              styles: PosStyles(align: PosAlign.right),
+            ),
+          ]);
+          break;
+        case 2:
+          bytes += generator.row([
+            PosColumn(
+              text: 'PWD Discount @ 20%:',
+              width: 7,
+              styles: PosStyles(align: PosAlign.left),
+            ),
+            PosColumn(
+              text: 'P ${item['discount_value'].toString()}',
+              width: 5,
+              styles: PosStyles(align: PosAlign.right),
+            ),
+          ]);
+          break;
+        case 3:
+          bytes += generator.row([
+            PosColumn(
+              text: 'NAC Discount @ 20%:',
+              width: 7,
+              styles: PosStyles(align: PosAlign.left),
+            ),
+            PosColumn(
+              text: 'P ${item['discount_value'].toString()}',
+              width: 5,
+              styles: PosStyles(align: PosAlign.right),
+            ),
+          ]);
+          break;
+        case 4:
+          bytes += generator.row([
+            PosColumn(
+              text: 'Solo Parent Discount @ 10%:',
+              width: 7,
+              styles: PosStyles(align: PosAlign.left),
+            ),
+            PosColumn(
+              text: 'P ${item['discount_value'].toString()}',
+              width: 5,
+              styles: PosStyles(align: PosAlign.right),
+            ),
+          ]);
+          break;
+        default:
+          break;
+      }
+    }
     bytes += generator.row([
       PosColumn(
         text: 'Cash Tendered:',

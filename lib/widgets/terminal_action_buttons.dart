@@ -1,6 +1,8 @@
 import 'dart:convert';
 
 import 'package:bir_pos/services/claim_stub_service.dart';
+import 'package:bir_pos/services/reprint_receipt_service.dart';
+import 'package:bir_pos/services/transaction_reprint_service.dart';
 import 'package:bir_pos/services/stub_print_service.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -264,7 +266,68 @@ class TerminalActionButtons extends StatelessWidget {
           ),
         ),
         ElevatedButton(
-          onPressed: () => showClaimStubDialog(context),
+          onPressed: () async {
+            final id = await showDialog<int>(
+              context: context,
+              builder: (context) {
+                final controller = TextEditingController();
+
+                return AlertDialog(
+                  title: const Text("Reprint Document"),
+                  content: TextField(
+                    controller: controller,
+                    keyboardType: TextInputType.number,
+                    decoration: const InputDecoration(
+                      labelText: "Enter Transaction ID",
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: const Text("Cancel"),
+                    ),
+                    ElevatedButton(
+                      onPressed: () {
+                        final enteredId = int.tryParse(controller.text);
+                        if (enteredId != null) {
+                          Navigator.pop(context, enteredId);
+                        }
+                      },
+                      child: const Text("Fetch"),
+                    ),
+                  ],
+                );
+              },
+            );
+
+            if (id != null) {
+              try {
+                // ✅ Fetch transaction from API
+                final transaction =
+                    await TransactionReprintService.fetchTransaction(id);
+
+                // ✅ Debugging prints
+                print(transaction.transactionDetails.processedBy);
+                print(transaction.transactionDetails.siNo);
+
+                // ✅ Send to printer
+                await ReprintReceiptService().printReceipt(
+                  transaction: transaction,
+                );
+
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text("Transaction $id printed successfully!"),
+                  ),
+                );
+              } catch (e) {
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(SnackBar(content: Text("Error: $e")));
+              }
+            }
+          },
           style: ElevatedButton.styleFrom(
             backgroundColor: Colors.grey[300],
             foregroundColor: Colors.black,
@@ -273,8 +336,24 @@ class TerminalActionButtons extends StatelessWidget {
             ),
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
           ),
-          child: const Text('Claim Stub'),
+          child: const Text(
+            "Reprint a Document",
+            style: TextStyle(fontSize: 14),
+          ),
         ),
+
+        // ElevatedButton(
+        //   onPressed: () => showClaimStubDialog(context),
+        //   style: ElevatedButton.styleFrom(
+        //     backgroundColor: Colors.grey[300],
+        //     foregroundColor: Colors.black,
+        //     shape: RoundedRectangleBorder(
+        //       borderRadius: BorderRadius.circular(8),
+        //     ),
+        //     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        //   ),
+        //   child: const Text('Claim Stub'),
+        // ),
       ],
     );
   }
