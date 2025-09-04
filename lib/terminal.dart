@@ -452,6 +452,11 @@ class _TerminalState extends State<Terminal> {
                   'quantity': data['quantity'],
                   'price': (data['data']['total_value'] / data['quantity']),
                   'discount': data['data']['item_discounts']['id'],
+                  'discount_value': double.parse(
+                    double.parse(
+                      data['data']['discount_value'].toString(),
+                    ).toStringAsFixed(2),
+                  ),
                 };
               }
             })

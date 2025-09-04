@@ -685,7 +685,7 @@ class PrinterService {
               styles: PosStyles(align: PosAlign.left),
             ),
             PosColumn(
-              text: 'Test',
+              text: 'P ${item['discount_value'].toString()}',
               width: 5,
               styles: PosStyles(align: PosAlign.right),
             ),
@@ -699,7 +699,7 @@ class PrinterService {
               styles: PosStyles(align: PosAlign.left),
             ),
             PosColumn(
-              text: 'Test',
+              text: 'P ${item['discount_value'].toString()}',
               width: 5,
               styles: PosStyles(align: PosAlign.right),
             ),
@@ -713,19 +713,7 @@ class PrinterService {
               styles: PosStyles(align: PosAlign.left),
             ),
             PosColumn(
-              text: 'Test',
-              width: 5,
-              styles: PosStyles(align: PosAlign.right),
-            ),
-          ]);
-          bytes += generator.row([
-            PosColumn(
-              text: 'NAC Discount @ 20%:',
-              width: 7,
-              styles: PosStyles(align: PosAlign.left),
-            ),
-            PosColumn(
-              text: 'Test',
+              text: 'P ${item['discount_value'].toString()}',
               width: 5,
               styles: PosStyles(align: PosAlign.right),
             ),
@@ -739,7 +727,7 @@ class PrinterService {
               styles: PosStyles(align: PosAlign.left),
             ),
             PosColumn(
-              text: 'Test',
+              text: 'P ${item['discount_value'].toString()}',
               width: 5,
               styles: PosStyles(align: PosAlign.right),
             ),
