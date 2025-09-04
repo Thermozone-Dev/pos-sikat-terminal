@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:bir_pos/services/claim_stub_service.dart';
+import 'package:bir_pos/services/reprint_receipt_service.dart';
 import 'package:bir_pos/services/transaction_reprint_service.dart';
 import 'package:bir_pos/services/stub_print_service.dart';
 import 'package:flutter/material.dart';
@@ -302,14 +303,22 @@ class TerminalActionButtons extends StatelessWidget {
 
             if (id != null) {
               try {
+                // ✅ Fetch transaction from API
                 final transaction =
                     await TransactionReprintService.fetchTransaction(id);
-                print(transaction.transactionDetails.totalSales);
-                print(transaction.transactionDetails.basket.items.length);
+
+                // ✅ Debugging prints
+                print(transaction.transactionDetails.processedBy);
+                print(transaction.transactionDetails.siNo);
+
+                // ✅ Send to printer
+                await ReprintReceiptService().printReceipt(
+                  transaction: transaction,
+                );
 
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
-                    content: Text("Transaction $id loaded successfully!"),
+                    content: Text("Transaction $id printed successfully!"),
                   ),
                 );
               } catch (e) {
@@ -332,6 +341,7 @@ class TerminalActionButtons extends StatelessWidget {
             style: TextStyle(fontSize: 14),
           ),
         ),
+
         // ElevatedButton(
         //   onPressed: () => showClaimStubDialog(context),
         //   style: ElevatedButton.styleFrom(

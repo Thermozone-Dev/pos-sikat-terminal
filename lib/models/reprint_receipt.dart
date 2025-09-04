@@ -1,122 +1,97 @@
-import 'dart:convert';
-
 class TransactionResponse {
   final TransactionDetails transactionDetails;
-  final List<TransactionBasketItem> transactionBasket;
+  final List<TransactionBasketItem> items;
+  final List<DiscountedTransactionBasketItem> discountedItems;
 
   TransactionResponse({
     required this.transactionDetails,
-    required this.transactionBasket,
+    required this.items,
+    required this.discountedItems,
   });
 
   factory TransactionResponse.fromJson(Map<String, dynamic> json) {
     return TransactionResponse(
       transactionDetails: TransactionDetails.fromJson(
-        json['transaction details'],
+        json['transaction_details'],
       ),
-      transactionBasket:
-          (json['transaction basket'] as List)
+      items:
+          (json['items'] as List)
               .map((e) => TransactionBasketItem.fromJson(e))
+              .toList(),
+      discountedItems:
+          (json['discounted_items'] as List)
+              .map((e) => DiscountedTransactionBasketItem.fromJson(e))
               .toList(),
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'transaction details': transactionDetails.toJson(),
-      'transaction basket': transactionBasket.map((e) => e.toJson()).toList(),
+      'transaction_details': transactionDetails.toJson(),
+      'items': items.map((e) => e.toJson()).toList(),
+      'discounted_items': discountedItems.map((e) => e.toJson()).toList(),
     };
   }
 }
 
 class TransactionDetails {
   final int id;
-  final int processedBy;
-  final int transactionBasketId;
-  final String barcode;
-  final double transactionFee;
-  final String referenceNumber;
-  final double vatableSales;
+  final String processedBy;
+  final String siNo;
+  final String date;
+  final String time;
+  final String paymentMethod;
+  final bool is_sc;
+  final bool is_pwd;
+  final bool is_nac;
+  final bool is_soloparent;
   final double cashTendered;
+  final double vatableSales;
   final double change;
   final double vat;
   final double vatExemptSales;
   final double zeroRatedSales;
-  final bool isValid;
-  final bool isPwd;
-  final bool isSc;
-  final bool isNac;
-  final bool isSoloparent;
-  final DateTime createdAt;
-  final DateTime updatedAt;
   final double totalSales;
-  final double grossSales;
-  final int transactionMethodId;
-  final bool isZeroRated;
-  final String? orNumber;
-  final double vatDeduction;
-  final double vatAdjustment;
-  final Basket basket;
 
   TransactionDetails({
     required this.id,
     required this.processedBy,
-    required this.transactionBasketId,
-    required this.barcode,
-    required this.transactionFee,
-    required this.referenceNumber,
-    required this.vatableSales,
+    required this.siNo,
+    required this.date,
+    required this.time,
+    required this.paymentMethod,
+    required this.is_sc,
+    required this.is_pwd,
+    required this.is_nac,
+    required this.is_soloparent,
     required this.cashTendered,
+    required this.vatableSales,
     required this.change,
     required this.vat,
     required this.vatExemptSales,
     required this.zeroRatedSales,
-    required this.isValid,
-    required this.isPwd,
-    required this.isSc,
-    required this.isNac,
-    required this.isSoloparent,
-    required this.createdAt,
-    required this.updatedAt,
     required this.totalSales,
-    required this.grossSales,
-    required this.transactionMethodId,
-    required this.isZeroRated,
-    this.orNumber,
-    required this.vatDeduction,
-    required this.vatAdjustment,
-    required this.basket,
   });
 
   factory TransactionDetails.fromJson(Map<String, dynamic> json) {
     return TransactionDetails(
       id: json['id'],
       processedBy: json['processed_by'],
-      transactionBasketId: json['transaction_basket_id'],
-      barcode: json['barcode'],
-      transactionFee: (json['transaction_fee'] as num).toDouble(),
-      referenceNumber: json['reference_number'],
-      vatableSales: (json['vatable_sales'] as num).toDouble(),
-      cashTendered: (json['cash_tendered'] as num).toDouble(),
-      change: (json['change'] as num).toDouble(),
-      vat: (json['vat'] as num).toDouble(),
-      vatExemptSales: (json['vat_exempt_sales'] as num).toDouble(),
-      zeroRatedSales: (json['zero_rated_sales'] as num).toDouble(),
-      isValid: json['is_valid'],
-      isPwd: json['is_pwd'],
-      isSc: json['is_sc'],
-      isNac: json['is_nac'],
-      isSoloparent: json['is_soloparent'],
-      createdAt: DateTime.parse(json['created_at']),
-      updatedAt: DateTime.parse(json['updated_at']),
-      totalSales: (json['total_sales'] as num).toDouble(),
-      grossSales: (json['gross_sales'] as num).toDouble(),
-      transactionMethodId: json['transaction_method_id'],
-      isZeroRated: json['is_zero_rated'],
-      orNumber: json['or_number'],
-      vatDeduction: (json['vat_deduction'] as num).toDouble(),
-      vatAdjustment: (json['vat_adjustment'] as num).toDouble(),
-      basket: Basket.fromJson(json['basket']),
+      siNo: json['si_no'],
+      date: json['date'],
+      time: json['time'],
+      paymentMethod: json['payment_method'],
+      is_sc: json['is_sc'],
+      is_pwd: json['is_pwd'],
+      is_nac: json['is_nac'],
+      is_soloparent: json['is_soloparent'],
+      cashTendered: double.tryParse(json['cash_tendered'].toString()) ?? 0,
+      vatableSales: double.tryParse(json['vatable_sales'].toString()) ?? 0,
+      change: double.tryParse(json['change'].toString()) ?? 0,
+      vat: double.tryParse(json['vat'].toString()) ?? 0,
+      vatExemptSales: double.tryParse(json['vat_exempt_sales'].toString()) ?? 0,
+      zeroRatedSales: double.tryParse(json['zero_rated_sales'].toString()) ?? 0,
+      totalSales: double.tryParse(json['total_sales'].toString()) ?? 0,
     );
   }
 
@@ -124,118 +99,97 @@ class TransactionDetails {
     return {
       "id": id,
       "processed_by": processedBy,
-      "transaction_basket_id": transactionBasketId,
-      "barcode": barcode,
-      "transaction_fee": transactionFee,
-      "reference_number": referenceNumber,
-      "vatable_sales": vatableSales,
+      "si_no": siNo,
+      "date": date,
+      "time": time,
+      "payment_method": paymentMethod,
+      "is_sc": is_sc,
+      "is_pwd": is_pwd,
+      "is_nac": is_nac,
+      "is_soloparent": is_soloparent,
       "cash_tendered": cashTendered,
+      "vatable_sales": vatableSales,
       "change": change,
       "vat": vat,
       "vat_exempt_sales": vatExemptSales,
       "zero_rated_sales": zeroRatedSales,
-      "is_valid": isValid,
-      "is_pwd": isPwd,
-      "is_sc": isSc,
-      "is_nac": isNac,
-      "is_soloparent": isSoloparent,
-      "created_at": createdAt.toIso8601String(),
-      "updated_at": updatedAt.toIso8601String(),
       "total_sales": totalSales,
-      "gross_sales": grossSales,
-      "transaction_method_id": transactionMethodId,
-      "is_zero_rated": isZeroRated,
-      "or_number": orNumber,
-      "vat_deduction": vatDeduction,
-      "vat_adjustment": vatAdjustment,
-      "basket": basket.toJson(),
-    };
-  }
-}
-
-class Basket {
-  final int id;
-  final DateTime createdAt;
-  final DateTime updatedAt;
-  final List<TransactionBasketItem> items;
-
-  Basket({
-    required this.id,
-    required this.createdAt,
-    required this.updatedAt,
-    required this.items,
-  });
-
-  factory Basket.fromJson(Map<String, dynamic> json) {
-    return Basket(
-      id: json['id'],
-      createdAt: DateTime.parse(json['created_at']),
-      updatedAt: DateTime.parse(json['updated_at']),
-      items:
-          (json['items'] as List)
-              .map((e) => TransactionBasketItem.fromJson(e))
-              .toList(),
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      "id": id,
-      "created_at": createdAt.toIso8601String(),
-      "updated_at": updatedAt.toIso8601String(),
-      "items": items.map((e) => e.toJson()).toList(),
     };
   }
 }
 
 class TransactionBasketItem {
   final int id;
-  final int transactionBasketId;
+  final String type;
+  final String name;
   final int quantity;
-  final DateTime createdAt;
-  final DateTime updatedAt;
-  final int itemId;
-  final double discountValue;
-  final double totalValue;
-  final double packageBasePrice;
+  final double price;
 
   TransactionBasketItem({
     required this.id,
-    required this.transactionBasketId,
+    required this.type,
+    required this.name,
     required this.quantity,
-    required this.createdAt,
-    required this.updatedAt,
-    required this.itemId,
-    required this.discountValue,
-    required this.totalValue,
-    required this.packageBasePrice,
+    required this.price,
   });
 
   factory TransactionBasketItem.fromJson(Map<String, dynamic> json) {
     return TransactionBasketItem(
       id: json['id'],
-      transactionBasketId: json['transaction_basket_id'],
+      type: json['type'],
+      name: json['name'],
       quantity: json['quantity'],
-      createdAt: DateTime.parse(json['created_at']),
-      updatedAt: DateTime.parse(json['updated_at']),
-      itemId: json['item_id'],
-      discountValue: (json['discount_value'] as num).toDouble(),
-      totalValue: (json['total_value'] as num).toDouble(),
-      packageBasePrice: (json['package_base_price'] as num).toDouble(),
+      price: double.tryParse(json['price'].toString()) ?? 0,
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
       "id": id,
-      "transaction_basket_id": transactionBasketId,
+      "type": type,
+      "name": name,
       "quantity": quantity,
-      "created_at": createdAt.toIso8601String(),
-      "updated_at": updatedAt.toIso8601String(),
-      "item_id": itemId,
+      "price": price,
+    };
+  }
+}
+
+class DiscountedTransactionBasketItem {
+  final int id;
+  final String type;
+  final String name;
+  final int quantity;
+  final double price;
+  final double discountValue;
+
+  DiscountedTransactionBasketItem({
+    required this.id,
+    required this.type,
+    required this.name,
+    required this.quantity,
+    required this.price,
+    required this.discountValue,
+  });
+
+  factory DiscountedTransactionBasketItem.fromJson(Map<String, dynamic> json) {
+    return DiscountedTransactionBasketItem(
+      id: json['id'],
+      type: json['type'],
+      name: json['name'],
+      quantity: json['quantity'],
+      price: double.tryParse(json['price'].toString()) ?? 0,
+      discountValue: double.tryParse(json['discount_value'].toString()) ?? 0,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      "id": id,
+      "type": type,
+      "name": name,
+      "quantity": quantity,
+      "price": price,
       "discount_value": discountValue,
-      "total_value": totalValue,
-      "package_base_price": packageBasePrice,
     };
   }
 }

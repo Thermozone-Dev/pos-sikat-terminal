@@ -450,9 +450,7 @@ class _TerminalState extends State<Terminal> {
                 return {
                   'name': data['data']['name'],
                   'quantity': data['quantity'],
-                  'price':
-                      (data['data']['total_value'] / data['quantity'])
-                          .roundToDouble(),
+                  'price': (data['data']['total_value'] / data['quantity']),
                   'discount': data['data']['item_discounts']['id'],
                 };
               }
