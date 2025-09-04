@@ -267,65 +267,188 @@ class TerminalActionButtons extends StatelessWidget {
         ),
         ElevatedButton(
           onPressed: () async {
-            final id = await showDialog<int>(
+            final choice = await showDialog<int>(
               context: context,
               builder: (context) {
-                final controller = TextEditingController();
+                return Dialog(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: SizedBox(
+                    width: MediaQuery.of(context).size.width * 0.4,
+                    child: Padding(
+                      padding: const EdgeInsets.all(20),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            "SELECT A DOCUMENT TO REPRINT",
+                            style: TextStyle(
+                              fontSize: 17,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            textAlign: TextAlign.left,
+                          ),
+                          const SizedBox(height: 20),
 
-                return AlertDialog(
-                  title: const Text("Reprint Document"),
-                  content: TextField(
-                    controller: controller,
-                    keyboardType: TextInputType.number,
-                    decoration: const InputDecoration(
-                      labelText: "Enter Transaction ID",
-                      border: OutlineInputBorder(),
+                          // Option 1
+                          ElevatedButton.icon(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.black87,
+                              foregroundColor: Colors.white,
+                              minimumSize: const Size.fromHeight(50),
+                              alignment: Alignment.centerLeft,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                            icon: const Icon(Icons.receipt_long),
+                            label: const Align(
+                              alignment: Alignment.centerLeft,
+                              child: Text("Reprint Receipt by Transaction ID"),
+                            ),
+                            onPressed: () => Navigator.pop(context, 1),
+                          ),
+                          const SizedBox(height: 12),
+
+                          // Option 2
+                          ElevatedButton.icon(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.grey[200],
+                              foregroundColor: Colors.black87,
+                              minimumSize: const Size.fromHeight(50),
+                              alignment: Alignment.centerLeft,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                            icon: const Icon(Icons.receipt_long),
+                            label: const Align(
+                              alignment: Alignment.centerLeft,
+                              child: Text(
+                                "Reprint Voided Receipt (Coming Soon)",
+                              ),
+                            ),
+                            onPressed: () => Navigator.pop(context, 2),
+                          ),
+                          const SizedBox(height: 12),
+
+                          // Option 3
+                          ElevatedButton.icon(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.grey[200],
+                              foregroundColor: Colors.black87,
+                              minimumSize: const Size.fromHeight(50),
+                              alignment: Alignment.centerLeft,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                            icon: const Icon(Icons.receipt_long),
+                            label: const Align(
+                              alignment: Alignment.centerLeft,
+                              child: Text("Reprint X-Reading (Coming Soon)"),
+                            ),
+                            onPressed: () => Navigator.pop(context, 3),
+                          ),
+                          const SizedBox(height: 12),
+
+                          // Option 4
+                          ElevatedButton.icon(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.grey[200],
+                              foregroundColor: Colors.black87,
+                              minimumSize: const Size.fromHeight(50),
+                              alignment: Alignment.centerLeft,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                            icon: const Icon(Icons.receipt_long),
+                            label: const Align(
+                              alignment: Alignment.centerLeft,
+                              child: Text("Reprint Z-Reading (Coming Soon)"),
+                            ),
+                            onPressed: () => Navigator.pop(context, 4),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.pop(context),
-                      child: const Text("Cancel"),
-                    ),
-                    ElevatedButton(
-                      onPressed: () {
-                        final enteredId = int.tryParse(controller.text);
-                        if (enteredId != null) {
-                          Navigator.pop(context, enteredId);
-                        }
-                      },
-                      child: const Text("Fetch"),
-                    ),
-                  ],
                 );
               },
             );
 
-            if (id != null) {
-              try {
-                // ✅ Fetch transaction from API
-                final transaction =
-                    await TransactionReprintService.fetchTransaction(id);
+            if (choice == 1) {
+              final id = await showDialog<int>(
+                context: context,
+                builder: (context) {
+                  final controller = TextEditingController();
 
-                // ✅ Debugging prints
-                print(transaction.transactionDetails.processedBy);
-                print(transaction.transactionDetails.siNo);
+                  return AlertDialog(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    title: const Text("Reprint by Transaction ID"),
+                    content: TextField(
+                      controller: controller,
+                      keyboardType: TextInputType.number,
+                      decoration: const InputDecoration(
+                        labelText: "Enter Transaction ID",
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(context),
+                        child: const Text("Cancel"),
+                      ),
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.black87,
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        onPressed: () {
+                          final enteredId = int.tryParse(controller.text);
+                          if (enteredId != null) {
+                            Navigator.pop(context, enteredId);
+                          }
+                        },
+                        child: const Text("Fetch"),
+                      ),
+                    ],
+                  );
+                },
+              );
 
-                // ✅ Send to printer
-                await ReprintReceiptService().printReceipt(
-                  transaction: transaction,
-                );
+              if (id != null) {
+                try {
+                  final transaction =
+                      await TransactionReprintService.fetchTransaction(id);
 
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text("Transaction $id printed successfully!"),
-                  ),
-                );
-              } catch (e) {
-                ScaffoldMessenger.of(
-                  context,
-                ).showSnackBar(SnackBar(content: Text("Error: $e")));
+                  await ReprintReceiptService().printReceipt(
+                    transaction: transaction,
+                  );
+
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text("Transaction $id printed successfully!"),
+                    ),
+                  );
+                } catch (e) {
+                  ScaffoldMessenger.of(
+                    context,
+                  ).showSnackBar(SnackBar(content: Text("Error: $e")));
+                }
               }
+            } else if (choice != null) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text("Option $choice is not yet available.")),
+              );
             }
           },
           style: ElevatedButton.styleFrom(
