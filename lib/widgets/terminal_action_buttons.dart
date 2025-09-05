@@ -1,9 +1,11 @@
 import 'dart:convert';
 
 import 'package:bir_pos/services/claim_stub_service.dart';
-import 'package:bir_pos/services/reprint_receipt_service.dart';
+import 'package:bir_pos/services/receipt_reprint_service.dart';
 import 'package:bir_pos/services/transaction_reprint_service.dart';
 import 'package:bir_pos/services/stub_print_service.dart';
+import 'package:bir_pos/services/void_reprint_receipt_service.dart';
+import 'package:bir_pos/services/void_reprint_service.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
@@ -326,9 +328,7 @@ class TerminalActionButtons extends StatelessWidget {
                             icon: const Icon(Icons.receipt_long),
                             label: const Align(
                               alignment: Alignment.centerLeft,
-                              child: Text(
-                                "Reprint Voided Receipt (Coming Soon)",
-                              ),
+                              child: Text("Reprint Voided Receipt"),
                             ),
                             onPressed: () => Navigator.pop(context, 2),
                           ),
@@ -431,6 +431,72 @@ class TerminalActionButtons extends StatelessWidget {
                       await TransactionReprintService.fetchTransaction(id);
 
                   await ReprintReceiptService().printReceipt(
+                    transaction: transaction,
+                  );
+
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text("Transaction $id printed successfully!"),
+                    ),
+                  );
+                } catch (e) {
+                  ScaffoldMessenger.of(
+                    context,
+                  ).showSnackBar(SnackBar(content: Text("Error: $e")));
+                }
+              }
+            } else if (choice == 2) {
+              final id = await showDialog<int>(
+                context: context,
+                builder: (context) {
+                  final controller = TextEditingController();
+
+                  return AlertDialog(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    title: const Text("Reprint by Void ID"),
+                    content: TextField(
+                      controller: controller,
+                      keyboardType: TextInputType.number,
+                      decoration: const InputDecoration(
+                        labelText: "Enter Void No / ID",
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(context),
+                        child: const Text("Cancel"),
+                      ),
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.black87,
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        onPressed: () {
+                          final enteredId = int.tryParse(controller.text);
+                          if (enteredId != null) {
+                            Navigator.pop(context, enteredId);
+                          }
+                        },
+                        child: const Text("Fetch"),
+                      ),
+                    ],
+                  );
+                },
+              );
+
+              if (id != null) {
+                try {
+                  final transaction = await VoidReprintService.fetchTransaction(
+                    id,
+                  );
+
+                  await ReprintVoidReceiptService().printReceipt(
                     transaction: transaction,
                   );
 
