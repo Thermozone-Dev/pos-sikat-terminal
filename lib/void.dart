@@ -1,3 +1,6 @@
+import 'dart:convert';
+
+import 'package:bir_pos/models/void_transaction.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -45,10 +48,25 @@ class _VoidTransactionFormState extends State<VoidTransactionForm> {
       );
 
       if (response.statusCode == 200) {
-        setState(() => _feedback = '✅ Transaction voided successfully!');
+        final data = json.decode(response.body);
+
+        // ✅ Parse JSON into your model
+        final transaction = VoidTransactionResponse.fromJson(data);
+
+        setState(() {
+          _feedback = '✅ ${transaction.message}';
+        });
+
+        print("Transaction No: ${transaction.transactionDetails.siNo}");
+        print("Processed by: ${transaction.transactionDetails.processedBy}");
+        print("Items: ${transaction.items.map((e) => e.name).toList()}");
+        print(
+          "Discounted: ${transaction.discountedItems.map((e) => e.name).toList()}",
+        );
       } else {
         setState(() => _feedback = '⚠️ Failed: ${response.body}');
       }
+
       Future.delayed(const Duration(seconds: 3), () {
         if (mounted) {
           setState(() => _feedback = null);

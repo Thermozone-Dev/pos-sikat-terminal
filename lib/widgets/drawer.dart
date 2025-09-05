@@ -1,6 +1,8 @@
-import 'dart:ffi';
+import 'dart:convert';
 import 'dart:io';
-
+import 'package:bir_pos/services/void_print_service.dart';
+import 'package:http/http.dart' as http;
+import 'package:bir_pos/models/void_transaction.dart';
 import 'package:bir_pos/models/xreading.dart';
 import 'package:bir_pos/models/zreading.dart';
 import 'package:bir_pos/services/general_report_service.dart';
@@ -12,8 +14,8 @@ import 'package:bir_pos/services/x_print_service.dart';
 import 'package:bir_pos/services/z_print_service.dart';
 import 'package:bir_pos/services/zreading_service.dart';
 import 'package:bir_pos/terminal.dart';
-import 'package:bir_pos/void.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../services/auth_service.dart';
@@ -689,16 +691,24 @@ class MainDrawer extends StatelessWidget {
 
               showDialog(
                 context: context,
+                barrierDismissible: true,
                 barrierColor: Colors.black54,
                 builder: (context) {
                   return AlertDialog(
-                    title: const Text('Enter Manager\'s Code'),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    title: const Text(
+                      'Manager Access Required',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
                     content: TextField(
                       controller: codeController,
                       obscureText: true,
                       decoration: const InputDecoration(
                         labelText: 'Access Code',
                         border: OutlineInputBorder(),
+                        prefixIcon: Icon(Icons.lock),
                       ),
                     ),
                     actions: [
@@ -707,50 +717,332 @@ class MainDrawer extends StatelessWidget {
                         child: const Text('Cancel'),
                       ),
                       ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.brown[500],
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
                         onPressed: () {
                           final code = codeController.text.trim();
                           Navigator.pop(context);
 
                           if (code == correctCode) {
+                            final _formKey = GlobalKey<FormState>();
+                            final transactionIdController =
+                                TextEditingController();
+                            bool isLoading = false;
+                            String? feedback;
+
                             showDialog(
                               context: context,
+                              barrierDismissible: true,
                               barrierColor: Colors.black54,
-                              builder:
-                                  (_) => Dialog(
-                                    backgroundColor: Colors.transparent,
-                                    insetPadding: const EdgeInsets.all(20),
-                                    child: Center(
-                                      child: Container(
-                                        decoration: BoxDecoration(
-                                          color: const Color(0xFF2B2B2B),
-                                          borderRadius: BorderRadius.circular(
-                                            16,
-                                          ),
-                                          boxShadow: [
-                                            BoxShadow(
-                                              color: Colors.black.withOpacity(
-                                                0.3,
-                                              ),
-                                              blurRadius: 10,
-                                            ),
-                                          ],
-                                        ),
+                              builder: (context) {
+                                final size = MediaQuery.of(context).size;
+
+                                return StatefulBuilder(
+                                  builder: (context, setState) {
+                                    Future<void> voidTransaction() async {
+                                      if (!_formKey.currentState!.validate())
+                                        return;
+
+                                      setState(() {
+                                        isLoading = true;
+                                        feedback = null;
+                                      });
+
+                                      final id =
+                                          transactionIdController.text.trim();
+                                      final prefs =
+                                          await SharedPreferences.getInstance();
+                                      final token = prefs.getString('token');
+
+                                      final String apiSecret =
+                                          dotenv.env['POS_API_SECRET'] ?? "";
+                                      final String apiUri =
+                                          dotenv.env['POS_API_URL'] ?? "";
+                                      final url = Uri.parse(
+                                        '$apiUri/api/v1/void/$id',
+                                      );
+
+                                      try {
+                                        final response = await http.post(
+                                          url,
+                                          headers: {
+                                            'Authorization': 'Bearer $token',
+                                            'Accept': 'application/json',
+                                            'Pos-Secret-key': apiSecret,
+                                          },
+                                        );
+
+                                        if (response.statusCode == 200) {
+                                          final data = json.decode(
+                                            response.body,
+                                          );
+                                          final transaction =
+                                              VoidTransactionResponse.fromJson(
+                                                data,
+                                              );
+
+                                          setState(() {
+                                            feedback =
+                                                '✅ ${transaction.message}';
+                                          });
+
+                                          // 🔹 Print the void receipt
+                                          final printerService =
+                                              VoidPrintService();
+                                          await printerService.printReceipt(
+                                            transaction: transaction,
+                                          );
+                                        } else {
+                                          setState(
+                                            () =>
+                                                feedback =
+                                                    '⚠️ Failed: ${response.body}',
+                                          );
+                                        }
+
+                                        Future.delayed(
+                                          const Duration(seconds: 3),
+                                          () {
+                                            if (Navigator.of(context).mounted) {
+                                              setState(() => feedback = null);
+                                            }
+                                          },
+                                        );
+                                      } catch (e) {
+                                        setState(
+                                          () => feedback = '❌ Error: $e',
+                                        );
+                                      } finally {
+                                        setState(() => isLoading = false);
+                                      }
+                                    }
+
+                                    Future<void> restoreTransaction() async {
+                                      if (!_formKey.currentState!.validate())
+                                        return;
+
+                                      setState(() {
+                                        isLoading = true;
+                                        feedback = null;
+                                      });
+
+                                      final id =
+                                          transactionIdController.text.trim();
+                                      final prefs =
+                                          await SharedPreferences.getInstance();
+                                      final token = prefs.getString('token');
+
+                                      final String apiSecret =
+                                          dotenv.env['POS_API_SECRET'] ?? "";
+                                      final String apiUri =
+                                          dotenv.env['POS_API_URL'] ?? "";
+                                      final url = Uri.parse(
+                                        '$apiUri/api/v1/restore/$id',
+                                      );
+
+                                      try {
+                                        final response = await http.post(
+                                          url,
+                                          headers: {
+                                            'Authorization': 'Bearer $token',
+                                            'Accept': 'application/json',
+                                            'Pos-Secret-key': apiSecret,
+                                          },
+                                        );
+
+                                        if (response.statusCode == 200) {
+                                          setState(
+                                            () =>
+                                                feedback =
+                                                    '✅ Transaction restored successfully!',
+                                          );
+                                        } else {
+                                          setState(
+                                            () =>
+                                                feedback =
+                                                    '⚠️ Failed: ${response.body}',
+                                          );
+                                        }
+
+                                        Future.delayed(
+                                          const Duration(seconds: 3),
+                                          () {
+                                            if (Navigator.of(context).mounted) {
+                                              setState(() => feedback = null);
+                                            }
+                                          },
+                                        );
+                                      } catch (e) {
+                                        setState(
+                                          () => feedback = '❌ Error: $e',
+                                        );
+                                      } finally {
+                                        setState(() => isLoading = false);
+                                      }
+                                    }
+
+                                    return Dialog(
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(16),
+                                      ),
+                                      insetPadding: const EdgeInsets.all(24),
+                                      child: SizedBox(
+                                        width: size.width * 0.5,
+                                        height: size.height * 0.4,
                                         child: Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 40,
-                                            vertical: 40,
+                                          padding: const EdgeInsets.all(24),
+                                          child: Form(
+                                            key: _formKey,
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  'Manage Transaction',
+                                                  style: Theme.of(context)
+                                                      .textTheme
+                                                      .titleMedium
+                                                      ?.copyWith(
+                                                        fontWeight:
+                                                            FontWeight.w700,
+                                                        fontSize: 18,
+                                                      ),
+                                                ),
+                                                const SizedBox(height: 16),
+                                                TextFormField(
+                                                  controller:
+                                                      transactionIdController,
+                                                  decoration: const InputDecoration(
+                                                    labelText:
+                                                        'Transaction Number',
+                                                    border:
+                                                        OutlineInputBorder(),
+                                                    prefixIcon: Icon(
+                                                      Icons.confirmation_number,
+                                                    ),
+                                                    isDense: true,
+                                                  ),
+                                                  validator:
+                                                      (value) =>
+                                                          value == null ||
+                                                                  value.isEmpty
+                                                              ? 'Enter a transaction number'
+                                                              : null,
+                                                ),
+                                                const SizedBox(height: 20),
+                                                Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.end,
+                                                  children: [
+                                                    ElevatedButton.icon(
+                                                      onPressed:
+                                                          isLoading
+                                                              ? null
+                                                              : voidTransaction,
+                                                      icon:
+                                                          isLoading
+                                                              ? const SizedBox(
+                                                                width: 16,
+                                                                height: 16,
+                                                                child:
+                                                                    CircularProgressIndicator(
+                                                                      strokeWidth:
+                                                                          2,
+                                                                    ),
+                                                              )
+                                                              : const Icon(
+                                                                Icons.cancel,
+                                                              ),
+                                                      label: Text(
+                                                        isLoading
+                                                            ? 'Voiding...'
+                                                            : 'Void Transaction',
+                                                      ),
+                                                      style:
+                                                          ElevatedButton.styleFrom(
+                                                            backgroundColor:
+                                                                Colors.red[600],
+                                                            foregroundColor:
+                                                                Colors.white,
+                                                          ),
+                                                    ),
+                                                    const SizedBox(width: 12),
+                                                    ElevatedButton.icon(
+                                                      onPressed:
+                                                          isLoading
+                                                              ? null
+                                                              : restoreTransaction,
+                                                      icon:
+                                                          isLoading
+                                                              ? const SizedBox(
+                                                                width: 16,
+                                                                height: 16,
+                                                                child:
+                                                                    CircularProgressIndicator(
+                                                                      strokeWidth:
+                                                                          2,
+                                                                    ),
+                                                              )
+                                                              : const Icon(
+                                                                Icons
+                                                                    .check_circle,
+                                                              ),
+                                                      label: Text(
+                                                        isLoading
+                                                            ? 'Restoring...'
+                                                            : 'Restore Transaction',
+                                                      ),
+                                                      style:
+                                                          ElevatedButton.styleFrom(
+                                                            backgroundColor:
+                                                                Colors
+                                                                    .green[600],
+                                                            foregroundColor:
+                                                                Colors.white,
+                                                          ),
+                                                    ),
+                                                  ],
+                                                ),
+                                                if (feedback != null) ...[
+                                                  const SizedBox(height: 12),
+                                                  Text(
+                                                    feedback!,
+                                                    style: TextStyle(
+                                                      fontSize: 13,
+                                                      color:
+                                                          feedback!.startsWith(
+                                                                '✅',
+                                                              )
+                                                              ? Colors.green
+                                                              : feedback!
+                                                                  .startsWith(
+                                                                    '⚠️',
+                                                                  )
+                                                              ? Colors.orange
+                                                              : Colors.red,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ],
+                                            ),
                                           ),
-                                          child:
-                                              VoidTransactionForm(), // your form widget
                                         ),
                                       ),
-                                    ),
-                                  ),
+                                    );
+                                  },
+                                );
+                              },
                             );
                           } else {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
-                                content: Text('Incorrect access code'),
+                                content: Text('❌ Incorrect access code'),
+                                backgroundColor: Colors.red,
                               ),
                             );
                           }
