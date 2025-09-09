@@ -6,6 +6,8 @@ import 'package:bir_pos/services/transaction_reprint_service.dart';
 import 'package:bir_pos/services/stub_print_service.dart';
 import 'package:bir_pos/services/void_reprint_receipt_service.dart';
 import 'package:bir_pos/services/void_reprint_service.dart';
+import 'package:bir_pos/services/x_reprint_service.dart';
+import 'package:bir_pos/services/xreading_reprint_service.dart';
 import 'package:bir_pos/services/z_reprint_service.dart';
 import 'package:bir_pos/services/zreading_reprint_print_service.dart';
 import 'package:flutter/material.dart';
@@ -350,7 +352,7 @@ class TerminalActionButtons extends StatelessWidget {
                             icon: const Icon(Icons.receipt_long),
                             label: const Align(
                               alignment: Alignment.centerLeft,
-                              child: Text("Reprint X-Reading (Coming Soon)"),
+                              child: Text("Reprint X-Reading"),
                             ),
                             onPressed: () => Navigator.pop(context, 3),
                           ),
@@ -370,7 +372,7 @@ class TerminalActionButtons extends StatelessWidget {
                             icon: const Icon(Icons.receipt_long),
                             label: const Align(
                               alignment: Alignment.centerLeft,
-                              child: Text("Reprint Z-Reading (Coming Soon)"),
+                              child: Text("Reprint Z-Reading"),
                             ),
                             onPressed: () => Navigator.pop(context, 4),
                           ),
@@ -507,6 +509,110 @@ class TerminalActionButtons extends StatelessWidget {
                       content: Text("Transaction $id printed successfully!"),
                     ),
                   );
+                } catch (e) {
+                  ScaffoldMessenger.of(
+                    context,
+                  ).showSnackBar(SnackBar(content: Text("Error: $e")));
+                }
+              }
+            } else if (choice == 3) {
+              final service = XReadingReprintService();
+
+              // User ID Input
+              final userIdController = TextEditingController();
+              final userId = await showDialog<int>(
+                context: context,
+                builder: (context) {
+                  return AlertDialog(
+                    title: const Text("Enter User ID"),
+                    content: TextField(
+                      controller: userIdController,
+                      keyboardType: TextInputType.number,
+                      decoration: const InputDecoration(hintText: "e.g. 2"),
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(context), // Cancel
+                        child: const Text("Cancel"),
+                      ),
+                      ElevatedButton(
+                        onPressed: () {
+                          final input = int.tryParse(
+                            userIdController.text.trim(),
+                          );
+                          if (input != null) {
+                            Navigator.pop(context, input);
+                          }
+                        },
+                        child: const Text("OK"),
+                      ),
+                    ],
+                  );
+                },
+              );
+
+              if (userId == null) return;
+
+              // Date Picker
+              final pickedDate = await showDatePicker(
+                context: context,
+                initialDate: DateTime.now(),
+                firstDate: DateTime(2020),
+                lastDate: DateTime(2100),
+                builder: (context, child) {
+                  return Theme(
+                    data: Theme.of(context).copyWith(
+                      colorScheme: const ColorScheme.light(
+                        primary: Colors.black87,
+                        onPrimary: Colors.white,
+                        onSurface: Colors.black,
+                      ),
+                      dialogBackgroundColor: Colors.white,
+                    ),
+                    child: child!,
+                  );
+                },
+              );
+
+              if (pickedDate != null) {
+                final formattedDate =
+                    "${pickedDate.year.toString().padLeft(4, '0')}-"
+                    "${pickedDate.month.toString().padLeft(2, '0')}-"
+                    "${pickedDate.day.toString().padLeft(2, '0')}";
+
+                try {
+                  // Fetch the X-Reading reprint
+                  final report = await service.fetchXReadingReprint(
+                    userId: userId,
+                    date: formattedDate,
+                  );
+
+                  if (report != null) {
+                    print("X-Reading Reprint Fetched:");
+                    print("User ID: $userId");
+                    print("Report Date: ${report.reportDate}");
+                    print("Report Time: ${report.reportTime}");
+                    print("Cashier: ${report.cashierName}");
+                    print("Total Payments: ${report.totalPayments}");
+
+                    // ✅ Print the report automatically
+                    final reprintService = XReadingReceiptReprintService();
+                    await reprintService.printReceipt(xReading: report);
+
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          "X-Reading reprint for $formattedDate fetched and printed successfully!",
+                        ),
+                      ),
+                    );
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text("No X-Reading found for $formattedDate"),
+                      ),
+                    );
+                  }
                 } catch (e) {
                   ScaffoldMessenger.of(
                     context,

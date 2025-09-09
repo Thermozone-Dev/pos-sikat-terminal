@@ -1,12 +1,13 @@
 import 'dart:async';
-import 'package:bir_pos/models/xreading.dart';
+import 'package:bir_pos/models/xreading_reprint.dart';
 import 'package:esc_pos_utils/esc_pos_utils.dart';
 import 'package:flutter_pos_printer_platform_image_3/flutter_pos_printer_platform_image_3.dart';
+import 'package:intl/intl.dart';
 
-class XReadingPrintService {
+class XReadingReceiptReprintService {
   final PrinterManager printerManager = PrinterManager.instance;
 
-  Future<void> printReceipt({required XReading? xReading}) async {
+  Future<void> printReceipt({required XReadingReprint? xReading}) async {
     var devices = <BluetoothPrinter>[];
     BluetoothPrinter? selectedPrinter;
     bool isPrinted = false;
@@ -43,7 +44,7 @@ class XReadingPrintService {
 
             if (selectedPrinter != null && !isPrinted) {
               isPrinted = true;
-              print("✅ Printing to: ${selectedPrinter!.deviceName}");
+              print("✅ Reprinting to: ${selectedPrinter!.deviceName}");
 
               await _printReceiptToDevice(selectedPrinter!, xReading);
 
@@ -66,12 +67,55 @@ class XReadingPrintService {
 
   Future<void> _printReceiptToDevice(
     BluetoothPrinter printer,
-    XReading? xReading,
+    XReadingReprint? xReading,
   ) async {
     final profile = await CapabilityProfile.load(name: 'XP-N160I');
     final generator = Generator(PaperSize.mm58, profile);
 
     List<int> bytes = [];
+
+    bytes += generator.text(
+      '-------- REPRINT --------',
+      styles: PosStyles(
+        align: PosAlign.center,
+        bold: true,
+        height: PosTextSize.size1,
+        width: PosTextSize.size1,
+      ),
+    );
+    bytes += generator.feed(1);
+
+    // Get current date and time
+    final date = DateTime.now();
+    final formattedDate = DateFormat('MMMM d, y').format(date);
+
+    final now = DateTime.now();
+    final formattedTime = DateFormat('h:mm a').format(now);
+
+    bytes += generator.row([
+      PosColumn(
+        text: 'Date:',
+        width: 5,
+        styles: PosStyles(align: PosAlign.left),
+      ),
+      PosColumn(
+        text: formattedDate,
+        width: 7,
+        styles: PosStyles(align: PosAlign.right),
+      ),
+    ]);
+    bytes += generator.row([
+      PosColumn(
+        text: 'Time:',
+        width: 5,
+        styles: PosStyles(align: PosAlign.left),
+      ),
+      PosColumn(
+        text: formattedTime,
+        width: 7,
+        styles: PosStyles(align: PosAlign.right),
+      ),
+    ]);
     bytes += generator.feed(1);
     bytes += generator.text(
       'THERMOZONE PHILIPPINES CORP.',
@@ -119,7 +163,7 @@ class XReadingPrintService {
     bytes += generator.row([
       PosColumn(text: 'Start Time:', width: 6, styles: PosStyles(bold: false)),
       PosColumn(
-        text: xReading.timeIn,
+        text: xReading.startTime,
         width: 6,
         styles: PosStyles(bold: false, align: PosAlign.right),
       ),
@@ -127,7 +171,7 @@ class XReadingPrintService {
     bytes += generator.row([
       PosColumn(text: 'End Time:', width: 6, styles: PosStyles(bold: false)),
       PosColumn(
-        text: xReading.timeOut,
+        text: xReading.endTime,
         width: 6,
         styles: PosStyles(bold: false, align: PosAlign.right),
       ),
@@ -136,7 +180,7 @@ class XReadingPrintService {
     bytes += generator.row([
       PosColumn(text: 'Cashier:', width: 6, styles: PosStyles(bold: false)),
       PosColumn(
-        text: xReading.user,
+        text: xReading.cashierName,
         width: 6,
         styles: PosStyles(bold: false, align: PosAlign.right),
       ),
@@ -145,7 +189,7 @@ class XReadingPrintService {
     bytes += generator.row([
       PosColumn(text: 'Beg. SI #:', width: 6, styles: PosStyles(bold: false)),
       PosColumn(
-        text: xReading.beginningOR,
+        text: xReading.beginningSi,
         width: 6,
         styles: PosStyles(bold: false, align: PosAlign.right),
       ),
@@ -153,7 +197,7 @@ class XReadingPrintService {
     bytes += generator.row([
       PosColumn(text: 'End. SI #:', width: 6, styles: PosStyles(bold: false)),
       PosColumn(
-        text: xReading.endingOR,
+        text: xReading.endingSi,
         width: 6,
         styles: PosStyles(bold: false, align: PosAlign.right),
       ),
@@ -179,7 +223,7 @@ class XReadingPrintService {
     bytes += generator.row([
       PosColumn(text: 'CASH:', width: 6, styles: PosStyles(bold: false)),
       PosColumn(
-        text: xReading.totalCashPayment.toStringAsFixed(2),
+        text: xReading.cashPayments.toStringAsFixed(2),
         width: 6,
         styles: PosStyles(bold: false, align: PosAlign.right),
       ),
@@ -187,7 +231,7 @@ class XReadingPrintService {
     bytes += generator.row([
       PosColumn(text: 'GCASH:', width: 6, styles: PosStyles(bold: false)),
       PosColumn(
-        text: xReading.totalGcashPayment.toStringAsFixed(2),
+        text: xReading.gcashPayments.toStringAsFixed(2),
         width: 6,
         styles: PosStyles(bold: false, align: PosAlign.right),
       ),
@@ -195,7 +239,7 @@ class XReadingPrintService {
     bytes += generator.row([
       PosColumn(text: 'MAYA:', width: 6, styles: PosStyles(bold: false)),
       PosColumn(
-        text: xReading.totalMayaPayment.toStringAsFixed(2),
+        text: xReading.mayaPayments.toStringAsFixed(2),
         width: 6,
         styles: PosStyles(bold: false, align: PosAlign.right),
       ),
@@ -203,7 +247,7 @@ class XReadingPrintService {
     bytes += generator.row([
       PosColumn(text: 'DEBIT CARD:', width: 6, styles: PosStyles(bold: false)),
       PosColumn(
-        text: xReading.totalDebitPayment.toStringAsFixed(2),
+        text: xReading.debitPayments.toStringAsFixed(2),
         width: 6,
         styles: PosStyles(bold: false, align: PosAlign.right),
       ),
@@ -211,7 +255,7 @@ class XReadingPrintService {
     bytes += generator.row([
       PosColumn(text: 'CREDIT CARD:', width: 6, styles: PosStyles(bold: false)),
       PosColumn(
-        text: xReading.totalCreditPayment.toStringAsFixed(2),
+        text: xReading.creditPayments.toStringAsFixed(2),
         width: 6,
         styles: PosStyles(bold: false, align: PosAlign.right),
       ),
@@ -232,7 +276,7 @@ class XReadingPrintService {
     bytes += generator.row([
       PosColumn(text: 'VOID:', width: 6, styles: PosStyles(bold: false)),
       PosColumn(
-        text: xReading.voidValue.toStringAsFixed(2),
+        text: xReading.voidAmount.toStringAsFixed(2),
         width: 6,
         styles: PosStyles(bold: false, align: PosAlign.right),
       ),
@@ -266,7 +310,7 @@ class XReadingPrintService {
     bytes += generator.row([
       PosColumn(text: 'GCASH:', width: 6, styles: PosStyles(bold: false)),
       PosColumn(
-        text: xReading.totalGcashPayment.toStringAsFixed(2),
+        text: xReading.gcashPayments.toStringAsFixed(2),
         width: 6,
         styles: PosStyles(bold: false, align: PosAlign.right),
       ),
@@ -274,7 +318,7 @@ class XReadingPrintService {
     bytes += generator.row([
       PosColumn(text: 'MAYA:', width: 6, styles: PosStyles(bold: false)),
       PosColumn(
-        text: xReading.totalMayaPayment.toStringAsFixed(2),
+        text: xReading.mayaPayments.toStringAsFixed(2),
         width: 6,
         styles: PosStyles(bold: false, align: PosAlign.right),
       ),
@@ -282,7 +326,7 @@ class XReadingPrintService {
     bytes += generator.row([
       PosColumn(text: 'DEBIT CARD:', width: 6, styles: PosStyles(bold: false)),
       PosColumn(
-        text: xReading.totalDebitPayment.toStringAsFixed(2),
+        text: xReading.debitPayments.toStringAsFixed(2),
         width: 6,
         styles: PosStyles(bold: false, align: PosAlign.right),
       ),
@@ -290,7 +334,7 @@ class XReadingPrintService {
     bytes += generator.row([
       PosColumn(text: 'CREDIT CARD:', width: 6, styles: PosStyles(bold: false)),
       PosColumn(
-        text: xReading.totalCreditPayment.toStringAsFixed(2),
+        text: xReading.creditPayments.toStringAsFixed(2),
         width: 6,
         styles: PosStyles(bold: false, align: PosAlign.right),
       ),
@@ -335,7 +379,7 @@ class XReadingPrintService {
     bytes += generator.row([
       PosColumn(text: 'SHORT/OVER:', width: 6, styles: PosStyles(bold: false)),
       PosColumn(
-        text: xReading.shortOrOver.toStringAsFixed(2),
+        text: xReading.shortOver.toStringAsFixed(2),
         width: 6,
         styles: PosStyles(bold: false, align: PosAlign.right),
       ),
@@ -359,6 +403,17 @@ class XReadingPrintService {
       ),
     );
     printerManager.send(type: PrinterType.usb, bytes: bytes);
+  }
+
+  List<int> _buildRow(Generator generator, String title, String value) {
+    return generator.row([
+      PosColumn(text: title, width: 6, styles: PosStyles(bold: false)),
+      PosColumn(
+        text: value,
+        width: 6,
+        styles: PosStyles(bold: false, align: PosAlign.right),
+      ),
+    ]);
   }
 }
 
