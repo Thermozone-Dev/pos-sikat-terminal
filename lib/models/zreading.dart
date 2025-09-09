@@ -9,7 +9,7 @@ class ZReading {
   final String endingVoid;
   final String beginningReturn;
   final String endingReturn;
-  final int resetCounter;
+  final String resetCounter;
   final String zCounter;
   final String presentAccumulated;
   final String previousAccumulated;

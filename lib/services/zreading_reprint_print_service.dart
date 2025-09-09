@@ -1,12 +1,13 @@
 import 'dart:async';
-import 'package:bir_pos/models/zreading.dart';
+import 'package:bir_pos/models/zreading_reprint.dart';
 import 'package:esc_pos_utils/esc_pos_utils.dart';
 import 'package:flutter_pos_printer_platform_image_3/flutter_pos_printer_platform_image_3.dart';
+import 'package:intl/intl.dart';
 
-class ZReadingPrintService {
+class ZReadingReprintPrintService {
   final PrinterManager printerManager = PrinterManager.instance;
 
-  Future<void> printReceipt({required ZReading? zReading}) async {
+  Future<void> printReceipt({required ZReadingReprint? zReading}) async {
     var devices = <BluetoothPrinter>[];
     BluetoothPrinter? selectedPrinter;
     bool isPrinted = false;
@@ -19,14 +20,14 @@ class ZReadingPrintService {
           (device) async {
             print("🖨️ Found device: ${device.name}");
 
-            // ✅ Filter by printer name (only allow "xprinter" or "xp-58")
+            // ✅ Filter supported printer models (Xprinter / XP-58)
             final name = device.name.toLowerCase();
             if (!name.contains('xprinter') && !name.contains('xp-58')) {
-              print("⛔ Skipped non-supported printer: ${device.name}");
+              print("⛔ Skipped unsupported printer: ${device.name}");
               return;
             }
 
-            if (isPrinted) return; // Prevent duplicate printing
+            if (isPrinted) return;
 
             final newPrinter = BluetoothPrinter(
               deviceName: device.name,
@@ -42,11 +43,13 @@ class ZReadingPrintService {
             if (selectedPrinter != null && !isPrinted) {
               isPrinted = true;
 
-              print("✅ Printing to: ${selectedPrinter!.deviceName}");
+              print(
+                "✅ Printing Z-Reading Reprint to: ${selectedPrinter!.deviceName}",
+              );
 
               await _printReceiptToDevice(selectedPrinter!, zReading);
 
-              await subscription?.cancel(); // Stop discovery after printing
+              await subscription?.cancel();
             }
           },
           onError: (e) {
@@ -54,7 +57,7 @@ class ZReadingPrintService {
           },
         );
 
-    // Give time for discovery
+    // Give discovery a few seconds
     await Future.delayed(const Duration(seconds: 3));
     await subscription.cancel();
 
@@ -65,11 +68,53 @@ class ZReadingPrintService {
 
   Future<void> _printReceiptToDevice(
     BluetoothPrinter printer,
-    ZReading? zReading,
+    ZReadingReprint? zReading,
   ) async {
     final profile = await CapabilityProfile.load(name: 'XP-N160I');
     final generator = Generator(PaperSize.mm58, profile);
     List<int> bytes = [];
+    bytes += generator.text(
+      '-------- REPRINT --------',
+      styles: PosStyles(
+        align: PosAlign.center,
+        bold: true,
+        height: PosTextSize.size1,
+        width: PosTextSize.size1,
+      ),
+    );
+    bytes += generator.feed(1);
+
+    // Get current date and time
+    final date = DateTime.now();
+    final formattedDate = DateFormat('MMMM d, y').format(date);
+
+    final now = DateTime.now();
+    final formattedTime = DateFormat('h:mm a').format(now);
+
+    bytes += generator.row([
+      PosColumn(
+        text: 'Date:',
+        width: 5,
+        styles: PosStyles(align: PosAlign.left),
+      ),
+      PosColumn(
+        text: formattedDate,
+        width: 7,
+        styles: PosStyles(align: PosAlign.right),
+      ),
+    ]);
+    bytes += generator.row([
+      PosColumn(
+        text: 'Time:',
+        width: 5,
+        styles: PosStyles(align: PosAlign.left),
+      ),
+      PosColumn(
+        text: formattedTime,
+        width: 7,
+        styles: PosStyles(align: PosAlign.right),
+      ),
+    ]);
     bytes += generator.feed(1);
     bytes += generator.text(
       'THERMOZONE PHILIPPINES CORP.',
@@ -134,7 +179,7 @@ class ZReadingPrintService {
     bytes += generator.row([
       PosColumn(text: 'Beg. SI #:', width: 6, styles: PosStyles(bold: false)),
       PosColumn(
-        text: zReading?.beginningOR ?? 'N/A',
+        text: zReading?.beginningSi ?? 'N/A',
         width: 6,
         styles: PosStyles(bold: false, align: PosAlign.right),
       ),
@@ -142,7 +187,7 @@ class ZReadingPrintService {
     bytes += generator.row([
       PosColumn(text: 'End. SI #:', width: 6, styles: PosStyles(bold: false)),
       PosColumn(
-        text: zReading?.endingOR ?? 'N/A',
+        text: zReading?.endingSi ?? 'N/A',
         width: 6,
         styles: PosStyles(bold: false, align: PosAlign.right),
       ),
@@ -171,11 +216,12 @@ class ZReadingPrintService {
         styles: PosStyles(bold: false),
       ),
       PosColumn(
-        text: zReading?.resetCounter.toString() ?? 'N/A',
+        text: zReading!.resetCounter.toString().padLeft(12, '0'),
         width: 6,
         styles: PosStyles(bold: false, align: PosAlign.right),
       ),
     ]);
+
     bytes += generator.row([
       PosColumn(
         text: 'Z Counter No. :',
@@ -183,11 +229,12 @@ class ZReadingPrintService {
         styles: PosStyles(bold: false),
       ),
       PosColumn(
-        text: zReading?.zCounter.toString() ?? 'N/A',
+        text: zReading.counter.toString().padLeft(12, '0'),
         width: 6,
         styles: PosStyles(bold: false, align: PosAlign.right),
       ),
     ]);
+
     bytes += generator.text('--------------------------------');
     bytes += generator.row([
       PosColumn(
@@ -196,7 +243,7 @@ class ZReadingPrintService {
         styles: PosStyles(bold: false),
       ),
       PosColumn(
-        text: zReading?.presentAccumulated.toString() ?? '0.00',
+        text: zReading?.presentAccumulatedSales.toStringAsFixed(2) ?? '0.00',
         width: 6,
         styles: PosStyles(bold: false, align: PosAlign.right),
       ),
@@ -208,7 +255,7 @@ class ZReadingPrintService {
         styles: PosStyles(bold: false),
       ),
       PosColumn(
-        text: zReading?.previousAccumulated.toString() ?? '0.00',
+        text: zReading?.previousAccumulatedSales.toStringAsFixed(2) ?? '0.00',
         width: 6,
         styles: PosStyles(bold: false, align: PosAlign.right),
       ),
@@ -220,7 +267,7 @@ class ZReadingPrintService {
         styles: PosStyles(bold: false),
       ),
       PosColumn(
-        text: zReading?.salesForTheDay.toString() ?? '0.00',
+        text: zReading?.salesForTheDay.toStringAsFixed(2) ?? '0.00',
         width: 6,
         styles: PosStyles(bold: false, align: PosAlign.right),
       ),
@@ -238,7 +285,7 @@ class ZReadingPrintService {
         styles: PosStyles(bold: false),
       ),
       PosColumn(
-        text: zReading?.vatableSales.toString() ?? '0.00',
+        text: zReading?.vatableSales.toStringAsFixed(2) ?? '0.00',
         width: 6,
         styles: PosStyles(bold: false, align: PosAlign.right),
       ),
@@ -246,7 +293,7 @@ class ZReadingPrintService {
     bytes += generator.row([
       PosColumn(text: 'VAT AMOUNT:', width: 6, styles: PosStyles(bold: false)),
       PosColumn(
-        text: zReading?.vatAmount.toString() ?? '0.00',
+        text: zReading?.vat.toStringAsFixed(2) ?? '0.00',
         width: 6,
         styles: PosStyles(bold: false, align: PosAlign.right),
       ),
@@ -258,7 +305,7 @@ class ZReadingPrintService {
         styles: PosStyles(bold: false),
       ),
       PosColumn(
-        text: zReading?.vatExemptSales.toString() ?? '0.00',
+        text: zReading?.vatExemptSales.toStringAsFixed(2) ?? '0.00',
         width: 6,
         styles: PosStyles(bold: false, align: PosAlign.right),
       ),
@@ -270,7 +317,7 @@ class ZReadingPrintService {
         styles: PosStyles(bold: false),
       ),
       PosColumn(
-        text: zReading?.zeroRatedSales.toString() ?? '0.00',
+        text: zReading?.zeroRatedSales.toStringAsFixed(2) ?? '0.00',
         width: 6,
         styles: PosStyles(bold: false, align: PosAlign.right),
       ),
@@ -283,7 +330,7 @@ class ZReadingPrintService {
         styles: PosStyles(bold: false),
       ),
       PosColumn(
-        text: zReading?.grossAmount.toString() ?? '0.00',
+        text: zReading?.grossAmount.toStringAsFixed(2) ?? '0.00',
         width: 6,
         styles: PosStyles(bold: false, align: PosAlign.right),
       ),
@@ -295,7 +342,7 @@ class ZReadingPrintService {
         styles: PosStyles(bold: false),
       ),
       PosColumn(
-        text: zReading?.lessDiscounts.toString() ?? '0.00',
+        text: zReading?.lessDiscount.toStringAsFixed(2) ?? '0.00',
         width: 6,
         styles: PosStyles(bold: false, align: PosAlign.right),
       ),
@@ -303,7 +350,7 @@ class ZReadingPrintService {
     bytes += generator.row([
       PosColumn(text: 'Less Void:', width: 6, styles: PosStyles(bold: false)),
       PosColumn(
-        text: zReading?.lessVoids.toString() ?? '0.00',
+        text: zReading?.lessVoid.toStringAsFixed(2) ?? '0.00',
         width: 6,
         styles: PosStyles(bold: false, align: PosAlign.right),
       ),
@@ -315,7 +362,7 @@ class ZReadingPrintService {
         styles: PosStyles(bold: false),
       ),
       PosColumn(
-        text: zReading?.lessVATAdjustments.toString() ?? '0.00',
+        text: zReading?.lessVatAdjust.toStringAsFixed(2) ?? '0.00',
         width: 6,
         styles: PosStyles(bold: false, align: PosAlign.right),
       ),
@@ -323,7 +370,7 @@ class ZReadingPrintService {
     bytes += generator.row([
       PosColumn(text: 'Net Amount:', width: 6, styles: PosStyles(bold: false)),
       PosColumn(
-        text: zReading?.netAmount.toString() ?? '0.00',
+        text: zReading?.netAmount.toStringAsFixed(2) ?? '0.00',
         width: 6,
         styles: PosStyles(bold: false, align: PosAlign.right),
       ),
@@ -337,7 +384,7 @@ class ZReadingPrintService {
     bytes += generator.row([
       PosColumn(text: 'SC Disc. :', width: 6, styles: PosStyles(bold: false)),
       PosColumn(
-        text: zReading?.scDiscounts.toString() ?? '0.00',
+        text: zReading?.scDiscounts.toStringAsFixed(2) ?? '0.00',
         width: 6,
         styles: PosStyles(bold: false, align: PosAlign.right),
       ),
@@ -345,7 +392,7 @@ class ZReadingPrintService {
     bytes += generator.row([
       PosColumn(text: 'PWD Disc. :', width: 6, styles: PosStyles(bold: false)),
       PosColumn(
-        text: zReading?.pwdDiscounts.toString() ?? '0.00',
+        text: zReading?.pwdDiscounts.toStringAsFixed(2) ?? '0.00',
         width: 6,
         styles: PosStyles(bold: false, align: PosAlign.right),
       ),
@@ -353,7 +400,7 @@ class ZReadingPrintService {
     bytes += generator.row([
       PosColumn(text: 'NAAC Disc. :', width: 6, styles: PosStyles(bold: false)),
       PosColumn(
-        text: zReading?.nacDiscounts.toString() ?? '0.00',
+        text: zReading?.naacDiscounts.toStringAsFixed(2) ?? '0.00',
         width: 6,
         styles: PosStyles(bold: false, align: PosAlign.right),
       ),
@@ -365,7 +412,7 @@ class ZReadingPrintService {
         styles: PosStyles(bold: false),
       ),
       PosColumn(
-        text: zReading?.soloparentDiscounts.toString() ?? '0.00',
+        text: zReading?.spDiscounts.toStringAsFixed(2) ?? '0.00',
         width: 6,
         styles: PosStyles(bold: false, align: PosAlign.right),
       ),
@@ -377,7 +424,7 @@ class ZReadingPrintService {
         styles: PosStyles(bold: false),
       ),
       PosColumn(
-        text: zReading?.otherDiscounts.toString() ?? '0.00',
+        text: zReading?.otherDiscounts.toStringAsFixed(2) ?? '0.00',
         width: 6,
         styles: PosStyles(bold: false, align: PosAlign.right),
       ),
@@ -391,7 +438,7 @@ class ZReadingPrintService {
     bytes += generator.row([
       PosColumn(text: 'VOID :', width: 6, styles: PosStyles(bold: false)),
       PosColumn(
-        text: zReading?.totalVoids.toString() ?? '0.00',
+        text: zReading?.voidAmount.toStringAsFixed(2) ?? '0.00',
         width: 6,
         styles: PosStyles(bold: false, align: PosAlign.right),
       ),
@@ -399,7 +446,7 @@ class ZReadingPrintService {
     bytes += generator.row([
       PosColumn(text: 'RETURN :', width: 6, styles: PosStyles(bold: false)),
       PosColumn(
-        text: zReading?.totalReturns.toString() ?? '0.00',
+        text: zReading?.returns.toStringAsFixed(2) ?? '0.00',
         width: 6,
         styles: PosStyles(bold: false, align: PosAlign.right),
       ),
@@ -413,7 +460,7 @@ class ZReadingPrintService {
     bytes += generator.row([
       PosColumn(text: 'SC TRANS. :', width: 6, styles: PosStyles(bold: false)),
       PosColumn(
-        text: zReading?.scTransactionsVATAdjust.toString() ?? '0.00',
+        text: zReading?.scAdjustments.toStringAsFixed(2) ?? '0.00',
         width: 6,
         styles: PosStyles(bold: false, align: PosAlign.right),
       ),
@@ -421,7 +468,7 @@ class ZReadingPrintService {
     bytes += generator.row([
       PosColumn(text: 'PWD TRANS. :', width: 6, styles: PosStyles(bold: false)),
       PosColumn(
-        text: zReading?.pwdTransactionsVATAdjust.toString() ?? '0.00',
+        text: zReading?.pwdAdjustments.toStringAsFixed(2) ?? '0.00',
         width: 6,
         styles: PosStyles(bold: false, align: PosAlign.right),
       ),
@@ -433,7 +480,7 @@ class ZReadingPrintService {
         styles: PosStyles(bold: false),
       ),
       PosColumn(
-        text: zReading?.regDiscountsVATAdjust.toString() ?? '0.00',
+        text: zReading?.regDiscountAdjustments.toStringAsFixed(2) ?? '0.00',
         width: 6,
         styles: PosStyles(bold: false, align: PosAlign.right),
       ),
@@ -445,7 +492,7 @@ class ZReadingPrintService {
         styles: PosStyles(bold: false),
       ),
       PosColumn(
-        text: zReading?.zeroRatedVATAdjust.toString() ?? '0.00',
+        text: zReading?.zeroRatedAdjustments.toStringAsFixed(2) ?? '0.00',
         width: 6,
         styles: PosStyles(bold: false, align: PosAlign.right),
       ),
@@ -457,7 +504,7 @@ class ZReadingPrintService {
         styles: PosStyles(bold: false),
       ),
       PosColumn(
-        text: zReading?.returnVATAdjust.toString() ?? '0.00',
+        text: zReading?.vatOnReturn.toStringAsFixed(2) ?? '0.00',
         width: 6,
         styles: PosStyles(bold: false, align: PosAlign.right),
       ),
@@ -469,7 +516,7 @@ class ZReadingPrintService {
         styles: PosStyles(bold: false),
       ),
       PosColumn(
-        text: zReading?.otherVATAdjust.toString() ?? '0.00',
+        text: zReading?.otherVatAdjustments.toStringAsFixed(2) ?? '0.00',
         width: 6,
         styles: PosStyles(bold: false, align: PosAlign.right),
       ),
@@ -487,7 +534,7 @@ class ZReadingPrintService {
         styles: PosStyles(bold: false),
       ),
       PosColumn(
-        text: zReading?.cashInDrawer.toString() ?? '0.00',
+        text: zReading?.cashInDrawer.toStringAsFixed(2) ?? '0.00',
         width: 6,
         styles: PosStyles(bold: false, align: PosAlign.right),
       ),
@@ -499,7 +546,7 @@ class ZReadingPrintService {
         styles: PosStyles(bold: false),
       ),
       PosColumn(
-        text: zReading?.totalGcashPayments.toString() ?? '0.00',
+        text: zReading?.gcashPayments.toStringAsFixed(2) ?? '0.00',
         width: 6,
         styles: PosStyles(bold: false, align: PosAlign.right),
       ),
@@ -511,7 +558,7 @@ class ZReadingPrintService {
         styles: PosStyles(bold: false),
       ),
       PosColumn(
-        text: zReading?.totalMayaPayments.toString() ?? '0.00',
+        text: zReading?.mayaPayments.toStringAsFixed(2) ?? '0.00',
         width: 6,
         styles: PosStyles(bold: false, align: PosAlign.right),
       ),
@@ -519,7 +566,7 @@ class ZReadingPrintService {
     bytes += generator.row([
       PosColumn(text: 'DEBIT CARD:', width: 6, styles: PosStyles(bold: false)),
       PosColumn(
-        text: zReading?.totalDebitPayments.toString() ?? '0.00',
+        text: zReading?.debitPayments.toStringAsFixed(2) ?? '0.00',
         width: 6,
         styles: PosStyles(bold: false, align: PosAlign.right),
       ),
@@ -527,7 +574,7 @@ class ZReadingPrintService {
     bytes += generator.row([
       PosColumn(text: 'CREDIT CARD:', width: 6, styles: PosStyles(bold: false)),
       PosColumn(
-        text: zReading?.creditPayments.toString() ?? '0.00',
+        text: zReading?.creditPayments.toStringAsFixed(2) ?? '0.00',
         width: 6,
         styles: PosStyles(bold: false, align: PosAlign.right),
       ),
@@ -539,7 +586,7 @@ class ZReadingPrintService {
         styles: PosStyles(bold: false),
       ),
       PosColumn(
-        text: zReading?.openingBalance.toString() ?? '0.00',
+        text: zReading?.openingFund.toStringAsFixed(2) ?? '0.00',
         width: 6,
         styles: PosStyles(bold: false, align: PosAlign.right),
       ),
@@ -547,7 +594,7 @@ class ZReadingPrintService {
     bytes += generator.row([
       PosColumn(text: 'WITHDRAWAL', width: 6, styles: PosStyles(bold: false)),
       PosColumn(
-        text: zReading?.withdrawal.toString() ?? '0.00',
+        text: zReading?.withdrawal.toStringAsFixed(2) ?? '0.00',
         width: 6,
         styles: PosStyles(bold: false, align: PosAlign.right),
       ),
@@ -559,7 +606,7 @@ class ZReadingPrintService {
         styles: PosStyles(bold: false),
       ),
       PosColumn(
-        text: zReading?.lessWithdrawal.toString() ?? '0.00',
+        text: zReading?.lessWithdrawal.toStringAsFixed(2) ?? '0.00',
         width: 6,
         styles: PosStyles(bold: false, align: PosAlign.right),
       ),
@@ -571,7 +618,7 @@ class ZReadingPrintService {
         styles: PosStyles(bold: false),
       ),
       PosColumn(
-        text: zReading?.totalPayments.toString() ?? '0.00',
+        text: zReading?.paymentsReceived.toStringAsFixed(2) ?? '0.00',
         width: 6,
         styles: PosStyles(bold: false, align: PosAlign.right),
       ),
@@ -580,7 +627,7 @@ class ZReadingPrintService {
     bytes += generator.row([
       PosColumn(text: 'SHORT/OVER:', width: 6, styles: PosStyles(bold: false)),
       PosColumn(
-        text: zReading?.shortOrOver.toString() ?? '0.00',
+        text: zReading?.shortOver.toStringAsFixed(2) ?? '0.00',
         width: 6,
         styles: PosStyles(bold: false, align: PosAlign.right),
       ),

@@ -6,6 +6,8 @@ import 'package:bir_pos/services/transaction_reprint_service.dart';
 import 'package:bir_pos/services/stub_print_service.dart';
 import 'package:bir_pos/services/void_reprint_receipt_service.dart';
 import 'package:bir_pos/services/void_reprint_service.dart';
+import 'package:bir_pos/services/z_reprint_service.dart';
+import 'package:bir_pos/services/zreading_reprint_print_service.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
@@ -505,6 +507,75 @@ class TerminalActionButtons extends StatelessWidget {
                       content: Text("Transaction $id printed successfully!"),
                     ),
                   );
+                } catch (e) {
+                  ScaffoldMessenger.of(
+                    context,
+                  ).showSnackBar(SnackBar(content: Text("Error: $e")));
+                }
+              }
+            } else if (choice == 4) {
+              final service = ZReadingReprintService();
+              final printerService = ZReadingReprintPrintService();
+
+              // Show a date picker
+              final pickedDate = await showDatePicker(
+                context: context,
+                initialDate: DateTime.now(),
+                firstDate: DateTime(2020), // earliest selectable date
+                lastDate: DateTime(2100), // latest selectable date
+                builder: (context, child) {
+                  return Theme(
+                    data: Theme.of(context).copyWith(
+                      colorScheme: ColorScheme.light(
+                        primary: Colors.black87, // header & selected date color
+                        onPrimary: Colors.white, // text color on primary
+                        onSurface: Colors.black, // default text color
+                      ),
+                      dialogBackgroundColor: Colors.white,
+                    ),
+                    child: child!,
+                  );
+                },
+              );
+
+              if (pickedDate != null) {
+                // Format into YYYY-MM-DD for API
+                final formattedDate =
+                    "${pickedDate.year.toString().padLeft(4, '0')}-"
+                    "${pickedDate.month.toString().padLeft(2, '0')}-"
+                    "${pickedDate.day.toString().padLeft(2, '0')}";
+
+                try {
+                  final report = await service.fetchReprint(formattedDate);
+
+                  if (report != null) {
+                    print("Report Date: ${report.reportDate}");
+                    print("Net Amount: ${report.netAmount}");
+
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          "Reprint for $formattedDate fetched successfully!",
+                        ),
+                      ),
+                    );
+
+                    await printerService.printReceipt(zReading: report);
+
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text(
+                          "Z-Reading reprint sent to printer successfully!",
+                        ),
+                      ),
+                    );
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text("No Z-Reading found for $formattedDate"),
+                      ),
+                    );
+                  }
                 } catch (e) {
                   ScaffoldMessenger.of(
                     context,
