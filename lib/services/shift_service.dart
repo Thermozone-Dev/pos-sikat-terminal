@@ -1,8 +1,8 @@
 import 'dart:convert';
-
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
+import 'auth_service.dart'; // make sure this points to your AuthService
 
 class ShiftServiceResult {
   final bool success;
@@ -19,16 +19,23 @@ class ContinueShiftResult {
   ContinueShiftResult({required this.success, this.shiftId, this.error});
 }
 
-Future<ShiftServiceResult> initializeShift(String openingBalance) async {
+Future<ShiftServiceResult> initializeShift(
+  String openingBalance, {
+  required dynamic context,
+}) async {
   final prefs = await SharedPreferences.getInstance();
   final token = prefs.getString('token');
-  final String apiSecret = dotenv.env['POS_API_SECRET'] ?? "";
-  final String apiUri = dotenv.env['POS_API_URL'] ?? "";
-  final url = Uri.parse('$apiUri/api/v1/shift/start');
-
   if (token == null || token.isEmpty) {
     return ShiftServiceResult(success: false, error: 'No token found');
   }
+
+  // Get current user ID
+  final user = await AuthService.getUser(context);
+  final userId = user.id.toString();
+
+  final String apiSecret = dotenv.env['POS_API_SECRET'] ?? "";
+  final String apiUri = dotenv.env['POS_API_URL'] ?? "";
+  final url = Uri.parse('$apiUri/api/v1/shift/start');
 
   final Map<String, dynamic> data = {
     'opening_balance': double.parse(openingBalance),
@@ -48,8 +55,8 @@ Future<ShiftServiceResult> initializeShift(String openingBalance) async {
 
     if (response.statusCode == 201) {
       final shiftId = response.body.replaceAll('"', '');
-      await prefs.setString('shift_id', shiftId);
-      print('Shift started with ID: $shiftId');
+      await prefs.setString('shift_id_$userId', shiftId); // per-user shift
+      print('Shift started with ID: $shiftId for user $userId');
       return ShiftServiceResult(success: true);
     } else {
       print('Failed to start shift: ${response.body}');
@@ -61,18 +68,30 @@ Future<ShiftServiceResult> initializeShift(String openingBalance) async {
   }
 }
 
-Future<void> endShift(String endingBalance) async {
+Future<void> endShift({
+  required dynamic context,
+  required String endingBalance,
+}) async {
   final prefs = await SharedPreferences.getInstance();
   final token = prefs.getString('token');
-  final shiftId = prefs.getString('shift_id');
+  if (token == null || token.isEmpty) {
+    print('No token found');
+    return;
+  }
+
+  // Get current user ID
+  final user = await AuthService.getUser(context);
+  final userId = user.id.toString();
+
+  final shiftId = prefs.getString('shift_id_$userId');
+  if (shiftId == null) {
+    print('No shift ID found for this user.');
+    return;
+  }
+
   final String apiSecret = dotenv.env['POS_API_SECRET'] ?? "";
   final String apiUri = dotenv.env['POS_API_URL'] ?? "";
   final url = Uri.parse('$apiUri/api/v1/shift/end');
-
-  if (shiftId == null) {
-    print('No shift ID found in preferences.');
-    return;
-  }
 
   final Map<String, dynamic> data = {
     'id': shiftId,
@@ -93,7 +112,7 @@ Future<void> endShift(String endingBalance) async {
 
     if (response.statusCode == 200) {
       print('Shift ended: ${response.body}');
-      await prefs.remove('shift_id');
+      await prefs.remove('shift_id_$userId'); // remove per-user shift
     } else {
       print('Failed to end shift: ${response.body}');
     }
@@ -102,21 +121,24 @@ Future<void> endShift(String endingBalance) async {
   }
 }
 
-Future<ContinueShiftResult> continueShift() async {
+Future<ContinueShiftResult> continueShift({required dynamic context}) async {
   final prefs = await SharedPreferences.getInstance();
   final token = prefs.getString('token');
-  final shiftId = prefs.getString('shift_id');
-  final String apiSecret = dotenv.env['POS_API_SECRET'] ?? "";
-  final String apiUri = dotenv.env['POS_API_URL'] ?? "";
-
   if (token == null || token.isEmpty) {
     return ContinueShiftResult(success: false, error: 'No token found');
   }
 
+  // Get current user ID
+  final user = await AuthService.getUser(context);
+  final userId = user.id.toString();
+
+  final shiftId = prefs.getString('shift_id_$userId');
   if (shiftId == null || shiftId.isEmpty) {
     return ContinueShiftResult(success: false, error: 'No active shift found');
   }
 
+  final String apiSecret = dotenv.env['POS_API_SECRET'] ?? "";
+  final String apiUri = dotenv.env['POS_API_URL'] ?? "";
   final url = Uri.parse('$apiUri/api/v1/shift/$shiftId');
 
   try {
@@ -130,7 +152,7 @@ Future<ContinueShiftResult> continueShift() async {
     );
 
     if (response.statusCode == 200) {
-      print('Continuing shift: $shiftId');
+      print('Continuing shift: $shiftId for user $userId');
       return ContinueShiftResult(success: true, shiftId: shiftId);
     } else {
       print('Failed to continue shift: ${response.body}');
@@ -142,17 +164,24 @@ Future<ContinueShiftResult> continueShift() async {
   }
 }
 
-Future<bool> isTodayShiftValid() async {
+Future<bool> isTodayShiftValid({required dynamic context}) async {
   final prefs = await SharedPreferences.getInstance();
   final token = prefs.getString('token');
-  final shiftId = prefs.getString('shift_id');
-  final String apiSecret = dotenv.env['POS_API_SECRET'] ?? "";
-  final String apiUri = dotenv.env['POS_API_URL'] ?? "";
-
-  if (token == null || token.isEmpty || shiftId == null || shiftId.isEmpty) {
+  if (token == null || token.isEmpty) {
     return false;
   }
 
+  // Get current user ID
+  final user = await AuthService.getUser(context);
+  final userId = user.id.toString();
+
+  final shiftId = prefs.getString('shift_id_$userId');
+  if (shiftId == null || shiftId.isEmpty) {
+    return false;
+  }
+
+  final String apiSecret = dotenv.env['POS_API_SECRET'] ?? "";
+  final String apiUri = dotenv.env['POS_API_URL'] ?? "";
   final url = Uri.parse('$apiUri/api/v1/shift/$shiftId');
 
   try {
@@ -168,11 +197,15 @@ Future<bool> isTodayShiftValid() async {
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
       final createdAt = DateTime.parse(data['created_at']);
+      final timeOut = data['time_out']; // null if still active
       final now = DateTime.now();
 
-      return createdAt.year == now.year &&
+      final isToday =
+          createdAt.year == now.year &&
           createdAt.month == now.month &&
           createdAt.day == now.day;
+
+      return isToday && timeOut == null;
     }
   } catch (e) {
     print('Error: $e');

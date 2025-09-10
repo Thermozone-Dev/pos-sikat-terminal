@@ -1,3 +1,4 @@
+import 'package:bir_pos/models/user.dart';
 import 'package:flutter/material.dart';
 import 'package:bir_pos/terminal.dart';
 import 'package:http/http.dart' as http;

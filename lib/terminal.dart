@@ -87,7 +87,7 @@ class _TerminalState extends State<Terminal> {
       error = null;
     });
 
-    final result = await initializeShift(openingBalance);
+    final result = await initializeShift(openingBalance, context: context);
 
     setState(() {
       isLoading = false;
@@ -95,12 +95,28 @@ class _TerminalState extends State<Terminal> {
         isInitialized = true;
       } else {
         error = result.error;
+
+        // Show snackbar error
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(error ?? "Failed to start shift."),
+              backgroundColor: Colors.red,
+              duration: const Duration(seconds: 3),
+            ),
+          );
+        }
+
+        // If it's an existing shift, check for continuation
+        if (error != null && error!.contains("already an existing shift")) {
+          checkShift();
+        }
       }
     });
   }
 
   Future<void> checkShift() async {
-    final valid = await isTodayShiftValid();
+    final valid = await isTodayShiftValid(context: context);
     setState(() {
       showContinueShiftButton = valid;
     });
@@ -768,7 +784,7 @@ class _TerminalState extends State<Terminal> {
                     if (showContinueShiftButton)
                       ElevatedButton(
                         onPressed: () async {
-                          final result = await continueShift();
+                          final result = await continueShift(context: context);
                           if (result.success) {
                             setState(() => isInitialized = true);
                           } else {

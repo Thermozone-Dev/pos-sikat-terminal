@@ -1067,7 +1067,7 @@ class MainDrawer extends StatelessWidget {
               await showEndingBalanceModal(context, (
                 String endingBalance,
               ) async {
-                await endShift(endingBalance);
+                await endShift(context: context, endingBalance: endingBalance);
               });
             },
           ),
