@@ -108,11 +108,11 @@ class _TerminalState extends State<Terminal> {
 
   Map<String, dynamic> transactionData = {
     'items': [],
-    'transaction_method': null,
+    'transaction_methods': [],
     'transaction_is_digital': false,
     'transaction_fee': 0.0,
     'reference_number': 0.0,
-    'cash_tendered': 0.0,
+    'total_cash_tendered': 0.0,
     'total_sales': 0.0,
     'change': 0.0,
     'gross_sales': 0.0,
@@ -166,11 +166,11 @@ class _TerminalState extends State<Terminal> {
     setState(() {
       transactionData = {
         'items': [],
-        'transaction_method': null,
+        'transaction_methods': [],
         'transaction_is_digital': false,
-        'transaction_fee': 0.0,
+        'total_transaction_fee': 0.0,
         'reference_number': 0.0,
-        'cash_tendered': 0.0,
+        'total_cash_tendered': 0.0,
         'total_sales': 0.0,
         'change': 0.0,
         'gross_sales': 0.0,
@@ -268,23 +268,32 @@ class _TerminalState extends State<Terminal> {
     });
   }
 
-  void setCashTendered(cashTendered) {
-    transactionData['cash_tendered'] = cashTendered['value'];
+  void setCashTendered(data) {
+    transactionData["transaction_methods"].last['cash_tendered'] +=
+        data['cash_tendered'];
     calculateValues();
   }
 
-  void setTransactionFee(transactionFee) {
-    transactionData['transaction_fee'] = transactionFee['value'];
-    transactionData['reference_number'] = transactionFee['reference_number'];
+  void setTransactionFee(data) {
+    transactionData['transaction_methods'].last['cash_tendered'] +=
+        data['cash_tendered'];
+    transactionData['transaction_methods'].last['transaction_fee'] +=
+        data['transaction_fee'];
+    transactionData['transaction_methods'].last['reference_number'] =
+        data['reference_number'].toString();
     calculateValues();
   }
 
   void setTransactionMethod(transactionMethod) {
-    transactionData['transaction_method'] = transactionMethod.id;
+    transactionData['transaction_methods'].add({
+      'transaction_method_id': transactionMethod.id,
+      'cash_tendered': 0.0,
+      'transaction_fee': 0.0,
+      'reference_number': "00000000000",
+    });
     transactionData['transaction_is_digital'] = transactionMethod.isDigital;
     transactionMethodName = transactionMethod.name;
     isTransactionMethodSet = true;
-    calculateValues();
   }
 
   void addItemDiscount(item) {
@@ -465,9 +474,9 @@ class _TerminalState extends State<Terminal> {
 
     final accountingData = {
       'transaction_method': transactionData['transaction_method'].toString(),
-      'cash_tendered': (transactionData['cash_tendered'] as num)
+      'total_cash_tendered': (transactionData['total_cash_tendered'] as num)
           .toStringAsFixed(2),
-      'transaction_fee': (transactionData['transaction_fee'] as num)
+      'total_transaction_fee': (transactionData['total_transaction_fee'] as num)
           .toStringAsFixed(2),
       'reference_number': transactionData['reference_number'].toString(),
       'total_sales': (transactionData['total_sales'] as num).toStringAsFixed(2),
