@@ -744,7 +744,7 @@ class PrinterService {
         styles: PosStyles(align: PosAlign.left),
       ),
       PosColumn(
-        text: 'P ${accountingData['cash_tendered']}',
+        text: 'P ${accountingData['total_cash_tendered']}',
         width: 5,
         styles: PosStyles(align: PosAlign.right),
       ),
