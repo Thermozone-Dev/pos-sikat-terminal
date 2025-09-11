@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:bir_pos/models/zreading_summary.dart';
 import 'package:bir_pos/services/claim_stub_service.dart';
 import 'package:bir_pos/services/receipt_reprint_service.dart';
 import 'package:bir_pos/services/transaction_reprint_service.dart';
@@ -10,8 +11,10 @@ import 'package:bir_pos/services/x_reprint_service.dart';
 import 'package:bir_pos/services/xreading_reprint_service.dart';
 import 'package:bir_pos/services/z_reprint_service.dart';
 import 'package:bir_pos/services/zreading_reprint_print_service.dart';
+import 'package:bir_pos/services/zreading_summary_print_service.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
 
 class TerminalActionButtons extends StatelessWidget {
   final ValueChanged setTransactionMethod;
@@ -376,6 +379,26 @@ class TerminalActionButtons extends StatelessWidget {
                             ),
                             onPressed: () => Navigator.pop(context, 4),
                           ),
+                          const SizedBox(height: 12),
+
+                          // Option 5
+                          ElevatedButton.icon(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.grey[200],
+                              foregroundColor: Colors.black87,
+                              minimumSize: const Size.fromHeight(50),
+                              alignment: Alignment.centerLeft,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                            icon: const Icon(Icons.receipt_long),
+                            label: const Align(
+                              alignment: Alignment.centerLeft,
+                              child: Text("Z-Reading Summary"),
+                            ),
+                            onPressed: () => Navigator.pop(context, 5),
+                          ),
                         ],
                       ),
                     ),
@@ -687,6 +710,77 @@ class TerminalActionButtons extends StatelessWidget {
                     context,
                   ).showSnackBar(SnackBar(content: Text("Error: $e")));
                 }
+              }
+            } else if (choice == 5) {
+              final pickedDateFrom = await showDatePicker(
+                context: context,
+                initialDate: DateTime.now(),
+                firstDate: DateTime(2020),
+                lastDate: DateTime(2100),
+                builder: (context, child) {
+                  return Theme(
+                    data: Theme.of(context).copyWith(
+                      colorScheme: const ColorScheme.light(
+                        primary: Colors.blue,
+                      ),
+                    ),
+                    child: child!,
+                  );
+                },
+              );
+
+              if (pickedDateFrom == null) return; // user cancelled
+
+              final pickedDateTo = await showDatePicker(
+                context: context,
+                initialDate: pickedDateFrom,
+                firstDate: pickedDateFrom,
+                lastDate: DateTime(2100),
+                builder: (context, child) {
+                  return Theme(
+                    data: Theme.of(context).copyWith(
+                      colorScheme: const ColorScheme.light(
+                        primary: Colors.blue,
+                      ),
+                    ),
+                    child: child!,
+                  );
+                },
+              );
+
+              if (pickedDateTo == null) return;
+
+              // Format to yyyy-MM-dd (or whatever your API expects)
+              final dateFrom = DateFormat('yyyy-MM-dd').format(pickedDateFrom);
+              final dateTo = DateFormat('yyyy-MM-dd').format(pickedDateTo);
+
+              try {
+                // 🔹 Call API service
+                final service = ZReadingReprintService();
+                final summary = await service.fetchSummary(dateFrom, dateTo);
+
+                if (summary != null) {
+                  // 🔹 Print the receipt
+                  final printService = ZReadingSummaryPrintService();
+                  await printService.printReceipt(zReading: summary);
+
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text("✅ Z-Reading Summary printed successfully"),
+                    ),
+                  );
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text("⚠️ No Z-Reading Summary found"),
+                    ),
+                  );
+                }
+              } catch (e) {
+                print("❌ Error fetching/printing summary: $e");
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(SnackBar(content: Text("Error: $e")));
               }
             } else if (choice != null) {
               ScaffoldMessenger.of(context).showSnackBar(
