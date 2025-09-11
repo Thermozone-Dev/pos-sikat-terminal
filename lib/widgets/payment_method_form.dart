@@ -67,11 +67,14 @@ void _paymentMethodDialogBuilder(
 ) {
   final TextEditingController cashTenderedSelectedController =
       TextEditingController();
+  final TextEditingController transactionFeeSelectedController =
+      TextEditingController();
 
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   final Map<String, dynamic> savedValue = {
-    'value': 0,
+    'cash_tendered': 0,
+    'transaction_fee': 0,
     'reference_number': null,
   };
 
@@ -79,7 +82,7 @@ void _paymentMethodDialogBuilder(
     context: context,
     builder: (context) {
       return AlertDialog(
-        title: Text(isDigital ? 'Transaction Fee' : "Cash Tendered"),
+        title: Text("Transaction Method - ${method.name}"),
         scrollable: true,
         content: Padding(
           padding: EdgeInsets.all(8.0),
@@ -91,10 +94,7 @@ void _paymentMethodDialogBuilder(
                   controller: cashTenderedSelectedController,
                   keyboardType: TextInputType.number,
                   decoration: InputDecoration(
-                    labelText:
-                        isDigital
-                            ? 'Enter Transaction Fee'
-                            : 'Enter Amount Tendered',
+                    labelText: 'Enter Amount Tendered',
                     border: OutlineInputBorder(),
                   ),
                   validator: (value) {
@@ -105,15 +105,34 @@ void _paymentMethodDialogBuilder(
                     if (amount == null || amount < 0) {
                       return 'Please enter a valid amount';
                     }
-                    if (!isDigital && amount < total) {
-                      return 'Amount must be greater than or equal to total';
-                    }
                     return null;
                   },
                   onChanged: (value) {
-                    savedValue['value'] = int.parse(value);
+                    savedValue['cash_tendered'] = int.parse(value);
                   },
                 ),
+                if (isDigital)
+                  TextFormField(
+                    controller: transactionFeeSelectedController,
+                    keyboardType: TextInputType.number,
+                    decoration: InputDecoration(
+                      labelText: 'Enter Transaction Fee',
+                      border: OutlineInputBorder(),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter a value';
+                      }
+                      final amount = int.tryParse(value);
+                      if (amount == null || amount < 0) {
+                        return 'Please enter a valid amount';
+                      }
+                      return null;
+                    },
+                    onChanged: (value) {
+                      savedValue['transaction_fee'] = int.parse(value);
+                    },
+                  ),
                 if (isDigital)
                   TextFormField(
                     keyboardType: TextInputType.number,

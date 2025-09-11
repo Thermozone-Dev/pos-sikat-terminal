@@ -52,10 +52,9 @@ class TransactionService {
     var encodedData = {'items': encodedItems};
 
     encodedData.addAll({
-      'transaction_method': data['transaction_method'],
-      'transaction_fee': data['transaction_fee'] ?? 0.00,
-      'cash_tendered': data['cash_tendered'] ?? 0.00,
-      'reference_number': data['reference_number'].toString(),
+      'transaction_methods': data['transaction_methods'],
+      'total_transaction_fee': data['total_transaction_fee'] ?? 0.00,
+      'total_cash_tendered': data['total_cash_tendered'] ?? 0.00,
       'change': data['change'] ?? 0.00,
       'total_sales': data['total_sales'] ?? 0.00,
       'gross_sales': data['gross_sales'] ?? 0.00,
@@ -229,18 +228,20 @@ class TransactionService {
       totalDiscount += itemDiscountValue;
     }
 
-    transactionData['cash_tendered'] =
-        transactionData['transaction_is_digital']
-            ? totalSales
-            : transactionData['cash_tendered'];
+    //Cash Tendered and Change Calculations
+    transactionData['total_cash_tendered'] = 0.00;
+    transactionData['total_transaction_fee'] = 0.00;
 
-    if (!transactionData['transaction_is_digital']) {
-      final change = (transactionData['cash_tendered'] - totalSales);
-      transactionData['change'] =
-          change < 0 ? 0.00 : change; // Ensure change is not negative
-    } else {
-      transactionData['change'] = 0.00;
+    for (var transactionMethod in transactionData['transaction_methods']) {
+      transactionData['total_cash_tendered'] +=
+          transactionMethod['cash_tendered'];
+      transactionData['total_transaction_fee'] +=
+          transactionMethod['transaction_fee'] ?? 0.00;
     }
+
+    final change = (transactionData['total_cash_tendered'] - totalSales);
+    transactionData['change'] =
+        change < 0 ? 0.00 : change; // Ensure change is not negative
 
     transactionData['total_sales'] = totalSales;
     transactionData['gross_sales'] = grossSales;
