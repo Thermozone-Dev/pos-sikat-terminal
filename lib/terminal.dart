@@ -143,7 +143,7 @@ class _TerminalState extends State<Terminal> {
     'discount_value': 0.0,
   };
 
-  String transactionMethodName = "";
+  List transactionMethodName = [];
   String invoiceId = "";
   bool isDigitalPayment = false;
   bool isFirstPrint = true;
@@ -308,7 +308,7 @@ class _TerminalState extends State<Terminal> {
       'reference_number': "00000000000",
     });
     transactionData['transaction_is_digital'] = transactionMethod.isDigital;
-    transactionMethodName = transactionMethod.name;
+    transactionMethodName.add(transactionMethod.name);
     isTransactionMethodSet = true;
   }
 

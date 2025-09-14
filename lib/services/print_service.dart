@@ -16,7 +16,7 @@ class PrinterService {
     required String storePhone,
     required Map<String, String> userData,
     required String invoiceId,
-    required String methodName,
+    required List methodName,
     required List<dynamic> items,
     required List<dynamic> discountedItems,
     required Map<String, String> accountingData,
@@ -108,7 +108,7 @@ class PrinterService {
     String storePhone,
     Map<String, String> userData,
     String invoiceId,
-    String methodName,
+    List methodName,
     Customer? customer,
     List<dynamic> items,
     List<dynamic> discountedItems,
@@ -549,7 +549,7 @@ class PrinterService {
       styles: PosStyles(align: PosAlign.left),
     );
     bytes += generator.text(
-      'Payment Method: ${methodName.toUpperCase()}',
+      'Payment Method: ${methodName.join(',').toUpperCase()}',
       styles: PosStyles(align: PosAlign.left),
     );
     bytes += generator.feed(1);
