@@ -189,7 +189,7 @@ class DiscountedTransactionBasketItem {
       "name": name,
       "quantity": quantity,
       "price": price,
-      "discount_value": discountValue,
+      "discountValue": discountValue,
     };
   }
 }

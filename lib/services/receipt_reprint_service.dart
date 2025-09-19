@@ -338,8 +338,7 @@ class ReprintReceiptService {
             styles: PosStyles(align: PosAlign.left),
           ),
           PosColumn(
-            text:
-                'P ${transaction.transactionDetails.cashTendered.toStringAsFixed(2)}',
+            text: 'P ${item.discountValue.toStringAsFixed(2)}',
             width: 5,
             styles: PosStyles(align: PosAlign.right),
           ),
@@ -352,8 +351,7 @@ class ReprintReceiptService {
             styles: PosStyles(align: PosAlign.left),
           ),
           PosColumn(
-            text:
-                'P ${transaction.transactionDetails.cashTendered.toStringAsFixed(2)}',
+            text: 'P ${item.discountValue.toStringAsFixed(2)}',
             width: 5,
             styles: PosStyles(align: PosAlign.right),
           ),
@@ -366,8 +364,7 @@ class ReprintReceiptService {
             styles: PosStyles(align: PosAlign.left),
           ),
           PosColumn(
-            text:
-                'P ${transaction.transactionDetails.cashTendered.toStringAsFixed(2)}',
+            text: 'P ${item.discountValue.toStringAsFixed(2)}',
             width: 5,
             styles: PosStyles(align: PosAlign.right),
           ),
