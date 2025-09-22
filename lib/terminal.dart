@@ -201,6 +201,7 @@ class _TerminalState extends State<Terminal> {
       };
       isFirstPrint = true;
       isTransactionMethodSet = false;
+      transactionMethodName = [];
     });
   }
 
