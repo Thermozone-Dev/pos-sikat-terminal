@@ -40,6 +40,7 @@ class TransactionDetails {
   final bool isPwd;
   final bool isNac;
   final bool isSoloParent;
+  final String grossSales;
   final String cashTendered;
   final String vatableSales;
   final String change;
@@ -62,6 +63,7 @@ class TransactionDetails {
     required this.isPwd,
     required this.isNac,
     required this.isSoloParent,
+    required this.grossSales,
     required this.cashTendered,
     required this.vatableSales,
     required this.change,
@@ -86,6 +88,7 @@ class TransactionDetails {
       isPwd: json['is_pwd'] ?? false,
       isNac: json['is_nac'] ?? false,
       isSoloParent: json['is_soloparent'] ?? false,
+      grossSales: json['gross_sales'] ?? '0.00',
       cashTendered: json['cash_tendered'] ?? '0.00',
       vatableSales: json['vatable_sales'] ?? '0.00',
       change: json['change'] ?? '0.00',

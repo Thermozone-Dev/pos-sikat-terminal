@@ -249,6 +249,49 @@ class ReprintVoidReceiptService {
         ),
       ]);
       bytes += generator.feed(1);
+    } else {
+      bytes += generator.hr();
+      bytes += generator.feed(1);
+
+      // Blank Customer Details
+      bytes += generator.text(
+        '----- CUSTOMER DETAILS -----',
+        styles: PosStyles(align: PosAlign.center, bold: true),
+      );
+      bytes += generator.feed(1);
+      bytes += generator.row([
+        PosColumn(text: 'Name:', width: 5),
+        PosColumn(
+          text: '___________________________________',
+          width: 7,
+          styles: PosStyles(bold: true),
+        ),
+      ]);
+      bytes += generator.row([
+        PosColumn(text: 'Address:', width: 5),
+        PosColumn(
+          text: '___________________________________',
+          width: 7,
+          styles: PosStyles(bold: true),
+        ),
+      ]);
+      bytes += generator.row([
+        PosColumn(text: 'TIN:', width: 5),
+        PosColumn(
+          text: '___________________________________',
+          width: 7,
+          styles: PosStyles(bold: true),
+        ),
+      ]);
+      bytes += generator.row([
+        PosColumn(text: 'Signature:', width: 5),
+        PosColumn(
+          text: '___________________________________',
+          width: 7,
+          styles: PosStyles(bold: true),
+        ),
+      ]);
+      bytes += generator.feed(1);
     }
 
     bytes += generator.hr();
@@ -388,6 +431,18 @@ class ReprintVoidReceiptService {
     }
     bytes += generator.row([
       PosColumn(
+        text: 'Gross Sales:',
+        width: 7,
+        styles: PosStyles(align: PosAlign.left),
+      ),
+      PosColumn(
+        text: '- P ${transaction.transactionDetails.grossSales}',
+        width: 5,
+        styles: PosStyles(align: PosAlign.right),
+      ),
+    ]);
+    bytes += generator.row([
+      PosColumn(
         text: 'Cash Tendered:',
         width: 7,
         styles: PosStyles(align: PosAlign.left),
@@ -460,7 +515,7 @@ class ReprintVoidReceiptService {
     ]);
     bytes += generator.row([
       PosColumn(
-        text: 'Total Sales:',
+        text: 'Net Total:',
         width: 7,
         styles: PosStyles(align: PosAlign.left),
       ),
