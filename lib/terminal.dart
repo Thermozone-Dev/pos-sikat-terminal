@@ -458,13 +458,13 @@ class _TerminalState extends State<Terminal> {
     final items =
         transactionData['items']
             .map((data) {
-              if (data['data']['item_discounts'] == null) {
-                return {
-                  'name': data['data']['name'],
-                  'quantity': data['quantity'],
-                  'price': data['data']['price'].roundToDouble(),
-                };
-              }
+              // if (data['data']['item_discounts'] == null) {
+              return {
+                'name': data['data']['name'],
+                'quantity': data['quantity'],
+                'price': data['data']['price'].roundToDouble(),
+              };
+              // }
             })
             .where((item) => item != null)
             .toList();

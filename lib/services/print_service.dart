@@ -690,30 +690,33 @@ class PrinterService {
         ),
       ]);
     }
-    for (var item in discountedItems) {
-      bytes += generator.row([
-        PosColumn(
-          text: item['quantity']!.toString(),
-          width: 3,
-          styles: PosStyles(align: PosAlign.left),
-        ),
-        PosColumn(
-          text: item['name']!,
-          width: 3,
-          styles: PosStyles(align: PosAlign.left),
-        ),
-        PosColumn(
-          text: item['price']!.toStringAsFixed(2),
-          width: 3,
-          styles: PosStyles(align: PosAlign.left),
-        ),
-        PosColumn(
-          text: (item['quantity']! * item['price']!).toStringAsFixed(2),
-          width: 3,
-          styles: PosStyles(align: PosAlign.left),
-        ),
-      ]);
-    }
+
+    // Discounted Items Breakdown
+
+    // for (var item in discountedItems) {
+    //   bytes += generator.row([
+    //     PosColumn(
+    //       text: item['quantity']!.toString(),
+    //       width: 3,
+    //       styles: PosStyles(align: PosAlign.left),
+    //     ),
+    //     PosColumn(
+    //       text: item['name']!,
+    //       width: 3,
+    //       styles: PosStyles(align: PosAlign.left),
+    //     ),
+    //     PosColumn(
+    //       text: item['price']!.toStringAsFixed(2),
+    //       width: 3,
+    //       styles: PosStyles(align: PosAlign.left),
+    //     ),
+    //     PosColumn(
+    //       text: (item['quantity']! * item['price']!).toStringAsFixed(2),
+    //       width: 3,
+    //       styles: PosStyles(align: PosAlign.left),
+    //     ),
+    //   ]);
+    // }
     bytes += generator.feed(1);
     bytes += generator.hr();
     bytes += generator.feed(1);
