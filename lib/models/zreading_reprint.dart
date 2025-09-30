@@ -18,6 +18,8 @@ class ZReadingReprint {
   final double vatExemptSales;
   final double zeroRatedSales;
   final double grossAmount;
+  final double totalDiscounts;
+  final double totalVatAdjustments;
   final double lessDiscount;
   final double lessVoid;
   final double lessVatAdjust;
@@ -69,6 +71,8 @@ class ZReadingReprint {
     required this.vatExemptSales,
     required this.zeroRatedSales,
     required this.grossAmount,
+    required this.totalDiscounts,
+    required this.totalVatAdjustments,
     required this.lessDiscount,
     required this.lessVoid,
     required this.lessVatAdjust,
@@ -124,6 +128,8 @@ class ZReadingReprint {
       vatExemptSales: (json['vat_exempt_sales'] ?? 0).toDouble(),
       zeroRatedSales: (json['zero_rated_sales'] ?? 0).toDouble(),
       grossAmount: (json['gross_amount'] ?? 0).toDouble(),
+      totalDiscounts: (json['total_discounts'] ?? 0),
+      totalVatAdjustments: (json['total_vat_adjusts'] ?? 0),
       lessDiscount: (json['less_discount'] ?? 0).toDouble(),
       lessVoid: (json['less_void'] ?? 0).toDouble(),
       lessVatAdjust: (json['less_vat_adjust'] ?? 0).toDouble(),

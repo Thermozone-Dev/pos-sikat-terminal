@@ -19,6 +19,8 @@ class ZReading {
   final String vatExemptSales;
   final String zeroRatedSales;
   final String grossAmount;
+  final String totalDiscounts;
+  final String totalVATAdjustments;
   final String lessDiscounts;
   final String lessReturns;
   final String lessVoids;
@@ -72,6 +74,8 @@ class ZReading {
     required this.vatExemptSales,
     required this.zeroRatedSales,
     required this.grossAmount,
+    required this.totalDiscounts,
+    required this.totalVATAdjustments,
     required this.lessDiscounts,
     required this.lessReturns,
     required this.lessVoids,
@@ -127,6 +131,8 @@ class ZReading {
       vatExemptSales: json['vatExemptSales'],
       zeroRatedSales: json['zeroRatedSales'],
       grossAmount: json['grossAmount'],
+      totalDiscounts: json['totalDiscounts'],
+      totalVATAdjustments: json['totalVATAdjusts'],
       lessDiscounts: json['lessDiscounts'],
       lessReturns: json['lessReturns'],
       lessVoids: json['lessVoids'],
@@ -183,6 +189,8 @@ class ZReading {
       'vatExemptSales': vatExemptSales,
       'zeroRatedSales': zeroRatedSales,
       'grossAmount': grossAmount,
+      'totalDiscounts': totalDiscounts,
+      'totalVATAdjustments': totalVATAdjustments,
       'lessDiscounts': lessDiscounts,
       'lessReturns': lessReturns,
       'lessVoids': lessVoids,

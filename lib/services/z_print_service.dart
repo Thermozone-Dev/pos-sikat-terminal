@@ -288,34 +288,35 @@ class ZReadingPrintService {
         styles: PosStyles(bold: false, align: PosAlign.right),
       ),
     ]);
+
     bytes += generator.row([
       PosColumn(
-        text: 'Less Discount:',
+        text: 'Total Discounts:',
         width: 6,
         styles: PosStyles(bold: false),
       ),
       PosColumn(
-        text: zReading?.lessDiscounts.toString() ?? '0.00',
+        text: zReading?.totalDiscounts.toString() ?? '0.00',
         width: 6,
         styles: PosStyles(bold: false, align: PosAlign.right),
       ),
     ]);
     bytes += generator.row([
-      PosColumn(text: 'Less Void:', width: 6, styles: PosStyles(bold: false)),
+      PosColumn(text: 'Total Void:', width: 6, styles: PosStyles(bold: false)),
       PosColumn(
-        text: zReading?.lessVoids.toString() ?? '0.00',
+        text: zReading?.totalVoids.toString() ?? '0.00',
         width: 6,
         styles: PosStyles(bold: false, align: PosAlign.right),
       ),
     ]);
     bytes += generator.row([
       PosColumn(
-        text: 'Less VAT Adjustment:',
+        text: 'Total VAT Adjustments:',
         width: 6,
         styles: PosStyles(bold: false),
       ),
       PosColumn(
-        text: zReading?.lessVATAdjustments.toString() ?? '0.00',
+        text: zReading?.totalVATAdjustments.toString() ?? '0.00',
         width: 6,
         styles: PosStyles(bold: false, align: PosAlign.right),
       ),
@@ -328,6 +329,49 @@ class ZReadingPrintService {
         styles: PosStyles(bold: false, align: PosAlign.right),
       ),
     ]);
+
+    // LESS DETAILS - Removed as per new design
+
+    // bytes += generator.row([
+    //   PosColumn(
+    //     text: 'Less Discount:',
+    //     width: 6,
+    //     styles: PosStyles(bold: false),
+    //   ),
+    //   PosColumn(
+    //     text: zReading?.lessDiscounts.toString() ?? '0.00',
+    //     width: 6,
+    //     styles: PosStyles(bold: false, align: PosAlign.right),
+    //   ),
+    // ]);
+    // bytes += generator.row([
+    //   PosColumn(text: 'Less Void:', width: 6, styles: PosStyles(bold: false)),
+    //   PosColumn(
+    //     text: zReading?.lessVoids.toString() ?? '0.00',
+    //     width: 6,
+    //     styles: PosStyles(bold: false, align: PosAlign.right),
+    //   ),
+    // ]);
+    // bytes += generator.row([
+    //   PosColumn(
+    //     text: 'Less VAT Adjustment:',
+    //     width: 6,
+    //     styles: PosStyles(bold: false),
+    //   ),
+    //   PosColumn(
+    //     text: zReading?.lessVATAdjustments.toString() ?? '0.00',
+    //     width: 6,
+    //     styles: PosStyles(bold: false, align: PosAlign.right),
+    //   ),
+    // ]);
+    // bytes += generator.row([
+    //   PosColumn(text: 'Net Amount:', width: 6, styles: PosStyles(bold: false)),
+    //   PosColumn(
+    //     text: zReading?.netAmount.toString() ?? '0.00',
+    //     width: 6,
+    //     styles: PosStyles(bold: false, align: PosAlign.right),
+    //   ),
+    // ]);
     bytes += generator.text('--------------------------------');
     bytes += generator.text(
       'DISCOUNT SUMMARY',
