@@ -149,10 +149,8 @@ class TransactionService {
       grossValue = initialPrice / (1 + vatValue);
       vatTotal = grossValue * vatValue;
 
-      //!!!Add Checking for Vat Inclusive and Exclusive Sales
-      grossSales += initialPrice;
-
       double initialVat = vatTotal;
+      double setGrossValue = initialPrice;
 
       double paxVat = vatTotal / paxAmount;
       double paxTotal = grossValue / paxAmount;
@@ -182,6 +180,7 @@ class TransactionService {
         if (discount['is_government_discount'] && item['data']['vat_exempt']) {
           itemAdjust = paxVat;
           itemExempt = paxTotal;
+          setGrossValue = initialPrice - itemAdjust;
         } else {
           newVat = ((salesTotal + paxTotal) * vatValue);
           itemAdjust = (initialVat - newVat);
@@ -219,13 +218,16 @@ class TransactionService {
       item['data']['total_value'] = itemTotal;
 
       vatAdjustment += itemAdjust;
-      vatExemptSales += itemExempt;
+      vatExemptSales += itemExempt + itemDiscountValue;
       vatDeduction += itemDeduct;
 
       vat += itemVat;
       vatableSales += itemVatableSales;
       totalSales += itemTotal;
       totalDiscount += itemDiscountValue;
+
+      //!!!Add Checking for Vat Inclusive and Exclusive Sales
+      grossSales += setGrossValue;
     }
 
     //Cash Tendered and Change Calculations
