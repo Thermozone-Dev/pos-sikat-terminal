@@ -189,7 +189,6 @@ class TransactionService {
       itemVatableSales = (salesTotal + paxTotal) - itemExempt;
       itemVat = (vatTotal - itemAdjust);
       itemDeduct = (itemExempt + itemAdjust);
-      itemDiscountValue = itemDeduct;
       itemTotal = (itemVatableSales + itemVat + itemExempt);
 
       // print(
