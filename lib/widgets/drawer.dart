@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:bir_pos/services/lock_service.dart';
 import 'package:bir_pos/services/void_print_service.dart';
 import 'package:http/http.dart' as http;
 import 'package:bir_pos/models/void_transaction.dart';
@@ -673,6 +674,8 @@ class MainDrawer extends StatelessWidget {
               );
               // final printerService = ZReadingPrintService();
               // await printerService.printReceipt();
+              final LockService lockService = LockService();
+              await lockService.lockSystem();
               Navigator.pop(context);
             },
           ),
