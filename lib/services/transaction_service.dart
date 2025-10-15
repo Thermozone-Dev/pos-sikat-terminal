@@ -219,7 +219,7 @@ class TransactionService {
 
       vatAdjustment += itemAdjust;
       vatExemptSales += itemExempt + itemDiscountValue;
-      vatDeduction += itemDeduct;
+      vatDeduction += initialPrice - setGrossValue + itemAdjust;
 
       vat += itemVat;
       vatableSales += itemVatableSales;
