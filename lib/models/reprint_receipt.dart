@@ -50,6 +50,7 @@ class TransactionDetails {
   final double vatableSales;
   final double change;
   final double vat;
+  final double vatAdjustments;
   final double vatExemptSales;
   final double zeroRatedSales;
   final double totalSales;
@@ -70,6 +71,7 @@ class TransactionDetails {
     required this.vatableSales,
     required this.change,
     required this.vat,
+    required this.vatAdjustments,
     required this.vatExemptSales,
     required this.zeroRatedSales,
     required this.totalSales,
@@ -92,6 +94,7 @@ class TransactionDetails {
       vatableSales: double.tryParse(json['vatable_sales'].toString()) ?? 0,
       change: double.tryParse(json['change'].toString()) ?? 0,
       vat: double.tryParse(json['vat'].toString()) ?? 0,
+      vatAdjustments: double.tryParse(json['vat_adjustments'].toString()) ?? 0,
       vatExemptSales: double.tryParse(json['vat_exempt_sales'].toString()) ?? 0,
       zeroRatedSales: double.tryParse(json['zero_rated_sales'].toString()) ?? 0,
       totalSales: double.tryParse(json['total_sales'].toString()) ?? 0,
@@ -115,6 +118,7 @@ class TransactionDetails {
       "vatable_sales": vatableSales,
       "change": change,
       "vat": vat,
+      "vat_adjustments": vatAdjustments,
       "vat_exempt_sales": vatExemptSales,
       "zero_rated_sales": zeroRatedSales,
       "total_sales": totalSales,
