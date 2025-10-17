@@ -376,12 +376,57 @@ class ReprintVoidReceiptService {
     // }
     bytes += generator.feed(1);
     bytes += generator.hr();
+    if (transaction.discountedItems.isNotEmpty) {
+      bytes += generator.feed(1);
+      bytes += generator.row([
+        PosColumn(
+          text: 'Item Total:',
+          width: 7,
+          styles: PosStyles(align: PosAlign.left),
+        ),
+        PosColumn(
+          text:
+              '- P ${(double.parse(transaction.transactionDetails.grossSales.toString()) + double.parse(transaction.transactionDetails.vatAdjustments.toString())).toStringAsFixed(2)}',
+          width: 5,
+          styles: PosStyles(align: PosAlign.right),
+        ),
+      ]);
+      bytes += generator.feed(1);
+      bytes += generator.hr();
+      bytes += generator.feed(1);
+      bytes += generator.row([
+        PosColumn(
+          text: 'Less Disc VAT:',
+          width: 7,
+          styles: PosStyles(align: PosAlign.left),
+        ),
+        PosColumn(
+          text: '- P ${transaction.transactionDetails.vatAdjustments}',
+          width: 5,
+          styles: PosStyles(align: PosAlign.right),
+        ),
+      ]);
+      bytes += generator.row([
+        PosColumn(
+          text: 'Gross Total:',
+          width: 7,
+          styles: PosStyles(align: PosAlign.left),
+        ),
+        PosColumn(
+          text: '- P ${transaction.transactionDetails.grossSales}',
+          width: 5,
+          styles: PosStyles(align: PosAlign.right),
+        ),
+      ]);
+      bytes += generator.feed(1);
+      bytes += generator.hr();
+    }
     bytes += generator.feed(1);
     for (var item in transaction.discountedItems) {
       if (transaction.transactionDetails.isSc == true) {
         bytes += generator.row([
           PosColumn(
-            text: 'SC Discount @ 20%:',
+            text: 'Less SC @ 20%:',
             width: 7,
             styles: PosStyles(align: PosAlign.left),
           ),
@@ -394,7 +439,7 @@ class ReprintVoidReceiptService {
       } else if (transaction.transactionDetails.isPwd == true) {
         bytes += generator.row([
           PosColumn(
-            text: 'PWD Discount @ 20%:',
+            text: 'Less PWD @ 20%:',
             width: 7,
             styles: PosStyles(align: PosAlign.left),
           ),
@@ -407,7 +452,7 @@ class ReprintVoidReceiptService {
       } else if (transaction.transactionDetails.isNac == true) {
         bytes += generator.row([
           PosColumn(
-            text: 'NAC Discount @ 20%:',
+            text: 'Less NAC @ 20%:',
             width: 7,
             styles: PosStyles(align: PosAlign.left),
           ),
@@ -420,7 +465,7 @@ class ReprintVoidReceiptService {
       } else if (transaction.transactionDetails.isSoloparent == true) {
         bytes += generator.row([
           PosColumn(
-            text: 'Solo Parent Discount @ 10%:',
+            text: 'Less SP @ 10%:',
             width: 7,
             styles: PosStyles(align: PosAlign.left),
           ),
@@ -432,18 +477,21 @@ class ReprintVoidReceiptService {
         ]);
       } else {}
     }
-    bytes += generator.row([
-      PosColumn(
-        text: 'Gross Sales:',
-        width: 7,
-        styles: PosStyles(align: PosAlign.left),
-      ),
-      PosColumn(
-        text: '- P ${transaction.transactionDetails.grossSales}',
-        width: 5,
-        styles: PosStyles(align: PosAlign.right),
-      ),
-    ]);
+    if (transaction.discountedItems.isEmpty) {
+      bytes += generator.row([
+        PosColumn(
+          text: 'Gross Sales:',
+          width: 7,
+          styles: PosStyles(align: PosAlign.left),
+        ),
+        PosColumn(
+          text: '- P ${transaction.transactionDetails.grossSales}',
+          width: 5,
+          styles: PosStyles(align: PosAlign.right),
+        ),
+      ]);
+    }
+
     bytes += generator.row([
       PosColumn(
         text: 'Cash Tendered:',
@@ -518,7 +566,7 @@ class ReprintVoidReceiptService {
     ]);
     bytes += generator.row([
       PosColumn(
-        text: 'Net Total:',
+        text: 'Amount Due:',
         width: 7,
         styles: PosStyles(align: PosAlign.left),
       ),

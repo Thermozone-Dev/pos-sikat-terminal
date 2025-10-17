@@ -45,6 +45,7 @@ class TransactionDetails {
   final String vatableSales;
   final String change;
   final String vat;
+  final String vatAdjustments;
   final String vatExemptSales;
   final String zeroRatedSales;
   final String totalSales;
@@ -68,6 +69,7 @@ class TransactionDetails {
     required this.vatableSales,
     required this.change,
     required this.vat,
+    required this.vatAdjustments,
     required this.vatExemptSales,
     required this.zeroRatedSales,
     required this.totalSales,
@@ -93,6 +95,7 @@ class TransactionDetails {
       vatableSales: json['vatable_sales'] ?? '0.00',
       change: json['change'] ?? '0.00',
       vat: json['vat'] ?? '0.00',
+      vatAdjustments: json['vat_adjustments'] ?? '0.00',
       vatExemptSales: json['vat_exempt_sales'] ?? '0.00',
       zeroRatedSales: json['zero_rated_sales'] ?? '0.00',
       totalSales: json['total_sales'] ?? '0.00',
