@@ -4,18 +4,14 @@ import 'package:bir_pos/widgets/payment_method_form.dart';
 import 'package:flutter/material.dart';
 import 'dart:io';
 
-class PaymentMethodButtons extends StatelessWidget {
+class PaymentMethodButtons extends StatefulWidget {
   final ValueChanged setTransactionMethod;
   final ValueChanged setCashTendered;
   final ValueChanged setTransactionFee;
-
   final double total;
-
-  // final Future<List<PaymentMethod>> futureTransactionMethods;
 
   const PaymentMethodButtons({
     Key? key,
-    // required this.futureTransactionMethods,
     required this.setTransactionMethod,
     required this.setCashTendered,
     required this.setTransactionFee,
@@ -23,11 +19,24 @@ class PaymentMethodButtons extends StatelessWidget {
   }) : super(key: key);
 
   @override
+  State<PaymentMethodButtons> createState() => _PaymentMethodButtonsState();
+}
+
+class _PaymentMethodButtonsState extends State<PaymentMethodButtons> {
+  late Future<List<PaymentMethod>> _futureMethods;
+
+  @override
+  void initState() {
+    super.initState();
+    _futureMethods = PaymentMethodService.getMethods();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.all(20),
+      padding: const EdgeInsets.all(20),
       child: FutureBuilder<List<PaymentMethod>>(
-        future: PaymentMethodService.getMethods(),
+        future: _futureMethods,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
@@ -39,7 +48,7 @@ class PaymentMethodButtons extends StatelessWidget {
                   builder:
                       (context) => AlertDialog(
                         title: const Text("Connection Lost"),
-                        content: Column(
+                        content: const Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Divider(),
@@ -91,12 +100,12 @@ class PaymentMethodButtons extends StatelessWidget {
 
                     return PaymentMethodForm(
                       isDigital: method.isDigital,
-                      total: total,
+                      total: widget.total,
                       modalFunction:
                           method.isDigital
-                              ? setTransactionFee
-                              : setCashTendered,
-                      methodFunction: setTransactionMethod,
+                              ? widget.setTransactionFee
+                              : widget.setCashTendered,
+                      methodFunction: widget.setTransactionMethod,
                       method: method,
                       label: method.name,
                       icon: method.isDigital ? Icons.credit_card : Icons.money,
