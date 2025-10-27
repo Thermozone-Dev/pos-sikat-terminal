@@ -666,7 +666,9 @@ class PrinterService {
       ),
     ]);
     bytes += generator.feed(1);
+    num totalItems = 0;
     for (var item in items) {
+      totalItems += item['quantity'];
       bytes += generator.row([
         PosColumn(
           text: item['quantity']!.toString(),
@@ -679,7 +681,7 @@ class PrinterService {
           styles: PosStyles(align: PosAlign.left),
         ),
         PosColumn(
-          text: item['price']!.toStringAsFixed(2),
+          text: '@${item['price']!.toStringAsFixed(2)}',
           width: 3,
           styles: PosStyles(align: PosAlign.left),
         ),
@@ -721,9 +723,17 @@ class PrinterService {
     // }
     if (discountedItems.isNotEmpty) {
       bytes += generator.feed(1);
+      bytes += generator.text(
+        '$totalItems Item(s)',
+        styles: PosStyles(
+          align: PosAlign.left,
+          height: PosTextSize.size1,
+          width: PosTextSize.size1,
+        ),
+      );
       bytes += generator.row([
         PosColumn(
-          text: 'Item Total:',
+          text: 'Subtotal:',
           width: 7,
           styles: PosStyles(align: PosAlign.left),
         ),
