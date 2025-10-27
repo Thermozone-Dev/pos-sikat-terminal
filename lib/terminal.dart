@@ -7,6 +7,7 @@ import 'package:bir_pos/services/lock_service.dart';
 import 'package:bir_pos/services/payment_method_service.dart';
 import 'package:bir_pos/services/print_service.dart';
 import 'package:bir_pos/services/auth_service.dart';
+import 'package:bir_pos/services/server_connection_service.dart';
 import 'package:bir_pos/services/transaction_service.dart';
 import 'package:bir_pos/widgets/greeter.dart';
 import 'package:bir_pos/widgets/total_change.dart';
@@ -38,6 +39,8 @@ class Terminal extends StatefulWidget {
 
 class _TerminalState extends State<Terminal> {
   final LockService lockService = LockService();
+  final serverConnectionService = ServerConnectionService();
+  bool isConnected = true;
   bool isLocked = false;
   bool isInitialized = false;
   bool isLoading = false;
@@ -170,6 +173,15 @@ class _TerminalState extends State<Terminal> {
       setState(() {
         isLocked = locked;
       });
+    });
+    serverConnectionService.startPolling((connected) {
+      if (!connected) {
+        isConnected = false;
+        print("Server disconnected!");
+      } else {
+        isConnected = true;
+        print("Server connected!");
+      }
     });
     checkShift();
     _userFuture = AuthService.getUser(context);
@@ -559,8 +571,278 @@ class _TerminalState extends State<Terminal> {
   @override
   Widget build(BuildContext context) {
     int crossAxisCount = getResponsiveCrossAxisCount(context);
+    if (isConnected) {
+      if (!isLocked) {
+        return Scaffold(
+          appBar: AppBar(
+            backgroundColor: Colors.brown[500],
+            title: Row(
+              children: [
+                Image.asset('assets/img/logo.png', height: 40),
+                const SizedBox(width: 10),
+                const Text(
+                  'POS-Sikat v1.0',
+                  style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white,
+                  ),
+                ),
+                Spacer(),
+                Container(
+                  width: 10,
+                  height: 10,
+                  decoration: const BoxDecoration(
+                    color: Colors.green, // Online = Green
+                    shape: BoxShape.circle,
+                  ),
+                ),
+              ],
+            ),
+            leading: Builder(
+              builder:
+                  (context) => IconButton(
+                    color: Colors.white,
+                    icon: const Icon(Icons.menu),
+                    onPressed: () => Scaffold.of(context).openDrawer(),
+                  ),
+            ),
+          ),
+          drawer: const MainDrawer(),
+          backgroundColor: Colors.grey[300],
+          body:
+              isInitialized
+                  ? Center(
+                    child: Row(
+                      children: [
+                        // Left Panel
+                        SizedBox(
+                          width: MediaQuery.of(context).size.width * 0.6,
+                          child: SingleChildScrollView(
+                            padding: const EdgeInsets.only(bottom: 20),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                FutureBuilder<User>(
+                                  future: _userFuture,
+                                  builder: (context, snapshot) {
+                                    if (snapshot.connectionState ==
+                                        ConnectionState.waiting) {
+                                      return const Center(
+                                        child: CircularProgressIndicator(),
+                                      );
+                                    } else if (snapshot.hasError) {
+                                      return Center(
+                                        child: Text('Error: ${snapshot.error}'),
+                                      );
+                                    } else if (!snapshot.hasData) {
+                                      return const Center(
+                                        child: Text('No user found'),
+                                      );
+                                    }
+                                    return Greeter(user: snapshot.data!);
+                                  },
+                                ),
+                                FutureBuilder<List<Package>>(
+                                  future: _packagesFuture,
+                                  builder: (context, snapshot) {
+                                    if (snapshot.connectionState ==
+                                        ConnectionState.waiting) {
+                                      return const Center(
+                                        child: CircularProgressIndicator(),
+                                      );
+                                    } else if (snapshot.hasError) {
+                                      return Center(
+                                        child: Text('Error: ${snapshot.error}'),
+                                      );
+                                    } else if (!snapshot.hasData ||
+                                        snapshot.data!.isEmpty) {
+                                      return const SizedBox.shrink();
+                                    }
+                                    final packages = snapshot.data!;
+                                    return Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        SectionHeader(title: 'Packages'),
+                                        Container(
+                                          margin: const EdgeInsets.fromLTRB(
+                                            20,
+                                            0,
+                                            0,
+                                            20,
+                                          ),
+                                          height: 330,
+                                          child: GridView.builder(
+                                            scrollDirection: Axis.horizontal,
+                                            gridDelegate:
+                                                const SliverGridDelegateWithFixedCrossAxisCount(
+                                                  crossAxisCount: 1,
+                                                  crossAxisSpacing: 10,
+                                                  mainAxisSpacing: 10,
+                                                  childAspectRatio: 1.4,
+                                                ),
+                                            itemCount: packages.length,
+                                            itemBuilder:
+                                                (context, index) => PackageCard(
+                                                  package: packages[index],
+                                                  onPressed: addItem,
+                                                ),
+                                          ),
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                ),
+                                FutureBuilder<List<Product>>(
+                                  future: _productsFuture,
+                                  builder: (context, snapshot) {
+                                    if (snapshot.connectionState ==
+                                        ConnectionState.waiting) {
+                                      return const Center(
+                                        child: CircularProgressIndicator(),
+                                      );
+                                    } else if (snapshot.hasError) {
+                                      return Center(
+                                        child: Text('Error: ${snapshot.error}'),
+                                      );
+                                    } else if (!snapshot.hasData ||
+                                        snapshot.data!.isEmpty) {
+                                      return const SizedBox.shrink();
+                                    }
+                                    final products = snapshot.data!;
+                                    return Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        SectionHeader(title: 'Products'),
+                                        Container(
+                                          margin: const EdgeInsets.fromLTRB(
+                                            20,
+                                            0,
+                                            0,
+                                            20,
+                                          ),
+                                          child: GridView.builder(
+                                            shrinkWrap: true,
+                                            physics:
+                                                const NeverScrollableScrollPhysics(),
+                                            gridDelegate:
+                                                SliverGridDelegateWithFixedCrossAxisCount(
+                                                  crossAxisCount:
+                                                      crossAxisCount,
+                                                  crossAxisSpacing: 10,
+                                                  mainAxisSpacing: 10,
+                                                  childAspectRatio: 0.75,
+                                                ),
+                                            itemCount: products.length,
+                                            itemBuilder:
+                                                (context, index) => ProductCard(
+                                                  product: products[index],
+                                                  onPressed: addItem,
+                                                ),
+                                          ),
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
 
-    if (!isLocked) {
+                        // Right Panel
+                        SizedBox(
+                          width: MediaQuery.of(context).size.width * 0.4,
+                          child: Column(
+                            children: [
+                              SizedBox(
+                                height:
+                                    MediaQuery.of(context).size.height * 0.55,
+                                child: ShoppingCart(
+                                  transactionData: transactionData,
+                                  increaseQuantity: increaseQuantity,
+                                  decreaseQuantity: decreaseQuantity,
+                                  addGovDiscountDetails: addGovDiscountDetails,
+                                  addItemDiscount: addItemDiscount,
+                                  removeItem: removeItem,
+                                  updateQuantity: updateCartQuantity,
+                                ),
+                              ),
+                              SizedBox(
+                                height:
+                                    MediaQuery.of(context).size.height * 0.1,
+                                child: TotalSummary(
+                                  totalCost: transactionData['total_sales'],
+                                  totalChange:
+                                      transactionData['change'] < 0
+                                          ? 0.00
+                                          : transactionData['change'],
+                                ),
+                              ),
+                              Flexible(
+                                child: TransactionActions(
+                                  futureDiscounts: _discountsFuture,
+                                  transactionDiscountData:
+                                      transactionData['transaction_discounts'] ??
+                                      {},
+                                  addGovDiscountDetails: addGovDiscountDetails,
+                                  addToTransactionsDiscount:
+                                      addToTransactionDiscounts,
+                                  setTransactionMethod: setTransactionMethod,
+                                  setCashTendered: setCashTendered,
+                                  setTransactionFee: setTransactionFee,
+                                  processTransactions: processTransactions,
+                                  resetTransactionData: resetTransactionData,
+                                  toggleIsFirstPrint: toggleIsFirstPrint,
+                                  printReceipt: printReceipt,
+                                  isFirstPrint: isFirstPrint,
+                                  isTransactionMethodSet:
+                                      isTransactionMethodSet,
+                                  itemsHasDiscount: itemsHasDiscount,
+                                  total: transactionData['total_sales'],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                  : Center(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        if (!showContinueShiftButton)
+                          ElevatedButton(
+                            onPressed:
+                                () => showOpeningBalanceModal(
+                                  context,
+                                  initializePage,
+                                ),
+                            child: const Text('Start Shift'),
+                          ),
+                        const SizedBox(width: 10),
+                        if (showContinueShiftButton)
+                          ElevatedButton(
+                            onPressed: () async {
+                              final result = await continueShift(
+                                context: context,
+                              );
+                              if (result.success) {
+                                setState(() => isInitialized = true);
+                              } else {
+                                setState(() => error = result.error);
+                              }
+                            },
+                            child: const Text('Continue Shift'),
+                          ),
+                      ],
+                    ),
+                  ),
+        );
+      }
       return Scaffold(
         appBar: AppBar(
           backgroundColor: Colors.brown[500],
@@ -586,297 +868,100 @@ class _TerminalState extends State<Terminal> {
               ),
             ],
           ),
-          leading: Builder(
-            builder:
-                (context) => IconButton(
-                  color: Colors.white,
-                  icon: const Icon(Icons.menu),
-                  onPressed: () => Scaffold.of(context).openDrawer(),
+        ),
+        body: Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.lock_person, size: 80, color: Colors.redAccent),
+              const SizedBox(height: 20),
+              const Text(
+                "SYSTEM IS LOCKED FOR THE DAY",
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
                 ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 10),
+              const Text(
+                "You can no longer process transactions.",
+                style: TextStyle(fontSize: 16, color: Colors.black54),
+                textAlign: TextAlign.center,
+              ),
+            ],
           ),
         ),
-        drawer: const MainDrawer(),
-        backgroundColor: Colors.grey[300],
-        body:
-            isInitialized
-                ? Center(
-                  child: Row(
-                    children: [
-                      // Left Panel
-                      SizedBox(
-                        width: MediaQuery.of(context).size.width * 0.6,
-                        child: SingleChildScrollView(
-                          padding: const EdgeInsets.only(bottom: 20),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              FutureBuilder<User>(
-                                future: _userFuture,
-                                builder: (context, snapshot) {
-                                  if (snapshot.connectionState ==
-                                      ConnectionState.waiting) {
-                                    return const Center(
-                                      child: CircularProgressIndicator(),
-                                    );
-                                  } else if (snapshot.hasError) {
-                                    return Center(
-                                      child: Text('Error: ${snapshot.error}'),
-                                    );
-                                  } else if (!snapshot.hasData) {
-                                    return const Center(
-                                      child: Text('No user found'),
-                                    );
-                                  }
-                                  return Greeter(user: snapshot.data!);
-                                },
-                              ),
-                              FutureBuilder<List<Package>>(
-                                future: _packagesFuture,
-                                builder: (context, snapshot) {
-                                  if (snapshot.connectionState ==
-                                      ConnectionState.waiting) {
-                                    return const Center(
-                                      child: CircularProgressIndicator(),
-                                    );
-                                  } else if (snapshot.hasError) {
-                                    return Center(
-                                      child: Text('Error: ${snapshot.error}'),
-                                    );
-                                  } else if (!snapshot.hasData ||
-                                      snapshot.data!.isEmpty) {
-                                    return const SizedBox.shrink();
-                                  }
-                                  final packages = snapshot.data!;
-                                  return Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      SectionHeader(title: 'Packages'),
-                                      Container(
-                                        margin: const EdgeInsets.fromLTRB(
-                                          20,
-                                          0,
-                                          0,
-                                          20,
-                                        ),
-                                        height: 330,
-                                        child: GridView.builder(
-                                          scrollDirection: Axis.horizontal,
-                                          gridDelegate:
-                                              const SliverGridDelegateWithFixedCrossAxisCount(
-                                                crossAxisCount: 1,
-                                                crossAxisSpacing: 10,
-                                                mainAxisSpacing: 10,
-                                                childAspectRatio: 1.4,
-                                              ),
-                                          itemCount: packages.length,
-                                          itemBuilder:
-                                              (context, index) => PackageCard(
-                                                package: packages[index],
-                                                onPressed: addItem,
-                                              ),
-                                        ),
-                                      ),
-                                    ],
-                                  );
-                                },
-                              ),
-                              FutureBuilder<List<Product>>(
-                                future: _productsFuture,
-                                builder: (context, snapshot) {
-                                  if (snapshot.connectionState ==
-                                      ConnectionState.waiting) {
-                                    return const Center(
-                                      child: CircularProgressIndicator(),
-                                    );
-                                  } else if (snapshot.hasError) {
-                                    return Center(
-                                      child: Text('Error: ${snapshot.error}'),
-                                    );
-                                  } else if (!snapshot.hasData ||
-                                      snapshot.data!.isEmpty) {
-                                    return const SizedBox.shrink();
-                                  }
-                                  final products = snapshot.data!;
-                                  return Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      SectionHeader(title: 'Products'),
-                                      Container(
-                                        margin: const EdgeInsets.fromLTRB(
-                                          20,
-                                          0,
-                                          0,
-                                          20,
-                                        ),
-                                        child: GridView.builder(
-                                          shrinkWrap: true,
-                                          physics:
-                                              const NeverScrollableScrollPhysics(),
-                                          gridDelegate:
-                                              SliverGridDelegateWithFixedCrossAxisCount(
-                                                crossAxisCount: crossAxisCount,
-                                                crossAxisSpacing: 10,
-                                                mainAxisSpacing: 10,
-                                                childAspectRatio: 0.75,
-                                              ),
-                                          itemCount: products.length,
-                                          itemBuilder:
-                                              (context, index) => ProductCard(
-                                                product: products[index],
-                                                onPressed: addItem,
-                                              ),
-                                        ),
-                                      ),
-                                    ],
-                                  );
-                                },
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-
-                      // Right Panel
-                      SizedBox(
-                        width: MediaQuery.of(context).size.width * 0.4,
-                        child: Column(
-                          children: [
-                            SizedBox(
-                              height: MediaQuery.of(context).size.height * 0.55,
-                              child: ShoppingCart(
-                                transactionData: transactionData,
-                                increaseQuantity: increaseQuantity,
-                                decreaseQuantity: decreaseQuantity,
-                                addGovDiscountDetails: addGovDiscountDetails,
-                                addItemDiscount: addItemDiscount,
-                                removeItem: removeItem,
-                                updateQuantity: updateCartQuantity,
-                              ),
-                            ),
-                            SizedBox(
-                              height: MediaQuery.of(context).size.height * 0.1,
-                              child: TotalSummary(
-                                totalCost: transactionData['total_sales'],
-                                totalChange:
-                                    transactionData['change'] < 0
-                                        ? 0.00
-                                        : transactionData['change'],
-                              ),
-                            ),
-                            Flexible(
-                              child: TransactionActions(
-                                futureDiscounts: _discountsFuture,
-                                transactionDiscountData:
-                                    transactionData['transaction_discounts'] ??
-                                    {},
-                                addGovDiscountDetails: addGovDiscountDetails,
-                                addToTransactionsDiscount:
-                                    addToTransactionDiscounts,
-                                setTransactionMethod: setTransactionMethod,
-                                setCashTendered: setCashTendered,
-                                setTransactionFee: setTransactionFee,
-                                processTransactions: processTransactions,
-                                resetTransactionData: resetTransactionData,
-                                toggleIsFirstPrint: toggleIsFirstPrint,
-                                printReceipt: printReceipt,
-                                isFirstPrint: isFirstPrint,
-                                isTransactionMethodSet: isTransactionMethodSet,
-                                itemsHasDiscount: itemsHasDiscount,
-                                total: transactionData['total_sales'],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                )
-                : Center(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      if (!showContinueShiftButton)
-                        ElevatedButton(
-                          onPressed:
-                              () => showOpeningBalanceModal(
-                                context,
-                                initializePage,
-                              ),
-                          child: const Text('Start Shift'),
-                        ),
-                      const SizedBox(width: 10),
-                      if (showContinueShiftButton)
-                        ElevatedButton(
-                          onPressed: () async {
-                            final result = await continueShift(
-                              context: context,
-                            );
-                            if (result.success) {
-                              setState(() => isInitialized = true);
-                            } else {
-                              setState(() => error = result.error);
-                            }
-                          },
-                          child: const Text('Continue Shift'),
-                        ),
-                    ],
-                  ),
+      );
+    } else {
+      return Scaffold(
+        appBar: AppBar(
+          backgroundColor: Colors.brown[500],
+          title: Row(
+            children: [
+              Image.asset('assets/img/logo.png', height: 40),
+              const SizedBox(width: 10),
+              const Text(
+                'POS-Sikat v1.0',
+                style: TextStyle(
+                  fontWeight: FontWeight.w600,
+                  color: Colors.white,
                 ),
+              ),
+              Spacer(),
+              Container(
+                width: 10,
+                height: 10,
+                decoration: const BoxDecoration(
+                  color: Colors.red, // Offline = Red
+                  shape: BoxShape.circle,
+                ),
+              ),
+            ],
+          ),
+        ),
+        body: Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.cloud_off, size: 80, color: Colors.redAccent),
+              const SizedBox(height: 20),
+              const Text(
+                "SERVER DISCONNECTED",
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 20),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: const [
+                  SizedBox(
+                    width: 24,
+                    height: 24,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 3,
+                      color: Colors.redAccent,
+                    ),
+                  ),
+                  SizedBox(width: 12),
+                  Flexible(
+                    child: Text(
+                      "Retrying to reconnect. Please check your internet connection.",
+                      style: TextStyle(fontSize: 16, color: Colors.black54),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
       );
     }
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.brown[500],
-        title: Row(
-          children: [
-            Image.asset('assets/img/logo.png', height: 40),
-            const SizedBox(width: 10),
-            const Text(
-              'POS-Sikat v1.0',
-              style: TextStyle(
-                fontWeight: FontWeight.w600,
-                color: Colors.white,
-              ),
-            ),
-            Spacer(),
-            Container(
-              width: 10,
-              height: 10,
-              decoration: const BoxDecoration(
-                color: Colors.green, // Online = Green
-                shape: BoxShape.circle,
-              ),
-            ),
-          ],
-        ),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.lock_person, size: 80, color: Colors.redAccent),
-            const SizedBox(height: 20),
-            const Text(
-              "SYSTEM IS LOCKED FOR THE DAY",
-              style: TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-                color: Colors.black87,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 10),
-            const Text(
-              "You can no longer process transactions.",
-              style: TextStyle(fontSize: 16, color: Colors.black54),
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
-      ),
-    );
   }
 }
