@@ -62,6 +62,7 @@ class _LoginFormState extends State<Login> {
           final data = jsonDecode(response.body);
           final token = data['token'];
           final userName = data['name'];
+          final terminalId = data['terminal_id'];
 
           if (context.mounted) {
             ScaffoldMessenger.of(
@@ -71,6 +72,7 @@ class _LoginFormState extends State<Login> {
 
           await prefs.setString('token', token);
           await prefs.setString('user_name', userName);
+          await prefs.setString('terminal_id', terminalId.toString());
 
           _clearSession();
 

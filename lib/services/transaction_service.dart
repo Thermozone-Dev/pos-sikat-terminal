@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:bir_pos/main.dart';
 import 'package:bir_pos/services/discount_service.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -48,10 +49,12 @@ class TransactionService {
 
     final encodedItems = mappedItems;
     final encodedDiscounts = formatTransactionDiscounts(data);
+    final terminal_id = prefs.getString('terminal_id');
 
     var encodedData = {'items': encodedItems};
 
     encodedData.addAll({
+      'terminal_id': terminal_id,
       'transaction_methods': data['transaction_methods'],
       'total_transaction_fee': data['total_transaction_fee'] ?? 0.00,
       'total_cash_tendered': data['total_cash_tendered'] ?? 0.00,
