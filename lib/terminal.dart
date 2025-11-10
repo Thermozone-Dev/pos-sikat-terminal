@@ -611,203 +611,198 @@ class _TerminalState extends State<Terminal> {
           backgroundColor: Colors.grey[300],
           body:
               isInitialized
-                  ? Center(
-                    child: Row(
-                      children: [
-                        // Left Panel
-                        SizedBox(
-                          width: MediaQuery.of(context).size.width * 0.6,
-                          child: SingleChildScrollView(
-                            padding: const EdgeInsets.only(bottom: 20),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                FutureBuilder<User>(
-                                  future: _userFuture,
-                                  builder: (context, snapshot) {
-                                    if (snapshot.connectionState ==
-                                        ConnectionState.waiting) {
-                                      return const Center(
-                                        child: CircularProgressIndicator(),
-                                      );
-                                    } else if (snapshot.hasError) {
-                                      return Center(
-                                        child: Text('Error: ${snapshot.error}'),
-                                      );
-                                    } else if (!snapshot.hasData) {
-                                      return const Center(
-                                        child: Text('No user found'),
-                                      );
-                                    }
-                                    return Greeter(user: snapshot.data!);
-                                  },
-                                ),
-                                FutureBuilder<List<Package>>(
-                                  future: _packagesFuture,
-                                  builder: (context, snapshot) {
-                                    if (snapshot.connectionState ==
-                                        ConnectionState.waiting) {
-                                      return const Center(
-                                        child: CircularProgressIndicator(),
-                                      );
-                                    } else if (snapshot.hasError) {
-                                      return Center(
-                                        child: Text('Error: ${snapshot.error}'),
-                                      );
-                                    } else if (!snapshot.hasData ||
-                                        snapshot.data!.isEmpty) {
-                                      return const SizedBox.shrink();
-                                    }
-                                    final packages = snapshot.data!;
-                                    return Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        SectionHeader(title: 'Packages'),
-                                        Container(
-                                          margin: const EdgeInsets.fromLTRB(
-                                            20,
-                                            0,
-                                            0,
-                                            20,
-                                          ),
-                                          height: 330,
-                                          child: GridView.builder(
-                                            scrollDirection: Axis.horizontal,
-                                            gridDelegate:
-                                                const SliverGridDelegateWithFixedCrossAxisCount(
-                                                  crossAxisCount: 1,
-                                                  crossAxisSpacing: 10,
-                                                  mainAxisSpacing: 10,
-                                                  childAspectRatio: 1.4,
-                                                ),
-                                            itemCount: packages.length,
-                                            itemBuilder:
-                                                (context, index) => PackageCard(
-                                                  package: packages[index],
-                                                  onPressed: addItem,
-                                                ),
-                                          ),
-                                        ),
-                                      ],
-                                    );
-                                  },
-                                ),
-                                FutureBuilder<List<Product>>(
-                                  future: _productsFuture,
-                                  builder: (context, snapshot) {
-                                    if (snapshot.connectionState ==
-                                        ConnectionState.waiting) {
-                                      return const Center(
-                                        child: CircularProgressIndicator(),
-                                      );
-                                    } else if (snapshot.hasError) {
-                                      return Center(
-                                        child: Text('Error: ${snapshot.error}'),
-                                      );
-                                    } else if (!snapshot.hasData ||
-                                        snapshot.data!.isEmpty) {
-                                      return const SizedBox.shrink();
-                                    }
-                                    final products = snapshot.data!;
-                                    return Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        SectionHeader(title: 'Products'),
-                                        Container(
-                                          margin: const EdgeInsets.fromLTRB(
-                                            20,
-                                            0,
-                                            0,
-                                            20,
-                                          ),
-                                          child: GridView.builder(
-                                            shrinkWrap: true,
-                                            physics:
-                                                const NeverScrollableScrollPhysics(),
-                                            gridDelegate:
-                                                SliverGridDelegateWithFixedCrossAxisCount(
-                                                  crossAxisCount:
-                                                      crossAxisCount,
-                                                  crossAxisSpacing: 10,
-                                                  mainAxisSpacing: 10,
-                                                  childAspectRatio: 0.75,
-                                                ),
-                                            itemCount: products.length,
-                                            itemBuilder:
-                                                (context, index) => ProductCard(
-                                                  product: products[index],
-                                                  onPressed: addItem,
-                                                ),
-                                          ),
-                                        ),
-                                      ],
-                                    );
-                                  },
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-
-                        // Right Panel
-                        SizedBox(
-                          width: MediaQuery.of(context).size.width * 0.4,
+                  ? Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Left Panel
+                      SizedBox(
+                        width: MediaQuery.of(context).size.width * 0.6,
+                        child: SingleChildScrollView(
+                          padding: const EdgeInsets.only(bottom: 20),
                           child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              SizedBox(
-                                height:
-                                    MediaQuery.of(context).size.height * 0.55,
-                                child: ShoppingCart(
-                                  transactionData: transactionData,
-                                  increaseQuantity: increaseQuantity,
-                                  decreaseQuantity: decreaseQuantity,
-                                  addGovDiscountDetails: addGovDiscountDetails,
-                                  addItemDiscount: addItemDiscount,
-                                  removeItem: removeItem,
-                                  updateQuantity: updateCartQuantity,
-                                ),
+                              FutureBuilder<User>(
+                                future: _userFuture,
+                                builder: (context, snapshot) {
+                                  if (snapshot.connectionState ==
+                                      ConnectionState.waiting) {
+                                    return const Center(
+                                      child: CircularProgressIndicator(),
+                                    );
+                                  } else if (snapshot.hasError) {
+                                    return Center(
+                                      child: Text('Error: ${snapshot.error}'),
+                                    );
+                                  } else if (!snapshot.hasData) {
+                                    return const Center(
+                                      child: Text('No user found'),
+                                    );
+                                  }
+                                  return Greeter(user: snapshot.data!);
+                                },
                               ),
-                              SizedBox(
-                                height:
-                                    MediaQuery.of(context).size.height * 0.1,
-                                child: TotalSummary(
-                                  totalCost: transactionData['total_sales'],
-                                  totalChange:
-                                      transactionData['change'] < 0
-                                          ? 0.00
-                                          : transactionData['change'],
-                                ),
+                              FutureBuilder<List<Package>>(
+                                future: _packagesFuture,
+                                builder: (context, snapshot) {
+                                  if (snapshot.connectionState ==
+                                      ConnectionState.waiting) {
+                                    return const Center(
+                                      child: CircularProgressIndicator(),
+                                    );
+                                  } else if (snapshot.hasError) {
+                                    return Center(
+                                      child: Text('Error: ${snapshot.error}'),
+                                    );
+                                  } else if (!snapshot.hasData ||
+                                      snapshot.data!.isEmpty) {
+                                    return const SizedBox.shrink();
+                                  }
+                                  final packages = snapshot.data!;
+                                  return Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      SectionHeader(title: 'Packages'),
+                                      Container(
+                                        margin: const EdgeInsets.fromLTRB(
+                                          20,
+                                          0,
+                                          0,
+                                          20,
+                                        ),
+                                        height: 330,
+                                        child: GridView.builder(
+                                          scrollDirection: Axis.horizontal,
+                                          gridDelegate:
+                                              const SliverGridDelegateWithFixedCrossAxisCount(
+                                                crossAxisCount: 1,
+                                                crossAxisSpacing: 10,
+                                                mainAxisSpacing: 10,
+                                                childAspectRatio: 1.4,
+                                              ),
+                                          itemCount: packages.length,
+                                          itemBuilder:
+                                              (context, index) => PackageCard(
+                                                package: packages[index],
+                                                onPressed: addItem,
+                                              ),
+                                        ),
+                                      ),
+                                    ],
+                                  );
+                                },
                               ),
-                              Flexible(
-                                child: TransactionActions(
-                                  futureDiscounts: _discountsFuture,
-                                  transactionDiscountData:
-                                      transactionData['transaction_discounts'] ??
-                                      {},
-                                  addGovDiscountDetails: addGovDiscountDetails,
-                                  addToTransactionsDiscount:
-                                      addToTransactionDiscounts,
-                                  setTransactionMethod: setTransactionMethod,
-                                  setCashTendered: setCashTendered,
-                                  setTransactionFee: setTransactionFee,
-                                  processTransactions: processTransactions,
-                                  resetTransactionData: resetTransactionData,
-                                  toggleIsFirstPrint: toggleIsFirstPrint,
-                                  printReceipt: printReceipt,
-                                  isFirstPrint: isFirstPrint,
-                                  isTransactionMethodSet:
-                                      isTransactionMethodSet,
-                                  itemsHasDiscount: itemsHasDiscount,
-                                  total: transactionData['total_sales'],
-                                ),
+                              FutureBuilder<List<Product>>(
+                                future: _productsFuture,
+                                builder: (context, snapshot) {
+                                  if (snapshot.connectionState ==
+                                      ConnectionState.waiting) {
+                                    return const Center(
+                                      child: CircularProgressIndicator(),
+                                    );
+                                  } else if (snapshot.hasError) {
+                                    return Center(
+                                      child: Text('Error: ${snapshot.error}'),
+                                    );
+                                  } else if (!snapshot.hasData ||
+                                      snapshot.data!.isEmpty) {
+                                    return const SizedBox.shrink();
+                                  }
+                                  final products = snapshot.data!;
+                                  return Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      SectionHeader(title: 'Products'),
+                                      Container(
+                                        margin: const EdgeInsets.fromLTRB(
+                                          20,
+                                          0,
+                                          0,
+                                          20,
+                                        ),
+                                        child: GridView.builder(
+                                          shrinkWrap: true,
+                                          physics:
+                                              const NeverScrollableScrollPhysics(),
+                                          gridDelegate:
+                                              SliverGridDelegateWithFixedCrossAxisCount(
+                                                crossAxisCount: crossAxisCount,
+                                                crossAxisSpacing: 10,
+                                                mainAxisSpacing: 10,
+                                                childAspectRatio: 0.75,
+                                              ),
+                                          itemCount: products.length,
+                                          itemBuilder:
+                                              (context, index) => ProductCard(
+                                                product: products[index],
+                                                onPressed: addItem,
+                                              ),
+                                        ),
+                                      ),
+                                    ],
+                                  );
+                                },
                               ),
                             ],
                           ),
                         ),
-                      ],
-                    ),
+                      ),
+
+                      // Right Panel
+                      SizedBox(
+                        width: MediaQuery.of(context).size.width * 0.4,
+                        child: Column(
+                          children: [
+                            SizedBox(
+                              height: MediaQuery.of(context).size.height * 0.55,
+                              child: ShoppingCart(
+                                transactionData: transactionData,
+                                increaseQuantity: increaseQuantity,
+                                decreaseQuantity: decreaseQuantity,
+                                addGovDiscountDetails: addGovDiscountDetails,
+                                addItemDiscount: addItemDiscount,
+                                removeItem: removeItem,
+                                updateQuantity: updateCartQuantity,
+                              ),
+                            ),
+                            SizedBox(
+                              height: MediaQuery.of(context).size.height * 0.1,
+                              child: TotalSummary(
+                                totalCost: transactionData['total_sales'],
+                                totalChange:
+                                    transactionData['change'] < 0
+                                        ? 0.00
+                                        : transactionData['change'],
+                              ),
+                            ),
+                            Flexible(
+                              child: TransactionActions(
+                                futureDiscounts: _discountsFuture,
+                                transactionDiscountData:
+                                    transactionData['transaction_discounts'] ??
+                                    {},
+                                addGovDiscountDetails: addGovDiscountDetails,
+                                addToTransactionsDiscount:
+                                    addToTransactionDiscounts,
+                                setTransactionMethod: setTransactionMethod,
+                                setCashTendered: setCashTendered,
+                                setTransactionFee: setTransactionFee,
+                                processTransactions: processTransactions,
+                                resetTransactionData: resetTransactionData,
+                                toggleIsFirstPrint: toggleIsFirstPrint,
+                                printReceipt: printReceipt,
+                                isFirstPrint: isFirstPrint,
+                                isTransactionMethodSet: isTransactionMethodSet,
+                                itemsHasDiscount: itemsHasDiscount,
+                                total: transactionData['total_sales'],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   )
                   : Center(
                     child: Row(
