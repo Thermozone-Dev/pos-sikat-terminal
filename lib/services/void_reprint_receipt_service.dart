@@ -489,7 +489,7 @@ class ReprintVoidReceiptService {
     if (transaction.discountedItems.isEmpty) {
       bytes += generator.row([
         PosColumn(
-          text: 'Gross Sales:',
+          text: 'Gross Total:',
           width: 7,
           styles: PosStyles(align: PosAlign.left),
         ),

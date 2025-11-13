@@ -447,7 +447,7 @@ class _TerminalState extends State<Terminal> {
     print('Formatting transactions...');
     print('Formatted Transaction Data: $formattedData');
     TransactionService.saveTransactionData(formattedData).then((data) {
-      setInvoice(data!['transaction details']['id']);
+      setInvoice(data!['transaction details']['si_no']);
       setStubDetails(data['stub_details']);
       // print(data['stub_details']);
       printReceipt();
