@@ -541,6 +541,11 @@ class VoidPrintService {
         styles: PosStyles(align: PosAlign.right),
       ),
     ]);
+    bytes += generator.feed(1);
+    bytes += generator.text(
+      'THIS DOCUMENT IS NOT VALID FOR CLAIM OF INPUT TAX.',
+      styles: PosStyles(align: PosAlign.center),
+    );
     bytes += generator.feed(2);
     List<int> barcodeData =
         transaction.transactionDetails.siNo.split('').map(int.parse).toList();
