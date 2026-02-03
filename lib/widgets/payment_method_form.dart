@@ -108,7 +108,7 @@ void _paymentMethodDialogBuilder(
                     return null;
                   },
                   onChanged: (value) {
-                    savedValue['cash_tendered'] = int.parse(value);
+                    savedValue['cash_tendered'] = double.parse(value);
                   },
                 ),
                 if (isDigital)
@@ -141,7 +141,7 @@ void _paymentMethodDialogBuilder(
                       border: OutlineInputBorder(),
                     ),
                     onChanged: (value) {
-                      savedValue['reference_number'] = double.parse(value);
+                      savedValue['reference_number'] = int.parse(value);
                     },
                   ),
               ],
