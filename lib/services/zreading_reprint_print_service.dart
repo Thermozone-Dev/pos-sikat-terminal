@@ -22,7 +22,10 @@ class ZReadingReprintPrintService {
 
             // ✅ Filter supported printer models (Xprinter / XP-58)
             final name = device.name.toLowerCase();
-            if (!name.contains('xprinter') && !name.contains('xp-58')) {
+            if (!name.contains('xprinter') &&
+                !name.contains('xp-58') &&
+                !name.contains('pos58') &&
+                !name.contains('pos58 printer')) {
               print("⛔ Skipped unsupported printer: ${device.name}");
               return;
             }

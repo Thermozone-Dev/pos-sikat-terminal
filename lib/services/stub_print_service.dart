@@ -20,7 +20,10 @@ class StubPrintService {
             print("🖨️ Found device: ${device.name}");
 
             // Only continue with XPrinter devices
-            if (!name.contains('xprinter') && !name.contains('xp-58')) {
+            if (!name.contains('xprinter') &&
+                !name.contains('xp-58') &&
+                !name.contains('pos58') &&
+                !name.contains('pos58 printer')) {
               print("⛔ Skipped non-Xprinter device: ${device.name}");
               return;
             }
