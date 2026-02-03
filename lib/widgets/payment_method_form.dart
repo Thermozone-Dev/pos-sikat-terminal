@@ -101,7 +101,7 @@ void _paymentMethodDialogBuilder(
                     if (value == null || value.isEmpty) {
                       return 'Please enter a value';
                     }
-                    final amount = int.tryParse(value);
+                    final amount = double.tryParse(value);
                     if (amount == null || amount < 0) {
                       return 'Please enter a valid amount';
                     }
