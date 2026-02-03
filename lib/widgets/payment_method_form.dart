@@ -123,14 +123,14 @@ void _paymentMethodDialogBuilder(
                       if (value == null || value.isEmpty) {
                         return 'Please enter a value';
                       }
-                      final amount = int.tryParse(value);
+                      final amount = double.tryParse(value);
                       if (amount == null || amount < 0) {
                         return 'Please enter a valid amount';
                       }
                       return null;
                     },
                     onChanged: (value) {
-                      savedValue['transaction_fee'] = int.parse(value);
+                      savedValue['transaction_fee'] = double.parse(value);
                     },
                   ),
                 if (isDigital)
@@ -141,7 +141,7 @@ void _paymentMethodDialogBuilder(
                       border: OutlineInputBorder(),
                     ),
                     onChanged: (value) {
-                      savedValue['reference_number'] = int.parse(value);
+                      savedValue['reference_number'] = double.parse(value);
                     },
                   ),
               ],
