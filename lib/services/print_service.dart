@@ -308,7 +308,7 @@ class PrinterService {
     // String fullUpc = formattedInvoiceId.padLeft(12, '0');
     // List<int> barcodeData = fullUpc.split('').map(int.parse).toList();
     // bytes += generator.barcode(
-    //   Barcode.upcA(barcodeData),
+    //   Barcode.ean13(barcodeData),
     //   height: 40,
     //   textPos: BarcodeText.below,
     // );
@@ -944,7 +944,7 @@ class PrinterService {
     String fullUpc = formattedInvoiceId.padLeft(12, '0');
     List<int> barcodeData = fullUpc.split('').map(int.parse).toList();
     bytes += generator.barcode(
-      Barcode.upcA(barcodeData),
+      Barcode.ean13(barcodeData),
       height: 40,
       textPos: BarcodeText.below,
     );

@@ -583,7 +583,7 @@ class ReprintReceiptService {
     List<int> barcodeData =
         transaction.transactionDetails.siNo.split('').map(int.parse).toList();
     bytes += generator.barcode(
-      Barcode.upcA(barcodeData),
+      Barcode.ean13(barcodeData),
       height: 40,
       textPos: BarcodeText.below,
     );
