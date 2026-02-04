@@ -450,7 +450,7 @@ class ReprintReceiptService {
       } else if (transaction.transactionDetails.is_nac == true) {
         bytes += generator.row([
           PosColumn(
-            text: 'Less NAC @ 20%:',
+            text: 'Less NAAC @ 20%:',
             width: 7,
             styles: PosStyles(align: PosAlign.left),
           ),
@@ -605,7 +605,19 @@ class ReprintReceiptService {
       styles: PosStyles(align: PosAlign.center),
     );
     bytes += generator.text(
-      'ATG Number: XXXXXXXX',
+      'Date Issued: MM/DD/YYYY',
+      styles: PosStyles(align: PosAlign.center),
+    );
+    bytes += generator.text(
+      'Valid Until: MM/DD/YYYY',
+      styles: PosStyles(align: PosAlign.center),
+    );
+    bytes += generator.text(
+      'PTU No: XXXXXXXX',
+      styles: PosStyles(align: PosAlign.center),
+    );
+    bytes += generator.text(
+      'Date Issued: MM/DD/YYYY',
       styles: PosStyles(align: PosAlign.center),
     );
     bytes += generator.feed(2);

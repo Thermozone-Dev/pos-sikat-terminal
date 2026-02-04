@@ -355,7 +355,7 @@ class VoidPrintService {
         ),
         PosColumn(
           text:
-              '- P ${(double.parse(transaction.transactionDetails.grossSales.toString()) + double.parse(transaction.transactionDetails.vatAdjustments.toString())).toStringAsFixed(2)}',
+              '- P ${(double.parse(transaction.transactionDetails.grossSales.toString().replaceAll(',', '')) + double.parse(transaction.transactionDetails.vatAdjustments.toString().replaceAll(',', ''))).toStringAsFixed(2)}',
           width: 5,
           styles: PosStyles(align: PosAlign.right),
         ),
@@ -421,7 +421,7 @@ class VoidPrintService {
       } else if (transaction.transactionDetails.isNac == true) {
         bytes += generator.row([
           PosColumn(
-            text: 'Less NAC @ 20%:',
+            text: 'Less NAAC @ 20%:',
             width: 7,
             styles: PosStyles(align: PosAlign.left),
           ),
@@ -575,7 +575,19 @@ class VoidPrintService {
       styles: PosStyles(align: PosAlign.center),
     );
     bytes += generator.text(
-      'ATG Number: XXXXXXXX',
+      'Date Issued: MM/DD/YYYY',
+      styles: PosStyles(align: PosAlign.center),
+    );
+    bytes += generator.text(
+      'Valid Until: MM/DD/YYYY',
+      styles: PosStyles(align: PosAlign.center),
+    );
+    bytes += generator.text(
+      'PTU No: XXXXXXXX',
+      styles: PosStyles(align: PosAlign.center),
+    );
+    bytes += generator.text(
+      'Date Issued: MM/DD/YYYY',
       styles: PosStyles(align: PosAlign.center),
     );
     bytes += generator.feed(2);

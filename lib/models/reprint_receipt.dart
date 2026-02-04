@@ -89,15 +89,40 @@ class TransactionDetails {
       is_pwd: json['is_pwd'],
       is_nac: json['is_nac'],
       is_soloparent: json['is_soloparent'],
-      grossSales: double.tryParse(json['gross_sales'].toString()) ?? 0,
-      cashTendered: double.tryParse(json['cash_tendered'].toString()) ?? 0,
-      vatableSales: double.tryParse(json['vatable_sales'].toString()) ?? 0,
-      change: double.tryParse(json['change'].toString()) ?? 0,
-      vat: double.tryParse(json['vat'].toString()) ?? 0,
-      vatAdjustments: double.tryParse(json['vat_adjustments'].toString()) ?? 0,
-      vatExemptSales: double.tryParse(json['vat_exempt_sales'].toString()) ?? 0,
-      zeroRatedSales: double.tryParse(json['zero_rated_sales'].toString()) ?? 0,
-      totalSales: double.tryParse(json['total_sales'].toString()) ?? 0,
+      grossSales:
+          double.tryParse(json['gross_sales'].toString().replaceAll(',', '')) ??
+          0,
+      cashTendered:
+          double.tryParse(
+            json['cash_tendered'].toString().replaceAll(',', ''),
+          ) ??
+          0,
+      vatableSales:
+          double.tryParse(
+            json['vatable_sales'].toString().replaceAll(',', ''),
+          ) ??
+          0,
+      change:
+          double.tryParse(json['change'].toString().replaceAll(',', '')) ?? 0,
+      vat: double.tryParse(json['vat'].toString().replaceAll(',', '')) ?? 0,
+      vatAdjustments:
+          double.tryParse(
+            json['vat_adjustments'].toString().replaceAll(',', ''),
+          ) ??
+          0,
+      vatExemptSales:
+          double.tryParse(
+            json['vat_exempt_sales'].toString().replaceAll(',', ''),
+          ) ??
+          0,
+      zeroRatedSales:
+          double.tryParse(
+            json['zero_rated_sales'].toString().replaceAll(',', ''),
+          ) ??
+          0,
+      totalSales:
+          double.tryParse(json['total_sales'].toString().replaceAll(',', '')) ??
+          0,
     );
   }
 

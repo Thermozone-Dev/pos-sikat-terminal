@@ -25,6 +25,7 @@ class TransactionReprintService {
 
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
+      print("Transaction Data : $data");
       return TransactionResponse.fromJson(data);
     } else {
       throw Exception("Failed to load transaction: ${response.statusCode}");
