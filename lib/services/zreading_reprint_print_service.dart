@@ -163,7 +163,11 @@ class ZReadingReprintPrintService {
     ]);
     bytes += generator.feed(1);
     bytes += generator.row([
-      PosColumn(text: 'Start Time:', width: 6, styles: PosStyles(bold: false)),
+      PosColumn(
+        text: 'Start Date & Time:',
+        width: 6,
+        styles: PosStyles(bold: false),
+      ),
       PosColumn(
         text: zReading?.startTime ?? 'N/A',
         width: 6,
@@ -171,7 +175,11 @@ class ZReadingReprintPrintService {
       ),
     ]);
     bytes += generator.row([
-      PosColumn(text: 'End Time:', width: 6, styles: PosStyles(bold: false)),
+      PosColumn(
+        text: 'End Date & Time:',
+        width: 6,
+        styles: PosStyles(bold: false),
+      ),
       PosColumn(
         text: zReading?.endTime ?? 'N/A',
         width: 6,

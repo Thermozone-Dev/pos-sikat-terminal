@@ -120,7 +120,11 @@ class XReadingPrintService {
     ]);
     bytes += generator.feed(1);
     bytes += generator.row([
-      PosColumn(text: 'Start Time:', width: 6, styles: PosStyles(bold: false)),
+      PosColumn(
+        text: 'Start Date & Time:',
+        width: 6,
+        styles: PosStyles(bold: false),
+      ),
       PosColumn(
         text: xReading.timeIn,
         width: 6,
@@ -128,7 +132,11 @@ class XReadingPrintService {
       ),
     ]);
     bytes += generator.row([
-      PosColumn(text: 'End Time:', width: 6, styles: PosStyles(bold: false)),
+      PosColumn(
+        text: 'End Date & Time:',
+        width: 6,
+        styles: PosStyles(bold: false),
+      ),
       PosColumn(
         text: xReading.timeOut,
         width: 6,

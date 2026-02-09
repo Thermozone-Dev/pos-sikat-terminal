@@ -164,7 +164,11 @@ class XReadingReceiptReprintService {
     ]);
     bytes += generator.feed(1);
     bytes += generator.row([
-      PosColumn(text: 'Start Time:', width: 6, styles: PosStyles(bold: false)),
+      PosColumn(
+        text: 'Start Date & Time:',
+        width: 6,
+        styles: PosStyles(bold: false),
+      ),
       PosColumn(
         text: xReading.startTime,
         width: 6,
@@ -172,7 +176,11 @@ class XReadingReceiptReprintService {
       ),
     ]);
     bytes += generator.row([
-      PosColumn(text: 'End Time:', width: 6, styles: PosStyles(bold: false)),
+      PosColumn(
+        text: 'End Date & Time:',
+        width: 6,
+        styles: PosStyles(bold: false),
+      ),
       PosColumn(
         text: xReading.endTime,
         width: 6,
