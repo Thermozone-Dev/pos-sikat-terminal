@@ -162,30 +162,23 @@ class ZReadingReprintPrintService {
       ),
     ]);
     bytes += generator.feed(1);
-    bytes += generator.row([
-      PosColumn(
-        text: 'Start Date & Time:',
-        width: 6,
-        styles: PosStyles(bold: false),
-      ),
-      PosColumn(
-        text: zReading?.startTime ?? 'N/A',
-        width: 6,
-        styles: PosStyles(bold: false, align: PosAlign.right),
-      ),
-    ]);
-    bytes += generator.row([
-      PosColumn(
-        text: 'End Date & Time:',
-        width: 6,
-        styles: PosStyles(bold: false),
-      ),
-      PosColumn(
-        text: zReading?.endTime ?? 'N/A',
-        width: 6,
-        styles: PosStyles(bold: false, align: PosAlign.right),
-      ),
-    ]);
+    bytes += generator.text(
+      'Start Date & Time:',
+      styles: PosStyles(align: PosAlign.left, bold: false),
+    );
+    bytes += generator.text(
+      zReading?.startTime ?? 'N/A',
+      styles: PosStyles(align: PosAlign.left, bold: false),
+    );
+    bytes += generator.feed(1);
+    bytes += generator.text(
+      'End Date & Time:',
+      styles: PosStyles(align: PosAlign.left, bold: false),
+    );
+    bytes += generator.text(
+      zReading?.endTime ?? 'N/A',
+      styles: PosStyles(align: PosAlign.left, bold: false),
+    );
     bytes += generator.feed(1);
     bytes += generator.row([
       PosColumn(text: 'Beg. SI #:', width: 6, styles: PosStyles(bold: false)),
