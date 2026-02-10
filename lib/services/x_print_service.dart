@@ -119,36 +119,29 @@ class XReadingPrintService {
       ),
     ]);
     bytes += generator.feed(1);
-    bytes += generator.row([
-      PosColumn(
-        text: 'Start Date & Time:',
-        width: 6,
-        styles: PosStyles(bold: false),
-      ),
-      PosColumn(
-        text: xReading.timeIn,
-        width: 6,
-        styles: PosStyles(bold: false, align: PosAlign.right),
-      ),
-    ]);
-    bytes += generator.row([
-      PosColumn(
-        text: 'End Date & Time:',
-        width: 6,
-        styles: PosStyles(bold: false),
-      ),
-      PosColumn(
-        text: xReading.timeOut,
-        width: 6,
-        styles: PosStyles(bold: false, align: PosAlign.right),
-      ),
-    ]);
+    bytes += generator.text(
+      'Start Date & Time:',
+      styles: PosStyles(align: PosAlign.left, bold: false),
+    );
+    bytes += generator.text(
+      xReading.timeIn,
+      styles: PosStyles(align: PosAlign.left, bold: false),
+    );
+    bytes += generator.feed(1);
+    bytes += generator.text(
+      'End Date & Time:',
+      styles: PosStyles(align: PosAlign.left, bold: false),
+    );
+    bytes += generator.text(
+      xReading.timeOut,
+      styles: PosStyles(align: PosAlign.left, bold: false),
+    );
     bytes += generator.feed(1);
     bytes += generator.row([
-      PosColumn(text: 'Cashier:', width: 6, styles: PosStyles(bold: false)),
+      PosColumn(text: 'Cashier:', width: 5, styles: PosStyles(bold: false)),
       PosColumn(
         text: xReading.user,
-        width: 6,
+        width: 7,
         styles: PosStyles(bold: false, align: PosAlign.right),
       ),
     ]);
