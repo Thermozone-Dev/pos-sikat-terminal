@@ -183,7 +183,8 @@ class TransactionService {
         if (discount['is_government_discount'] && item['data']['vat_exempt']) {
           itemAdjust = paxVat;
           itemExempt = paxTotal;
-          setGrossValue = initialPrice - itemAdjust;
+          // setGrossValue = initialPrice - itemAdjust;
+          setGrossValue = initialPrice;
         } else {
           newVat = ((salesTotal + paxTotal) * vatValue);
           itemAdjust = (initialVat - newVat);
