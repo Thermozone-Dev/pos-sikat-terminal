@@ -857,24 +857,12 @@ class PrinterService {
     }
     bytes += generator.row([
       PosColumn(
-        text: 'Cash Tendered:',
+        text: 'Total Amount Paid:',
         width: 7,
         styles: PosStyles(align: PosAlign.left),
       ),
       PosColumn(
         text: 'P ${accountingData['total_cash_tendered']}',
-        width: 5,
-        styles: PosStyles(align: PosAlign.right),
-      ),
-    ]);
-    bytes += generator.row([
-      PosColumn(
-        text: 'VATable Sales:',
-        width: 7,
-        styles: PosStyles(align: PosAlign.left),
-      ),
-      PosColumn(
-        text: 'P ${accountingData['vatable_sales']}',
         width: 5,
         styles: PosStyles(align: PosAlign.right),
       ),
@@ -887,6 +875,18 @@ class PrinterService {
       ),
       PosColumn(
         text: 'P ${accountingData['change']}',
+        width: 5,
+        styles: PosStyles(align: PosAlign.right),
+      ),
+    ]);
+    bytes += generator.row([
+      PosColumn(
+        text: 'VATable Sales:',
+        width: 7,
+        styles: PosStyles(align: PosAlign.left),
+      ),
+      PosColumn(
+        text: 'P ${accountingData['vatable_sales']}',
         width: 5,
         styles: PosStyles(align: PosAlign.right),
       ),

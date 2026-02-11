@@ -337,6 +337,11 @@ class ReprintReceiptService {
       ]);
     }
 
+    // for (var paymentMethod in transaction.paymentMethods) {
+    //   print(paymentMethod.paymentMethodName);
+    //   print(paymentMethod.cashTendered);
+    // }
+
     // Discounted Items Breakdown
 
     // for (var item in transaction.discountedItems) {
@@ -490,15 +495,43 @@ class ReprintReceiptService {
         ),
       ]);
     }
+    for (var paymentMethod in transaction.paymentMethods) {
+      bytes += generator.row([
+        PosColumn(
+          text: '${paymentMethod.paymentMethodName} Payment:',
+          width: 8,
+          styles: PosStyles(align: PosAlign.left),
+        ),
+        PosColumn(
+          text: 'P ${paymentMethod.cashTendered.toStringAsFixed(2)}',
+          width: 4,
+          styles: PosStyles(align: PosAlign.right),
+        ),
+      ]);
+      // print(paymentMethod.paymentMethodName);
+      // print(paymentMethod.cashTendered);
+    }
     bytes += generator.row([
       PosColumn(
-        text: 'Cash Tendered:',
+        text: 'Total Amount Paid:',
         width: 7,
         styles: PosStyles(align: PosAlign.left),
       ),
       PosColumn(
         text:
             'P ${transaction.transactionDetails.cashTendered.toStringAsFixed(2)}',
+        width: 5,
+        styles: PosStyles(align: PosAlign.right),
+      ),
+    ]);
+    bytes += generator.row([
+      PosColumn(
+        text: 'Change:',
+        width: 7,
+        styles: PosStyles(align: PosAlign.left),
+      ),
+      PosColumn(
+        text: 'P ${transaction.transactionDetails.change.toStringAsFixed(2)}',
         width: 5,
         styles: PosStyles(align: PosAlign.right),
       ),
@@ -512,18 +545,6 @@ class ReprintReceiptService {
       PosColumn(
         text:
             'P ${transaction.transactionDetails.vatableSales.toStringAsFixed(2)}',
-        width: 5,
-        styles: PosStyles(align: PosAlign.right),
-      ),
-    ]);
-    bytes += generator.row([
-      PosColumn(
-        text: 'Change:',
-        width: 7,
-        styles: PosStyles(align: PosAlign.left),
-      ),
-      PosColumn(
-        text: 'P ${transaction.transactionDetails.change.toStringAsFixed(2)}',
         width: 5,
         styles: PosStyles(align: PosAlign.right),
       ),
