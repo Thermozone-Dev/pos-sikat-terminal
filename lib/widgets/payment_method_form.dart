@@ -141,7 +141,7 @@ void _paymentMethodDialogBuilder(
                       border: OutlineInputBorder(),
                     ),
                     onChanged: (value) {
-                      savedValue['reference_number'] = int.parse(value);
+                      savedValue['reference_number'] = value;
                     },
                   ),
               ],
