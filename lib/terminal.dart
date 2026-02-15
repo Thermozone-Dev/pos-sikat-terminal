@@ -446,11 +446,8 @@ class _TerminalState extends State<Terminal> {
 
     print('Formatting transactions...');
     print('Formatted Transaction Data: $formattedData');
-    TransactionService.saveTransactionData(formattedData).then((data) {
-      setInvoice(data!['transaction details']['si_no']);
-      setStubDetails(data['stub_details']);
-      // print(data['stub_details']);
-      printReceipt();
+    TransactionService.saveTransactionData(formattedData).then((transaction) {
+      printReceipt(transaction);
     });
   }
 
@@ -471,95 +468,15 @@ class _TerminalState extends State<Terminal> {
     }
   }
 
-  void printReceipt() {
+  void printReceipt(data) {
     final printerService = PrinterService();
-    final user = AuthService.getUser(context);
 
-    final items =
-        transactionData['items']
-            .map((data) {
-              // if (data['data']['item_discounts'] == null) {
-              return {
-                'name': data['data']['name'],
-                'quantity': data['quantity'],
-                'price': data['data']['price'].roundToDouble(),
-              };
-              // }
-            })
-            .where((item) => item != null)
-            .toList();
+    final response = printerService.printReceipt(
+      context: context,
+      transaction: data,
+    );
 
-    final discountedItems =
-        transactionData['items']
-            .map((data) {
-              if (data['data']['item_discounts'] != null) {
-                return {
-                  'name': data['data']['name'],
-                  'quantity': data['quantity'],
-                  'price': (data['data']['total_value'] / data['quantity']),
-                  'discount': data['data']['item_discounts']['id'],
-                  'discount_value': double.parse(
-                    double.parse(
-                      data['data']['discount_value'].toString(),
-                    ).toStringAsFixed(2),
-                  ),
-                };
-              }
-            })
-            .where((item) => item != null)
-            .toList();
-
-    final accountingData = {
-      'transaction_method': transactionData['transaction_method'].toString(),
-      'total_cash_tendered': (transactionData['total_cash_tendered'] as num)
-          .toStringAsFixed(2),
-      'total_transaction_fee': (transactionData['total_transaction_fee'] as num)
-          .toStringAsFixed(2),
-      'reference_number': transactionData['reference_number'].toString(),
-      'total_sales': (transactionData['total_sales'] as num).toStringAsFixed(2),
-      'change': (transactionData['change'] as num).toStringAsFixed(2),
-      'gross_sales': (transactionData['gross_sales'] as num).toStringAsFixed(2),
-      'vatable_sales': (transactionData['vatable_sales'] as num)
-          .toStringAsFixed(2),
-      'vat': (transactionData['vat'] as num).toStringAsFixed(2),
-      'vat_exempt_sales': (transactionData['vat_exempt_sales'] as num)
-          .toStringAsFixed(2),
-      'vat_deduction': (transactionData['vat_deduction'] as num)
-          .toStringAsFixed(2),
-      'vat_adjustment': (transactionData['vat_adjustment'] as num)
-          .toStringAsFixed(2),
-      'zero_rated_sales': (transactionData['zero_rated_sales'] as num)
-          .toStringAsFixed(2),
-      'discount_value': (transactionData['discount_value'] as num)
-          .toStringAsFixed(2),
-    };
-
-    user.then((data) {
-      final userData = {
-        'id': data.id.toString(),
-        'name': data.name,
-        'email': data.email.toString(),
-      };
-
-      String formattedDate = DateFormat('MMMM d, y').format(DateTime.now());
-
-      final response = printerService.printReceipt(
-        context: context,
-        storeName: 'Thermozone Philippines Corp.',
-        storeAddress: '2286 Marconi St., Brgy. San Isidro, Makati City',
-        storePhone: 'VAT REG. TIN: 223-661-818-00000',
-        userData: userData,
-        invoiceId: invoiceId,
-        accountingData: accountingData,
-        methodName: transactionMethodName,
-        items: items,
-        discountedItems: discountedItems,
-        dateTime: formattedDate,
-        stubDetails: stubDetails,
-      );
-
-      print(response);
-    });
+    print(response);
   }
 
   @override
@@ -792,7 +709,6 @@ class _TerminalState extends State<Terminal> {
                                 processTransactions: processTransactions,
                                 resetTransactionData: resetTransactionData,
                                 toggleIsFirstPrint: toggleIsFirstPrint,
-                                printReceipt: printReceipt,
                                 isFirstPrint: isFirstPrint,
                                 isTransactionMethodSet: isTransactionMethodSet,
                                 itemsHasDiscount: itemsHasDiscount,

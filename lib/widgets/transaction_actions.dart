@@ -21,7 +21,6 @@ class TransactionActions extends StatelessWidget {
   final VoidCallback processTransactions;
   final VoidCallback resetTransactionData;
   final VoidCallback toggleIsFirstPrint;
-  final VoidCallback printReceipt;
 
   final double total;
   final isFirstPrint;
@@ -40,7 +39,6 @@ class TransactionActions extends StatelessWidget {
     required this.setTransactionFee,
     required this.resetTransactionData,
     required this.toggleIsFirstPrint,
-    required this.printReceipt,
     required this.isFirstPrint,
     required this.isTransactionMethodSet,
     required this.itemsHasDiscount,
@@ -79,7 +77,6 @@ class TransactionActions extends StatelessWidget {
                     processTransactions: processTransactions,
                     resetTransactionData: resetTransactionData,
                     toggleIsFirstPrint: toggleIsFirstPrint,
-                    printReceipt: printReceipt,
                     isTransactionMethodSet: isTransactionMethodSet,
                     isFirstPrint: isFirstPrint,
                   ),

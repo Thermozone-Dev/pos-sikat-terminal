@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:bir_pos/main.dart';
+import 'package:bir_pos/models/reprint_receipt.dart';
 import 'package:bir_pos/services/discount_service.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -75,7 +76,7 @@ class TransactionService {
     return encodedData;
   }
 
-  static Future<Map<String, dynamic>?> saveTransactionData(dynamic data) async {
+  static Future<TransactionResponse?> saveTransactionData(dynamic data) async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
 
@@ -96,8 +97,8 @@ class TransactionService {
       );
       if (response.statusCode == 201) {
         final data = jsonDecode(response.body);
-        // print('Transaction saved successfully: $data');
-        return data;
+        print('Transaction saved successfully: $data');
+        return TransactionResponse.fromJson(data);
       } else {
         final errorData = jsonDecode(response.body);
         final message = errorData ?? 'Transaction failed';

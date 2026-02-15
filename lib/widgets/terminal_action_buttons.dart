@@ -21,7 +21,6 @@ class TerminalActionButtons extends StatelessWidget {
   final VoidCallback processTransactions;
   final VoidCallback resetTransactionData;
   final VoidCallback toggleIsFirstPrint;
-  final VoidCallback printReceipt;
 
   final bool isFirstPrint;
   final bool isTransactionMethodSet;
@@ -32,7 +31,6 @@ class TerminalActionButtons extends StatelessWidget {
     required this.processTransactions,
     required this.resetTransactionData,
     required this.toggleIsFirstPrint,
-    required this.printReceipt,
     required this.isFirstPrint,
     required this.isTransactionMethodSet,
   }) : super(key: key);
@@ -254,9 +252,6 @@ class TerminalActionButtons extends StatelessWidget {
             }
             if (isFirstPrint) {
               processTransactions();
-              toggleIsFirstPrint();
-            } else {
-              printReceipt();
               toggleIsFirstPrint();
               resetTransactionData();
             }

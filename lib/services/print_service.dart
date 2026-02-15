@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:bir_pos/models/customer.dart';
+import 'package:bir_pos/models/reprint_receipt.dart';
 import 'package:bir_pos/services/customer_details_service.dart';
 import 'package:esc_pos_utils/esc_pos_utils.dart';
 import 'package:flutter/material.dart';
@@ -11,24 +12,14 @@ class PrinterService {
 
   Future<void> printReceipt({
     required BuildContext context,
-    required String storeName,
-    required String storeAddress,
-    required String storePhone,
-    required Map<String, String> userData,
-    required String invoiceId,
-    required List methodName,
-    required List<dynamic> items,
-    required List<dynamic> discountedItems,
-    required Map<String, String> accountingData,
-    required String dateTime,
-    required Map<String, dynamic> stubDetails,
+    required TransactionResponse transaction,
   }) async {
     var devices = <BluetoothPrinter>[];
     BluetoothPrinter? selectedPrinter;
     bool isPrinted = false;
 
     Customer? customer = await CustomerDetailsService().fetchCustomerDetails(
-      int.parse(invoiceId),
+      int.parse(transaction.transactionDetails.id.toString()),
     );
 
     // Discover USB printers
@@ -69,18 +60,9 @@ class PrinterService {
 
               await _printReceiptToDevice(
                 selectedPrinter!,
-                storeName,
-                storeAddress,
-                storePhone,
-                userData,
-                invoiceId,
-                methodName,
+                transaction,
                 customer,
-                items,
-                discountedItems,
-                accountingData,
-                dateTime,
-                stubDetails,
+                // stubDetails,
               );
 
               await subscription?.cancel();
@@ -106,18 +88,8 @@ class PrinterService {
 
   Future<void> _printReceiptToDevice(
     BluetoothPrinter printer,
-    String storeName,
-    String storeAddress,
-    String storePhone,
-    Map<String, String> userData,
-    String invoiceId,
-    List methodName,
+    TransactionResponse transaction,
     Customer? customer,
-    List<dynamic> items,
-    List<dynamic> discountedItems,
-    Map<String, String> accountingData,
-    String dateTime,
-    Map<String, dynamic> stubDetails,
   ) async {
     final profile = await CapabilityProfile.load(name: 'XP-N160I');
     final generator = Generator(PaperSize.mm58, profile);
@@ -511,7 +483,7 @@ class PrinterService {
       ),
     );
     bytes += generator.text(
-      storeAddress,
+      '2286 Marconi St., Brgy. San Isidro, Makati City',
       styles: PosStyles(align: PosAlign.center),
     );
     bytes += generator.text(
@@ -534,28 +506,29 @@ class PrinterService {
     );
     bytes += generator.feed(1);
     bytes += generator.text(
-      'Issued by: ${userData['name']}',
+      'Issued by: ${transaction.transactionDetails.processedBy}',
       styles: PosStyles(align: PosAlign.left),
     );
     bytes += generator.text(
-      'SI NO: ${invoiceId.padLeft(12, '0')}',
+      'SI NO: ${transaction.transactionDetails.siNo}',
       styles: PosStyles(align: PosAlign.left),
     );
     bytes += generator.text(
-      'Date: $dateTime',
-      styles: PosStyles(align: PosAlign.left),
-    );
-    final now = DateTime.now();
-    final formattedTime = DateFormat('h:mm a').format(now);
-    bytes += generator.text(
-      'Time: $formattedTime',
+      'Date: ${transaction.transactionDetails.date}',
       styles: PosStyles(align: PosAlign.left),
     );
     bytes += generator.text(
-      'Payment Method: ${methodName.join(',').toUpperCase()}',
+      'Time: ${transaction.transactionDetails.time}',
+      styles: PosStyles(align: PosAlign.left),
+    );
+    bytes += generator.text(
+      'Payment Method: ${transaction.transactionDetails.paymentMethod.toUpperCase()}',
       styles: PosStyles(align: PosAlign.left),
     );
     bytes += generator.feed(1);
+
+    // Customer Details
+
     if (customer != null) {
       bytes += generator.hr();
       bytes += generator.feed(1);
@@ -600,6 +573,7 @@ class PrinterService {
     } else {
       bytes += generator.hr();
       bytes += generator.feed(1);
+
       // Blank Customer Details
       bytes += generator.text(
         '----- CUSTOMER DETAILS -----',
@@ -670,61 +644,61 @@ class PrinterService {
     ]);
     bytes += generator.feed(1);
     num totalItems = 0;
-    for (var item in items) {
-      totalItems += item['quantity'];
+    for (var item in transaction.items) {
+      totalItems += item.quantity;
       bytes += generator.row([
         PosColumn(
-          text: item['quantity']!.toString(),
+          text: item.quantity.toString(),
           width: 3,
           styles: PosStyles(align: PosAlign.left),
         ),
         PosColumn(
-          text: item['name']!,
+          text: item.name,
           width: 3,
           styles: PosStyles(align: PosAlign.left),
         ),
         PosColumn(
-          text: '@${item['price']!.toStringAsFixed(2)}',
+          text: '@${item.price.toStringAsFixed(2)}',
           width: 3,
           styles: PosStyles(align: PosAlign.left),
         ),
         PosColumn(
-          text: (item['quantity']! * item['price']!).toStringAsFixed(2),
+          text: (item.quantity * item.price).toStringAsFixed(2),
           width: 3,
           styles: PosStyles(align: PosAlign.left),
         ),
       ]);
     }
-    bytes += generator.feed(1);
-    bytes += generator.hr();
 
     // Discounted Items Breakdown
 
-    // for (var item in discountedItems) {
+    // for (var item in transaction.discountedItems) {
     //   bytes += generator.row([
     //     PosColumn(
-    //       text: item['quantity']!.toString(),
+    //       text: item.quantity.toString(),
     //       width: 3,
     //       styles: PosStyles(align: PosAlign.left),
     //     ),
     //     PosColumn(
-    //       text: item['name']!,
+    //       text: item.name,
     //       width: 3,
     //       styles: PosStyles(align: PosAlign.left),
     //     ),
     //     PosColumn(
-    //       text: item['price']!.toStringAsFixed(2),
+    //       text: item.price.toStringAsFixed(2),
     //       width: 3,
     //       styles: PosStyles(align: PosAlign.left),
     //     ),
     //     PosColumn(
-    //       text: (item['quantity']! * item['price']!).toStringAsFixed(2),
+    //       text: (item.quantity * item.price).toStringAsFixed(2),
     //       width: 3,
     //       styles: PosStyles(align: PosAlign.left),
     //     ),
     //   ]);
     // }
-    if (discountedItems.isNotEmpty) {
+    bytes += generator.feed(1);
+    bytes += generator.hr();
+    if (transaction.discountedItems.isNotEmpty) {
       bytes += generator.feed(1);
       bytes += generator.text(
         '$totalItems Item(s)',
@@ -742,7 +716,7 @@ class PrinterService {
         ),
         PosColumn(
           text:
-              'P ${(double.parse(accountingData['gross_sales'] ?? '0.00') + double.parse(accountingData['vat_adjustment'] ?? '0.00')).toStringAsFixed(2)}',
+              'P ${(transaction.transactionDetails.grossSales + transaction.transactionDetails.vatAdjustments).toStringAsFixed(2)}',
           width: 5,
           styles: PosStyles(align: PosAlign.right),
         ),
@@ -757,7 +731,8 @@ class PrinterService {
           styles: PosStyles(align: PosAlign.left),
         ),
         PosColumn(
-          text: 'P ${accountingData['vat_adjustment']}',
+          text:
+              'P ${transaction.transactionDetails.vatAdjustments.toStringAsFixed(2)}',
           width: 5,
           styles: PosStyles(align: PosAlign.right),
         ),
@@ -769,7 +744,8 @@ class PrinterService {
           styles: PosStyles(align: PosAlign.left),
         ),
         PosColumn(
-          text: 'P ${accountingData['gross_sales']}',
+          text:
+              'P ${transaction.transactionDetails.grossSales.toStringAsFixed(2)}',
           width: 5,
           styles: PosStyles(align: PosAlign.right),
         ),
@@ -777,71 +753,62 @@ class PrinterService {
       bytes += generator.feed(1);
       bytes += generator.hr();
     }
-
-    bytes += generator.feed(1);
-    for (var item in discountedItems) {
-      switch (item['discount']) {
-        case 1:
-          bytes += generator.row([
-            PosColumn(
-              text: 'Less SC @ 20%:',
-              width: 7,
-              styles: PosStyles(align: PosAlign.left),
-            ),
-            PosColumn(
-              text: 'P ${item['discount_value'].toString()}',
-              width: 5,
-              styles: PosStyles(align: PosAlign.right),
-            ),
-          ]);
-          break;
-        case 2:
-          bytes += generator.row([
-            PosColumn(
-              text: 'Less PWD @ 20%:',
-              width: 7,
-              styles: PosStyles(align: PosAlign.left),
-            ),
-            PosColumn(
-              text: 'P ${item['discount_value'].toString()}',
-              width: 5,
-              styles: PosStyles(align: PosAlign.right),
-            ),
-          ]);
-          break;
-        case 3:
-          bytes += generator.row([
-            PosColumn(
-              text: 'Less NAAC @ 20%:',
-              width: 7,
-              styles: PosStyles(align: PosAlign.left),
-            ),
-            PosColumn(
-              text: 'P ${item['discount_value'].toString()}',
-              width: 5,
-              styles: PosStyles(align: PosAlign.right),
-            ),
-          ]);
-          break;
-        case 4:
-          bytes += generator.row([
-            PosColumn(
-              text: 'Less SP @ 10%:',
-              width: 7,
-              styles: PosStyles(align: PosAlign.left),
-            ),
-            PosColumn(
-              text: 'P ${item['discount_value'].toString()}',
-              width: 5,
-              styles: PosStyles(align: PosAlign.right),
-            ),
-          ]);
-          break;
-        default:
-          break;
-      }
+    for (var item in transaction.discountedItems) {
+      if (transaction.transactionDetails.is_sc == true) {
+        bytes += generator.row([
+          PosColumn(
+            text: 'Less SC @ 20%:',
+            width: 7,
+            styles: PosStyles(align: PosAlign.left),
+          ),
+          PosColumn(
+            text: 'P ${item.discountValue.toStringAsFixed(2)}',
+            width: 5,
+            styles: PosStyles(align: PosAlign.right),
+          ),
+        ]);
+      } else if (transaction.transactionDetails.is_pwd == true) {
+        bytes += generator.row([
+          PosColumn(
+            text: 'Less PWD @ 20%:',
+            width: 7,
+            styles: PosStyles(align: PosAlign.left),
+          ),
+          PosColumn(
+            text: 'P ${item.discountValue.toStringAsFixed(2)}',
+            width: 5,
+            styles: PosStyles(align: PosAlign.right),
+          ),
+        ]);
+      } else if (transaction.transactionDetails.is_nac == true) {
+        bytes += generator.row([
+          PosColumn(
+            text: 'Less NAAC @ 20%:',
+            width: 7,
+            styles: PosStyles(align: PosAlign.left),
+          ),
+          PosColumn(
+            text: 'P ${item.discountValue.toStringAsFixed(2)}',
+            width: 5,
+            styles: PosStyles(align: PosAlign.right),
+          ),
+        ]);
+      } else if (transaction.transactionDetails.is_soloparent == true) {
+        bytes += generator.row([
+          PosColumn(
+            text: 'Less SP @ 10%:',
+            width: 7,
+            styles: PosStyles(align: PosAlign.left),
+          ),
+          PosColumn(
+            text: 'P ${item.discountValue.toStringAsFixed(2)}',
+            width: 5,
+            styles: PosStyles(align: PosAlign.right),
+          ),
+        ]);
+      } else {}
     }
-    if (discountedItems.isEmpty) {
+    if (transaction.discountedItems.isEmpty) {
       bytes += generator.row([
         PosColumn(
           text: 'Gross Total:',
@@ -849,7 +816,8 @@ class PrinterService {
           styles: PosStyles(align: PosAlign.left),
         ),
         PosColumn(
-          text: 'P ${accountingData['gross_sales']}',
+          text:
+              'P ${transaction.transactionDetails.grossSales.toStringAsFixed(2)}',
           width: 5,
           styles: PosStyles(align: PosAlign.right),
         ),
@@ -857,24 +825,13 @@ class PrinterService {
     }
     bytes += generator.row([
       PosColumn(
-        text: 'Total Amount Paid:',
+        text: 'Cash Tendered:',
         width: 7,
         styles: PosStyles(align: PosAlign.left),
       ),
       PosColumn(
-        text: 'P ${accountingData['total_cash_tendered']}',
-        width: 5,
-        styles: PosStyles(align: PosAlign.right),
-      ),
-    ]);
-    bytes += generator.row([
-      PosColumn(
-        text: 'Change:',
-        width: 7,
-        styles: PosStyles(align: PosAlign.left),
-      ),
-      PosColumn(
-        text: 'P ${accountingData['change']}',
+        text:
+            'P ${transaction.transactionDetails.cashTendered.toStringAsFixed(2)}',
         width: 5,
         styles: PosStyles(align: PosAlign.right),
       ),
@@ -886,7 +843,20 @@ class PrinterService {
         styles: PosStyles(align: PosAlign.left),
       ),
       PosColumn(
-        text: 'P ${accountingData['vatable_sales']}',
+        text:
+            'P ${transaction.transactionDetails.vatableSales.toStringAsFixed(2)}',
+        width: 5,
+        styles: PosStyles(align: PosAlign.right),
+      ),
+    ]);
+    bytes += generator.row([
+      PosColumn(
+        text: 'Change:',
+        width: 7,
+        styles: PosStyles(align: PosAlign.left),
+      ),
+      PosColumn(
+        text: 'P ${transaction.transactionDetails.change.toStringAsFixed(2)}',
         width: 5,
         styles: PosStyles(align: PosAlign.right),
       ),
@@ -898,7 +868,7 @@ class PrinterService {
         styles: PosStyles(align: PosAlign.left),
       ),
       PosColumn(
-        text: 'P ${accountingData['vat']}',
+        text: 'P ${transaction.transactionDetails.vat.toStringAsFixed(2)}',
         width: 5,
         styles: PosStyles(align: PosAlign.right),
       ),
@@ -910,7 +880,8 @@ class PrinterService {
         styles: PosStyles(align: PosAlign.left),
       ),
       PosColumn(
-        text: 'P ${accountingData['vat_exempt_sales']}',
+        text:
+            'P ${transaction.transactionDetails.vatExemptSales.toStringAsFixed(2)}',
         width: 5,
         styles: PosStyles(align: PosAlign.right),
       ),
@@ -922,7 +893,8 @@ class PrinterService {
         styles: PosStyles(align: PosAlign.left),
       ),
       PosColumn(
-        text: 'P ${accountingData['zero_rated_sales']}',
+        text:
+            'P ${transaction.transactionDetails.zeroRatedSales.toStringAsFixed(2)}',
         width: 5,
         styles: PosStyles(align: PosAlign.right),
       ),
@@ -934,15 +906,15 @@ class PrinterService {
         styles: PosStyles(align: PosAlign.left),
       ),
       PosColumn(
-        text: 'P ${accountingData['total_sales']}',
+        text:
+            'P ${transaction.transactionDetails.totalSales.toStringAsFixed(2)}',
         width: 5,
         styles: PosStyles(align: PosAlign.right),
       ),
     ]);
     bytes += generator.feed(2);
-    String formattedInvoiceId = invoiceId.padLeft(12, '0');
-    String fullUpc = formattedInvoiceId.padLeft(12, '0');
-    List<int> barcodeData = fullUpc.split('').map(int.parse).toList();
+    List<int> barcodeData =
+        transaction.transactionDetails.siNo.split('').map(int.parse).toList();
     bytes += generator.barcode(
       Barcode.ean13(barcodeData),
       height: 40,
