@@ -109,7 +109,11 @@ class VoidPrintService {
       ),
     );
     bytes += generator.text(
-      '2286 Marconi St., Brgy. San Isidro, Makati City',
+      '2286 Marconi St., Brgy.',
+      styles: PosStyles(align: PosAlign.center),
+    );
+    bytes += generator.text(
+      'San Isidro, Makati City',
       styles: PosStyles(align: PosAlign.center),
     );
     bytes += generator.text(
