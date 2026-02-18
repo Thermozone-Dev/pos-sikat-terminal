@@ -5,7 +5,8 @@ import 'package:bir_pos/services/customer_details_service.dart';
 import 'package:esc_pos_utils/esc_pos_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_pos_printer_platform_image_3/flutter_pos_printer_platform_image_3.dart';
-import 'package:intl/intl.dart';
+import 'print/document_header.dart';
+import 'print/document_footer.dart';
 
 class PrinterService {
   final PrinterManager printerManager = PrinterManager.instance;
@@ -472,43 +473,13 @@ class PrinterService {
     bytes += generator.feed(1);
 
     // Business Details
+    bytes += buildReceiptHeader(generator);
 
-    bytes += generator.text(
-      'Thermozone Philippines Corp.',
-      styles: PosStyles(
-        align: PosAlign.center,
-        bold: true,
-        height: PosTextSize.size1,
-        width: PosTextSize.size1,
-      ),
-    );
-    bytes += generator.text(
-      '2286 Marconi St., Brgy.',
-      styles: PosStyles(align: PosAlign.center),
-    );
-    bytes += generator.text(
-      'San Isidro, Makati City',
-      styles: PosStyles(align: PosAlign.center),
-    );
-    bytes += generator.text(
-      'VAT REG TIN: 223-661-818-00000',
-      styles: PosStyles(align: PosAlign.center),
-    );
     bytes += generator.feed(1);
     bytes += generator.hr();
     bytes += generator.feed(1);
 
     // Transaction Details
-
-    bytes += generator.text(
-      'MIN: XXXXXXXXXX',
-      styles: PosStyles(align: PosAlign.left),
-    );
-    bytes += generator.text(
-      'Serial No: XXXXXXXXXX',
-      styles: PosStyles(align: PosAlign.left),
-    );
-    bytes += generator.feed(1);
     bytes += generator.text(
       'Issued by: ${transaction.transactionDetails.processedBy}',
       styles: PosStyles(align: PosAlign.left),
@@ -946,40 +917,8 @@ class PrinterService {
       textPos: BarcodeText.below,
     );
     bytes += generator.feed(2);
-    bytes += generator.text(
-      'THERMOZONE PHILIPPINES CORP.',
-      styles: PosStyles(align: PosAlign.center),
-    );
-    bytes += generator.text(
-      '2286 Marconi St. Makati City',
-      styles: PosStyles(align: PosAlign.center),
-    );
-    bytes += generator.text(
-      'VAT REG TIN: 223-661-818-00000',
-      styles: PosStyles(align: PosAlign.center),
-    );
-    bytes += generator.text(
-      'Accreditation Number: XXXXXXXX',
-      styles: PosStyles(align: PosAlign.center),
-    );
-    bytes += generator.text(
-      'Date Issued: MM/DD/YYYY',
-      styles: PosStyles(align: PosAlign.center),
-    );
-    bytes += generator.text(
-      'Valid Until: MM/DD/YYYY',
-      styles: PosStyles(align: PosAlign.center),
-    );
-    bytes += generator.text(
-      'PTU No: XXXXXXXX',
-      styles: PosStyles(align: PosAlign.center),
-    );
-    bytes += generator.text(
-      'Date Issued: MM/DD/YYYY',
-      styles: PosStyles(align: PosAlign.center),
-    );
-    bytes += generator.feed(2);
-    bytes += generator.text('.', styles: PosStyles(align: PosAlign.right));
+
+    bytes += buildReceiptFooter(generator);
 
     await _sendToPrinter(printer, bytes);
   }

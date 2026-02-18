@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:bir_pos/models/xreading.dart';
 import 'package:esc_pos_utils/esc_pos_utils.dart';
 import 'package:flutter_pos_printer_platform_image_3/flutter_pos_printer_platform_image_3.dart';
+import 'print/document_header.dart';
 
 class XReadingPrintService {
   final PrinterManager printerManager = PrinterManager.instance;
@@ -76,30 +77,10 @@ class XReadingPrintService {
 
     List<int> bytes = [];
     bytes += generator.feed(1);
-    bytes += generator.text(
-      'THERMOZONE PHILIPPINES CORP.',
-      styles: PosStyles(align: PosAlign.center, bold: true),
-    );
-    bytes += generator.text(
-      '2286 Marconi St., Brgy.',
-      styles: PosStyles(align: PosAlign.center, bold: true),
-    );
-    bytes += generator.text(
-      'San Isidro, Makati City',
-      styles: PosStyles(align: PosAlign.center, bold: true),
-    );
-    bytes += generator.text(
-      'VAT REG. TIN: 223-661-818-00000',
-      styles: PosStyles(align: PosAlign.center, bold: true),
-    );
-    bytes += generator.text(
-      'MIN: XXXXXXXXXX',
-      styles: PosStyles(align: PosAlign.center, bold: true),
-    );
-    bytes += generator.text(
-      'S/N: XXXXXXXXXX',
-      styles: PosStyles(align: PosAlign.center, bold: true),
-    );
+
+    // Business Details Header
+    bytes += buildReceiptHeader(generator);
+
     bytes += generator.feed(1);
     bytes += generator.text(
       'X-READING REPORT',
