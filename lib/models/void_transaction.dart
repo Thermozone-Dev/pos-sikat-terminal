@@ -1,12 +1,16 @@
+import 'package:bir_pos/models/reprint_receipt.dart';
+
 class VoidTransactionResponse {
   final String message;
   final TransactionDetails transactionDetails;
+  final List<TransactionPaymentMethod> transactionPaymentMethods;
   final List<Item> items;
   final List<DiscountedItem> discountedItems;
 
   VoidTransactionResponse({
     required this.message,
     required this.transactionDetails,
+    required this.transactionPaymentMethods,
     required this.items,
     required this.discountedItems,
   });
@@ -17,6 +21,10 @@ class VoidTransactionResponse {
       transactionDetails: TransactionDetails.fromJson(
         json['transaction_details'],
       ),
+      transactionPaymentMethods:
+          (json['payment_methods'] as List)
+              .map((e) => TransactionPaymentMethod.fromJson(e))
+              .toList(),
       items: (json['items'] as List).map((e) => Item.fromJson(e)).toList(),
       discountedItems:
           (json['discounted_items'] as List)

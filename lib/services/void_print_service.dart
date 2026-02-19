@@ -435,26 +435,28 @@ class VoidPrintService {
         ),
       ]);
     }
+    for (var payment in transaction.transactionPaymentMethods) {
+      bytes += generator.row([
+        PosColumn(
+          text: '${payment.paymentMethodName} Payment:',
+          width: 8,
+          styles: PosStyles(align: PosAlign.left),
+        ),
+        PosColumn(
+          text: '- P ${payment.cashTendered.toStringAsFixed(2)}',
+          width: 4,
+          styles: PosStyles(align: PosAlign.right),
+        ),
+      ]);
+    }
     bytes += generator.row([
       PosColumn(
-        text: 'Cash Tendered:',
+        text: 'Total Amount Paid:',
         width: 7,
         styles: PosStyles(align: PosAlign.left),
       ),
       PosColumn(
         text: '- P ${transaction.transactionDetails.cashTendered}',
-        width: 5,
-        styles: PosStyles(align: PosAlign.right),
-      ),
-    ]);
-    bytes += generator.row([
-      PosColumn(
-        text: 'VATable Sales:',
-        width: 7,
-        styles: PosStyles(align: PosAlign.left),
-      ),
-      PosColumn(
-        text: '- P ${transaction.transactionDetails.vatableSales}',
         width: 5,
         styles: PosStyles(align: PosAlign.right),
       ),
@@ -467,6 +469,18 @@ class VoidPrintService {
       ),
       PosColumn(
         text: '- P ${transaction.transactionDetails.change}',
+        width: 5,
+        styles: PosStyles(align: PosAlign.right),
+      ),
+    ]);
+    bytes += generator.row([
+      PosColumn(
+        text: 'VATable Sales:',
+        width: 7,
+        styles: PosStyles(align: PosAlign.left),
+      ),
+      PosColumn(
+        text: '- P ${transaction.transactionDetails.vatableSales}',
         width: 5,
         styles: PosStyles(align: PosAlign.right),
       ),
