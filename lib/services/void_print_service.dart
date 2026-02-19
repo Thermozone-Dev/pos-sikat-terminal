@@ -535,7 +535,11 @@ class VoidPrintService {
     ]);
     bytes += generator.feed(1);
     bytes += generator.text(
-      'THIS DOCUMENT IS NOT VALID FOR CLAIM OF INPUT TAX.',
+      'THIS DOCUMENT IS NOT VALID FOR',
+      styles: PosStyles(align: PosAlign.center),
+    );
+    bytes += generator.text(
+      'CLAIM OF INPUT TAX.',
       styles: PosStyles(align: PosAlign.center),
     );
     bytes += generator.feed(2);
