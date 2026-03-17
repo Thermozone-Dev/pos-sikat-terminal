@@ -364,7 +364,7 @@ class ReprintReceiptService {
         ),
         PosColumn(
           text:
-              'P ${(transaction.transactionDetails.grossSales + transaction.transactionDetails.vatAdjustments).toStringAsFixed(2)}',
+              'P ${transaction.transactionDetails.grossSales.toStringAsFixed(2)}',
           width: 5,
           styles: PosStyles(align: PosAlign.right),
         ),
@@ -393,7 +393,7 @@ class ReprintReceiptService {
         ),
         PosColumn(
           text:
-              'P ${transaction.transactionDetails.grossSales.toStringAsFixed(2)}',
+              'P ${(transaction.transactionDetails.grossSales - transaction.transactionDetails.vatAdjustments).toStringAsFixed(2)}',
           width: 5,
           styles: PosStyles(align: PosAlign.right),
         ),

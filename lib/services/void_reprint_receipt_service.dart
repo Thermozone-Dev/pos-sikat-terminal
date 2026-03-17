@@ -380,7 +380,7 @@ class ReprintVoidReceiptService {
         ),
         PosColumn(
           text:
-              '- P ${(double.parse(transaction.transactionDetails.grossSales.toString().replaceAll(',', '')) + double.parse(transaction.transactionDetails.vatAdjustments.toString().replaceAll(',', ''))).toStringAsFixed(2)}',
+              '- P ${double.parse(transaction.transactionDetails.grossSales.toString().replaceAll(',', '')).toStringAsFixed(2)}',
           width: 5,
           styles: PosStyles(align: PosAlign.right),
         ),
@@ -407,7 +407,8 @@ class ReprintVoidReceiptService {
           styles: PosStyles(align: PosAlign.left),
         ),
         PosColumn(
-          text: '- P ${transaction.transactionDetails.grossSales}',
+          text:
+              '- P ${(double.parse(transaction.transactionDetails.grossSales.toString().replaceAll(',', '')) - double.parse(transaction.transactionDetails.vatAdjustments.toString().replaceAll(',', ''))).toStringAsFixed(2)}',
           width: 5,
           styles: PosStyles(align: PosAlign.right),
         ),
