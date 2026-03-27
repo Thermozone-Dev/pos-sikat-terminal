@@ -10,6 +10,7 @@ import 'package:bir_pos/services/auth_service.dart';
 import 'package:bir_pos/services/server_connection_service.dart';
 import 'package:bir_pos/services/transaction_service.dart';
 import 'package:bir_pos/widgets/greeter.dart';
+import 'package:bir_pos/widgets/payment_method_form.dart';
 import 'package:bir_pos/widgets/total_change.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -525,6 +526,7 @@ class _TerminalState extends State<Terminal> {
             ),
           ),
           drawer: const MainDrawer(),
+          endDrawer: const PaymentDrawer(),
           backgroundColor: Colors.grey[300],
           body:
               isInitialized

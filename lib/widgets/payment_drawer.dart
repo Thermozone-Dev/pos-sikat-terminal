@@ -1,89 +1,27 @@
-import 'package:bir_pos/models/payment_method.dart';
-import 'package:bir_pos/widgets/terminal_menu_button.dart';
+import 'dart:convert';
+import 'dart:io';
+import 'package:bir_pos/services/lock_service.dart';
+import 'package:bir_pos/services/void_print_service.dart';
+import 'package:http/http.dart' as http;
+import 'package:bir_pos/models/void_transaction.dart';
+import 'package:bir_pos/models/xreading.dart';
+import 'package:bir_pos/models/zreading.dart';
+import 'package:bir_pos/services/general_report_service.dart';
+import 'package:bir_pos/services/general_summary_print_service.dart';
+import 'package:bir_pos/services/report_service.dart';
+import 'package:bir_pos/services/shift_service.dart';
+import 'package:bir_pos/services/summary_print_service.dart';
+import 'package:bir_pos/services/x_print_service.dart';
+import 'package:bir_pos/services/z_print_service.dart';
+import 'package:bir_pos/services/zreading_service.dart';
+import 'package:bir_pos/terminal.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../services/auth_service.dart';
+import 'package:bir_pos/services/xreading_service.dart';
 
-class PaymentMethodForm extends StatefulWidget {
-  final ValueChanged modalFunction;
-  final ValueChanged methodFunction;
-
-  final PaymentMethod method;
-  final String label;
-  final Color? color;
-  final Color? textColor;
-  final IconData? icon;
-  final bool isDigital;
-  final double total;
-
-  const PaymentMethodForm({
-    Key? key,
-    required this.modalFunction,
-    required this.methodFunction,
-    required this.method,
-    required this.label,
-    required this.color,
-    required this.textColor,
-    required this.isDigital,
-    required this.total,
-    this.icon,
-  }) : super(key: key);
-
-  @override
-  State<PaymentMethodForm> createState() => _PaymentMethodFormState();
-}
-
-class _PaymentMethodFormState extends State<PaymentMethodForm> {
-  @override
-  Widget build(BuildContext context) {
-    return TerminalMenuButton(
-      label: widget.label,
-      icon: widget.icon,
-      color: widget.color,
-      textColor: widget.textColor,
-      onTap: () {
-        PaymentDrawerController.open(
-          context,
-          isDigital: widget.isDigital,
-          modalFunction: widget.modalFunction,
-          methodFunction: widget.methodFunction,
-          method: widget.method,
-          total: widget.total,
-        );
-      },
-    );
-  }
-}
-
-/// ===============================
-/// DRAWER CONTROLLER
-/// ===============================
-class PaymentDrawerController {
-  static void open(
-    BuildContext context, {
-    required bool isDigital,
-    required Function modalFunction,
-    required Function methodFunction,
-    required dynamic method,
-    required double total,
-  }) {
-    final scaffoldState = Scaffold.maybeOf(context);
-
-    if (scaffoldState == null) return;
-
-    _PaymentDrawerState.data = {
-      "isDigital": isDigital,
-      "modalFunction": modalFunction,
-      "methodFunction": methodFunction,
-      "method": method,
-      "total": total,
-    };
-
-    scaffoldState.openEndDrawer();
-  }
-}
-
-/// ===============================
-/// DRAWER UI
-/// ===============================
 class PaymentDrawer extends StatefulWidget {
   const PaymentDrawer({super.key});
 
@@ -119,7 +57,7 @@ class _PaymentDrawerState extends State<PaymentDrawer> {
       width: 400,
       child: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.all(16),
           child: Column(
             children: [
               /// HEADER

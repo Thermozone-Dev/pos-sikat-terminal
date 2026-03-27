@@ -276,123 +276,94 @@ class TerminalActionButtons extends StatelessWidget {
               builder: (context) {
                 return Dialog(
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
+                    borderRadius: BorderRadius.circular(20),
                   ),
                   child: SizedBox(
-                    width: MediaQuery.of(context).size.width * 0.4,
+                    width: 420,
                     child: Padding(
                       padding: const EdgeInsets.all(20),
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
-                            "SELECT A DOCUMENT TO REPRINT",
-                            style: TextStyle(
-                              fontSize: 17,
-                              fontWeight: FontWeight.bold,
-                            ),
-                            textAlign: TextAlign.left,
+                          /// HEADER
+                          Row(
+                            children: const [
+                              Icon(Icons.print, size: 28),
+                              SizedBox(width: 10),
+                              Expanded(
+                                child: Text(
+                                  "Reprint Documents",
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
+
+                          const SizedBox(height: 6),
+
+                          const Align(
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                              "Select what you want to reprint",
+                              style: TextStyle(color: Colors.grey),
+                            ),
+                          ),
+
                           const SizedBox(height: 20),
 
-                          // Option 1
-                          ElevatedButton.icon(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.black87,
-                              foregroundColor: Colors.white,
-                              minimumSize: const Size.fromHeight(50),
-                              alignment: Alignment.centerLeft,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                            ),
-                            icon: const Icon(Icons.receipt_long),
-                            label: const Align(
-                              alignment: Alignment.centerLeft,
-                              child: Text("Reprint Receipt by Transaction ID"),
-                            ),
-                            onPressed: () => Navigator.pop(context, 1),
+                          /// OPTIONS
+                          _buildOption(
+                            context,
+                            icon: Icons.receipt_long,
+                            title: "Receipt",
+                            subtitle: "Reprint by Transaction ID",
+                            value: 1,
                           ),
-                          const SizedBox(height: 12),
 
-                          // Option 2
-                          ElevatedButton.icon(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.grey[200],
-                              foregroundColor: Colors.black87,
-                              minimumSize: const Size.fromHeight(50),
-                              alignment: Alignment.centerLeft,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                            ),
-                            icon: const Icon(Icons.receipt_long),
-                            label: const Align(
-                              alignment: Alignment.centerLeft,
-                              child: Text("Reprint Voided Receipt"),
-                            ),
-                            onPressed: () => Navigator.pop(context, 2),
+                          _buildOption(
+                            context,
+                            icon: Icons.cancel,
+                            title: "Voided Receipt",
+                            subtitle: "Reprint voided transactions",
+                            value: 2,
                           ),
-                          const SizedBox(height: 12),
 
-                          // Option 3
-                          ElevatedButton.icon(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.grey[200],
-                              foregroundColor: Colors.black87,
-                              minimumSize: const Size.fromHeight(50),
-                              alignment: Alignment.centerLeft,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                            ),
-                            icon: const Icon(Icons.receipt_long),
-                            label: const Align(
-                              alignment: Alignment.centerLeft,
-                              child: Text("Reprint X-Reading"),
-                            ),
-                            onPressed: () => Navigator.pop(context, 3),
+                          _buildOption(
+                            context,
+                            icon: Icons.bar_chart,
+                            title: "X-Reading",
+                            subtitle: "Daily cashier report",
+                            value: 3,
                           ),
-                          const SizedBox(height: 12),
 
-                          // Option 4
-                          ElevatedButton.icon(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.grey[200],
-                              foregroundColor: Colors.black87,
-                              minimumSize: const Size.fromHeight(50),
-                              alignment: Alignment.centerLeft,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                            ),
-                            icon: const Icon(Icons.receipt_long),
-                            label: const Align(
-                              alignment: Alignment.centerLeft,
-                              child: Text("Reprint Z-Reading"),
-                            ),
-                            onPressed: () => Navigator.pop(context, 4),
+                          _buildOption(
+                            context,
+                            icon: Icons.assessment,
+                            title: "Z-Reading",
+                            subtitle: "End-of-day report",
+                            value: 4,
                           ),
-                          const SizedBox(height: 12),
 
-                          // Option 5
-                          ElevatedButton.icon(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.grey[200],
-                              foregroundColor: Colors.black87,
-                              minimumSize: const Size.fromHeight(50),
-                              alignment: Alignment.centerLeft,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
+                          _buildOption(
+                            context,
+                            icon: Icons.summarize,
+                            title: "Z-Reading Summary",
+                            subtitle: "Date range summary",
+                            value: 5,
+                          ),
+
+                          const SizedBox(height: 10),
+
+                          /// CLOSE BUTTON
+                          Align(
+                            alignment: Alignment.centerRight,
+                            child: TextButton(
+                              onPressed: () => Navigator.pop(context),
+                              child: const Text("Close"),
                             ),
-                            icon: const Icon(Icons.receipt_long),
-                            label: const Align(
-                              alignment: Alignment.centerLeft,
-                              child: Text("Z-Reading Summary"),
-                            ),
-                            onPressed: () => Navigator.pop(context, 5),
                           ),
                         ],
                       ),
@@ -401,6 +372,8 @@ class TerminalActionButtons extends StatelessWidget {
                 );
               },
             );
+
+            /// ================= EXISTING LOGIC =================
 
             if (choice == 1) {
               final id = await showDialog<int>(
@@ -430,9 +403,6 @@ class TerminalActionButtons extends StatelessWidget {
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.black87,
                           foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
                         ),
                         onPressed: () {
                           final enteredId = int.tryParse(controller.text);
@@ -474,9 +444,6 @@ class TerminalActionButtons extends StatelessWidget {
                   final controller = TextEditingController();
 
                   return AlertDialog(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
                     title: const Text("Reprint by Void ID"),
                     content: TextField(
                       controller: controller,
@@ -492,13 +459,6 @@ class TerminalActionButtons extends StatelessWidget {
                         child: const Text("Cancel"),
                       ),
                       ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.black87,
-                          foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
                         onPressed: () {
                           final enteredId = int.tryParse(controller.text);
                           if (enteredId != null) {
@@ -536,8 +496,8 @@ class TerminalActionButtons extends StatelessWidget {
             } else if (choice == 3) {
               final service = XReadingReprintService();
 
-              // User ID Input
               final userIdController = TextEditingController();
+
               final userId = await showDialog<int>(
                 context: context,
                 builder: (context) {
@@ -550,7 +510,7 @@ class TerminalActionButtons extends StatelessWidget {
                     ),
                     actions: [
                       TextButton(
-                        onPressed: () => Navigator.pop(context), // Cancel
+                        onPressed: () => Navigator.pop(context),
                         child: const Text("Cancel"),
                       ),
                       ElevatedButton(
@@ -571,7 +531,6 @@ class TerminalActionButtons extends StatelessWidget {
 
               if (userId == null) return;
 
-              // Date Picker
               final pickedDate = await showDatePicker(
                 context: context,
                 initialDate: DateTime.now(),
@@ -592,68 +551,58 @@ class TerminalActionButtons extends StatelessWidget {
                 },
               );
 
-              if (pickedDate != null) {
-                final formattedDate =
-                    "${pickedDate.year.toString().padLeft(4, '0')}-"
-                    "${pickedDate.month.toString().padLeft(2, '0')}-"
-                    "${pickedDate.day.toString().padLeft(2, '0')}";
+              if (pickedDate == null) return;
 
-                try {
-                  // Fetch the X-Reading reprint
-                  final report = await service.fetchXReadingReprint(
-                    userId: userId,
-                    date: formattedDate,
+              final formattedDate =
+                  "${pickedDate.year.toString().padLeft(4, '0')}-"
+                  "${pickedDate.month.toString().padLeft(2, '0')}-"
+                  "${pickedDate.day.toString().padLeft(2, '0')}";
+
+              try {
+                final report = await service.fetchXReadingReprint(
+                  userId: userId,
+                  date: formattedDate,
+                );
+
+                if (report != null) {
+                  final reprintService = XReadingReceiptReprintService();
+                  await reprintService.printReceipt(xReading: report);
+
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        "X-Reading reprint for $formattedDate printed successfully!",
+                      ),
+                    ),
                   );
-
-                  if (report != null) {
-                    print("X-Reading Reprint Fetched:");
-                    print("User ID: $userId");
-                    print("Report Date: ${report.reportDate}");
-                    print("Report Time: ${report.reportTime}");
-                    print("Cashier: ${report.cashierName}");
-                    print("Total Payments: ${report.totalPayments}");
-
-                    // ✅ Print the report automatically
-                    final reprintService = XReadingReceiptReprintService();
-                    await reprintService.printReceipt(xReading: report);
-
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                          "X-Reading reprint for $formattedDate fetched and printed successfully!",
-                        ),
-                      ),
-                    );
-                  } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text("No X-Reading found for $formattedDate"),
-                      ),
-                    );
-                  }
-                } catch (e) {
-                  ScaffoldMessenger.of(
-                    context,
-                  ).showSnackBar(SnackBar(content: Text("Error: $e")));
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text("No X-Reading found for $formattedDate"),
+                    ),
+                  );
                 }
+              } catch (e) {
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(SnackBar(content: Text("Error: $e")));
               }
             } else if (choice == 4) {
               final service = ZReadingReprintService();
               final printerService = ZReadingReprintPrintService();
 
-              // Show a date picker
               final pickedDate = await showDatePicker(
                 context: context,
                 initialDate: DateTime.now(),
-                firstDate: DateTime(2020), // earliest selectable date
-                lastDate: DateTime(2100), // latest selectable date
+                firstDate: DateTime(2020),
+                lastDate: DateTime(2100),
                 builder: (context, child) {
                   return Theme(
                     data: Theme.of(context).copyWith(
-                      colorScheme: ColorScheme.light(
-                        primary: Colors.black87, // header & selected date color
-                        onPrimary: Colors.white, // text color on primary
-                        onSurface: Colors.black, // default text color
+                      colorScheme: const ColorScheme.light(
+                        primary: Colors.black87,
+                        onPrimary: Colors.white,
+                        onSurface: Colors.black,
                       ),
                       dialogBackgroundColor: Colors.white,
                     ),
@@ -662,49 +611,45 @@ class TerminalActionButtons extends StatelessWidget {
                 },
               );
 
-              if (pickedDate != null) {
-                // Format into YYYY-MM-DD for API
-                final formattedDate =
-                    "${pickedDate.year.toString().padLeft(4, '0')}-"
-                    "${pickedDate.month.toString().padLeft(2, '0')}-"
-                    "${pickedDate.day.toString().padLeft(2, '0')}";
+              if (pickedDate == null) return;
 
-                try {
-                  final report = await service.fetchReprint(formattedDate);
+              final formattedDate =
+                  "${pickedDate.year.toString().padLeft(4, '0')}-"
+                  "${pickedDate.month.toString().padLeft(2, '0')}-"
+                  "${pickedDate.day.toString().padLeft(2, '0')}";
 
-                  if (report != null) {
-                    print("Report Date: ${report.reportDate}");
-                    print("Net Amount: ${report.netAmount}");
+              try {
+                final report = await service.fetchReprint(formattedDate);
 
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                          "Reprint for $formattedDate fetched successfully!",
-                        ),
+                if (report != null) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        "Reprint for $formattedDate fetched successfully!",
                       ),
-                    );
+                    ),
+                  );
 
-                    await printerService.printReceipt(zReading: report);
+                  await printerService.printReceipt(zReading: report);
 
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text(
-                          "Z-Reading reprint sent to printer successfully!",
-                        ),
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text(
+                        "Z-Reading reprint sent to printer successfully!",
                       ),
-                    );
-                  } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text("No Z-Reading found for $formattedDate"),
-                      ),
-                    );
-                  }
-                } catch (e) {
-                  ScaffoldMessenger.of(
-                    context,
-                  ).showSnackBar(SnackBar(content: Text("Error: $e")));
+                    ),
+                  );
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text("No Z-Reading found for $formattedDate"),
+                    ),
+                  );
                 }
+              } catch (e) {
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(SnackBar(content: Text("Error: $e")));
               }
             } else if (choice == 5) {
               final pickedDateFrom = await showDatePicker(
@@ -724,7 +669,7 @@ class TerminalActionButtons extends StatelessWidget {
                 },
               );
 
-              if (pickedDateFrom == null) return; // user cancelled
+              if (pickedDateFrom == null) return;
 
               final pickedDateTo = await showDatePicker(
                 context: context,
@@ -745,34 +690,28 @@ class TerminalActionButtons extends StatelessWidget {
 
               if (pickedDateTo == null) return;
 
-              // Format to yyyy-MM-dd (or whatever your API expects)
               final dateFrom = DateFormat('yyyy-MM-dd').format(pickedDateFrom);
               final dateTo = DateFormat('yyyy-MM-dd').format(pickedDateTo);
 
               try {
-                // 🔹 Call API service
                 final service = ZReadingReprintService();
                 final summary = await service.fetchSummary(dateFrom, dateTo);
 
                 if (summary != null) {
-                  // 🔹 Print the receipt
                   final printService = ZReadingSummaryPrintService();
                   await printService.printReceipt(zReading: summary);
 
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
-                      content: Text("✅ Z-Reading Summary printed successfully"),
+                      content: Text("Z-Reading Summary printed successfully"),
                     ),
                   );
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text("⚠️ No Z-Reading Summary found"),
-                    ),
+                    const SnackBar(content: Text("No Z-Reading Summary found")),
                   );
                 }
               } catch (e) {
-                print("❌ Error fetching/printing summary: $e");
                 ScaffoldMessenger.of(
                   context,
                 ).showSnackBar(SnackBar(content: Text("Error: $e")));
@@ -783,6 +722,7 @@ class TerminalActionButtons extends StatelessWidget {
               );
             }
           },
+
           style: ElevatedButton.styleFrom(
             backgroundColor: Colors.grey[300],
             foregroundColor: Colors.black,
@@ -791,6 +731,7 @@ class TerminalActionButtons extends StatelessWidget {
             ),
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
           ),
+
           child: const Text(
             "Reprint a Document",
             style: TextStyle(fontSize: 14),
@@ -810,6 +751,59 @@ class TerminalActionButtons extends StatelessWidget {
         //   child: const Text('Claim Stub'),
         // ),
       ],
+    );
+  }
+
+  Widget _buildOption(
+    BuildContext context, {
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required int value,
+  }) {
+    return InkWell(
+      borderRadius: BorderRadius.circular(14),
+      onTap: () => Navigator.pop(context, value),
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: Colors.grey.shade300),
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: Colors.grey.shade200,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Icon(icon, size: 22),
+            ),
+            const SizedBox(width: 12),
+
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    subtitle,
+                    style: const TextStyle(color: Colors.grey, fontSize: 12),
+                  ),
+                ],
+              ),
+            ),
+
+            const Icon(Icons.chevron_right, color: Colors.grey),
+          ],
+        ),
+      ),
     );
   }
 }
